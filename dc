@@ -1,0 +1,614 @@
+Shopify Global Accounts Business Review 
+BIDS Build Guide & Operating Requirements
+Strategic Alignment - CARL
+The Shopify Global Accounts in TaskUs will be governed through a four-pillar strategic framework–CARL–aligned with TaskUs core values and Shopify’s operating principles. 
+
+CARL translates shared expectations around excellence, ownership, people, adaptability, merchant focus, continuous improvement and innovation into a practical governance system for how we measure performance, make decisions, execute actions, and institutionalize what works. 
+CONSISTENT
+Deliver excellence reliably through disciplined standards and execution.
+Business Signals:
+Performance: Exceeds expectations and leads the vendor network. All sites MUST occupy the top 4 spots in ALL measured business outcomes. 
+Quality: Delivers world class quality interactions that delight merchants. Minimal to zero instances of critical errors, ZTPs, and security incidents. 
+Execution: Operates critically on routines. Standards and systems are followed reliably and consistently. 
+Variation: Reduces unexplained performance variations. 
+Client Confidence: Delivers commitments and results predictably. 
+
+Governance question: Can we consistently deliver the standards we expect?
+ACCOUNTABLE
+Own outcomes, follow through on commitments, and surface risks early.
+Business Signals:
+Ownership: Every material gap and action has a clear owner.
+Execution: Commitments and milestones are delivered on time. 
+Action Effectiveness: Actions demonstrate observable impact.
+Escalation: Risks are surfaced early and managed at the right level. 
+Governance: Decisions, actions, and outcomes are visible and traceable. 
+
+Governance question: Are we taking ownership of what the business needs? 
+RESILIENT
+Protect our people and capacity while adapting quickly to change.
+Business Signals:
+People Health: Attrition, shrinkage, sentiment and capability remain healthy. 
+Capacity: Staffing and operational capacity can absorb demand and change.
+Risk: Compliance, security, and operational risks are controlled.
+Adaptability: Teams respond effectively to changes in volume, process, product, and policy. 
+Recovery: Performance recovers quickly following disruption. 
+
+Governance question: Can the team absorb change and continue to perform? 
+LOCKED-IN
+Turn proven improvements into sustainable, scalable ways of working. 
+Business Signals:
+Standardization: Proven practices become repeatable ways of working.
+Replication: Successful practices move across LOBs, sites, and teams. 
+Sustainability: Improvements remain after the initial intervention. 
+Efficiency: Better processes reduce friction, waste, and unnecessary effort. 
+Institutionalization: Knowledge, tools, routines, and capabilities become embedded. 
+
+Governance question: Are we turning what works into how we operate?
+
+CARL is not a scorecard BUT a governance lens through which the entire global account is led. 
+Purpose
+The business review is a single source of truth for the account. 
+
+One deck must support:
+Enterprise/C-suite review
+Executive/LOB review
+Global review
+Site review
+Operational review
+TL execution discussions
+
+The deck must allow leaders to move from: 
+
+RESULT → VARIATION → DRIVER → ACTION → EFFECT → TRAJECTORY
+
+The deck is not intended to make leaders read data aloud. 
+
+Every slide MUST be understandable without the presenter. 
+The Standard Slide Test
+Every slide must pass three levels of comprehension
+3-second Test
+Looking only at the headline: Do I understand what happened?
+30-second Test
+Looking at the headline + visual: Do I understand why it happened and where?
+3-Minute Test
+Reading the supporting detail: Do I understand what we are doing and whether it is working?
+
+If the answer to any of these questions is no, the slide needs to be redesigned. 
+The Standard Slide Anatomy
+Every analytical slide should contain four elements
+Headline
+A conclusion, not a topic
+
+Do not write: CSAT Performance
+
+Write: CSAT recovery is accelerating following the coaching intervention, but remains below quarterly target. 
+Evidence
+The chart, table, or visualization that proves the headline. 
+SO, WHAT
+One concise statement explaining the business implication. 
+ACTION
+What is being done, adjusted, continued, or escalated. 
+
+Narrative should generally be limited to 1 headline + 2-3 supporting points. Avoid paragraphs. 
+Final Deck Structure
+SECTION 1 - Enterprise Executive Summary
+Purpose
+The single pre-read for the entire business
+Required content: Business Trajectory
+One sentence describing overall state of the business, then three blocks
+Success Markers
+3-5 material improvements
+Areas of Focus
+3-5 material concerns
+Key Signals
+Important emerging signals from:
+BIDS
+WFM
+Quality
+Training
+Change Management
+TAM
+
+Then a compact trajectory view for: 
+QUARTER | MONTH | WEEK
+Leadership Attention Required
+Only include items requiring:
+Decision
+Escalation
+Resource
+Cross-functional intervention
+Executive awareness
+
+Guiding question: What are the 3-5 things an executive should absolutely need to know this week? Do not simply populate this slide with the largest numerical movements. 
+SECTION 2 - LOB Executive Summary
+Create one for each LOB
+MS Core
+Premium
+Plus
+Retail
+Tier 2
+App Review
+Required Structure: LOB Headline
+One sentence describing the current trajectory. 
+KPI Trajectory
+Show: 
+KPI
+Quarter
+Month
+Week
+Trajectory
+
+What’s working:
+What interventions or operating behavior/s is/are producing improvements?
+What’s not working:
+Where is the deterioration or persistent variation?
+What’s next?
+What is the most important action?
+Ask the SOM of the LOB/Site the following:
+What changed this week that materially affects your LOB trajectory? 
+What are you most confident is working?
+What are you least confident about?
+What needs leadership attention?
+SECTION 3 - KPI Trajectory
+The purpose is not simply to display KPI performance. It MUST explain the movement over time. 
+Required View:
+Use a 13-week rolling trend with:
+Actuals
+Target
+Major intervention markers - Is an action deliberately taken by the business that was substantial enough that we would reasonably expect it to influence the KPI. It is not every action in the log.
+Examples:
+New coaching methodology launched
+Major process change
+New QA rubric
+Targeted performance interventions
+Contact-routing change
+Major policy update
+Test question: Would we reasonably expect this intervention to change the KPI or its trajectory? If yes, mark it. If it’s a BAU activity like coaching or outlier management, don’t mark it. 
+Material change markers - Is something that changed in the operating environment that wasn’t necessarily intended to improve the KPI
+Examples:
+Major policy change
+Product/process change
+New contact reason introduced
+Significant contact mix change or channel mix
+System/tool release
+Major staffing composition change (new hire increase, mass removals of bottom performers etc.)
+Significant volume change (concurrency change)
+Organizational change
+External event affecting contact volume
+Key distinction:
+Intervention - we changed something to influence performance
+Material - Something changed in the environment that influenced performance
+Important inflection points - Is when a KPI trajectory meaningfully changes direction or rate of movement. This is an observed performance event rather than something that was done.
+Example: Smiley declines steadily for 6 weeks → begins improving rapidly in Week 8. 
+
+Week 8 is an inflection point. 
+
+The BIDS team will then ask, What happened around week 8? 
+
+This is where the analytical story begins. 
+The Three Together
+The important part is that they don’t automatically imply causation. If an intervention happened in Week 8 and the KPI improved in Week 9, the deck should show both events but shouldn’t automatically say the intervention caused the improvement. 
+
+Sample table:
+Week
+Smiley
+Event Type
+Event
+Magnitude
+Relationship
+Link To Evidence
+Treatment
+W-8
+77.2%
+Material change
+SPP volume increase
+-
+Potential
+
+
+Monitor
+W-7
+77.1%
+KPI Event
+Sustained Decline
+-120 bps
+Unknown
+
+
+Investigate
+W-6
+78.3%
+Inflection point
+Accelerated decline
+-90 bps
+-
+
+
+Investigate
+W-5
+79.2%
+Intervention
+Targeted coaching
+-
+Likely
+
+
+Monitor
+W-3
+79.1%
+-
+Sustained recovery
++110 bps
+Likely
+
+
+Validate
+W-1
+78.3%
+Inflection point
+Accelerated recovery
++130 bps
+Confirmed
+
+
+Scale
+
+
+Tips for BIDS: The analytical sequence should be:
+
+Inflection point → What changed? → What intervention occurred → What other factors moved → What evidence supports the relationship? → Is the movement sustained?
+
+This slide should be more than a trend chart. It is a bridge between performance data and causal business story telling. 
+Continued Guidance For Slide 3
+Relationship to KPI
+This field answers: How strongly can we connect the event to the KPI movement? 
+
+Classification
+Definition
+When to Use
+Confirmed
+Strong evidence that the event materially influenced the KPI
+Timing, direction, mechanism and supporting data align; ideally validated by more than one source
+Likely
+Evidence strongly suggests the event influenced the KPI, but attribution is not fully proven
+Event aligns with timing/direction and there is supporting operational evidence
+Potential
+Event could reasonably influence the KPI, but evidence is insufficient
+Logical connection exists, but KPI movement is too early, mixed, or confounded
+Unrelated
+Evidence indicates the event did not materially influence the KPI
+KPI moved independently or another driver explains the movement
+Unknown
+Relationship cannot currently be determined
+Insufficient data/evidence
+
+
+Important Rule: Do not use “Confirmed” simply because the event happened before the KPI moved. BIDS must look for:
+		Timing + Direction + Mechanism + Evidence
+
+Bad Example: QA, calibration launched → Quality Improves. 
+
+Great Example: QA calibration on Context Gathering was launched in W-8 → Targeted markdown rate falls 22% in W-9 → 5 Target squads received the calibration → Context gathering improved 6.4% → Improvement was sustained in W-10 with an impact to overall QA score of 1.4%
+
+Now, “Confirmed” becomes defensible. 
+Event
+A measurable performance movement or operating change that is large enough, unusual enough, or consequential enough to warrant investigation or documentation. 
+This is critical because not every change in the KPI is an event. 
+
+Example: Smiley moved from 80.1% → 80.3% → 80% → 80.2% should normally not generate four event markers. 
+Recommended BPS Standard
+
+For percentage based KPIs, use this guide: 
+
+WoW Movement
+Classification
+Slide Treatment
+<50 bps
+Normal variation
+No event marker
+50-99 bps
+Signal candidate
+Investigate if unusual or repeated
+100-199 bps
+Material event
+Event marker; investigate & take action
+>200 bps
+Major event
+Prominent marker + narrative + red alert
+
+Why 100 bps?
+100 bps = 1.0 percentage point
+
+For an 80% Smiley target:
+79.9 → 19.7 = -20 bps → probably noise
+80.0 → 79.5 = -50 bps → signal candidate
+80.0 → 79.0 = -100 bps → material event
+80.0 → 78.0 = -200 bps → major event
+Caveat: 
+Don’t use BPS alone. A fixed 100 bps threshold should be the default screening rule, not an absolute statistical truth. An event should also be considered material when it meets one of these conditions: 
+Magnitude
+>100 bps WOW
+Persistence
+>50 bps in the same direction for 2+ consecutive weeks. 
+Example: -60 bps → -70 bps → -80 bps
+Unusual Movement
+The movement is materially outside the KPI’s normal historical variation. 
+Example: A KPI normally moves +20 bps but suddenly moves -80 bps, that’s meaningful even though it hasn’t crossed 100 bps. 
+Business Consequence
+The movement is below the numerical threshold but creates meaningful business impact 
+Example: Shopify Payment Payouts declines by only -40 bps but the taxonomy volume for this week was up by 2000+ tickets. This could be operationally material. 
+Target/Threshold Breach
+The movement causes the KPI to:
+Cross below target
+Cross above a risk threshold
+Enter a defined performance band (penalty zone)
+SECTION 4 - Variation Management
+This is a core slide. The objective is to move beyond averages. The team must show: 
+Who moved?
+How much?
+In What direction?
+Where is the variation concentrated? 
+
+Note: We already have this in the White Paper. We just need to ensure it is condensed and formatted to visually capture the variations. Tie this to the new PACE model that we are also working on. 
+SECTION 5 - Contact, Experience & Complexity Drivers:
+This primarily powered by BIDS & QA with input from Operations
+
+The slide MUST answer: What is causing the KPI movement? 
+
+Standard chain:
+
+TAXONOMY → VOLUME MIX → COMPLEXITY → EXPERIENCE → KPI IMPACT
+
+Example: Escalation on Account Log-in contact increased by 8% across 2K+ reviewed frownies as merchants complained not receiving password rest links after 48 hours of request. 
+Smiley impact = -120 bps
+Recontact = 63% of reviewed surveys showed recontact within 48 hours
+Live Assist Takeovers = Increased by 15%
+
+
+BIDS INPUT
+QA INPUT
+OPERATIONS INPUT
+Major Contact Drivers
+Emerging Drivers
+Volume Changes
+Channel Mix
+Signal vs Noise
+Driver-to-KPI relationships
+Material changes versus prior periods
+Complexity Indicators
+Quality score movements
+Critical defects
+Process/behavior themes
+Merchant journey findings
+Recurring failure points
+Evidence supporting/challenging the operational narrative
+What advisors are experiencing
+What changed operationally
+Whether the observed driver is consistent with frontline experience
+Examples of execution behavior
+
+
+BIDS Requirement: Do not allow this slide to become a list of contact drivers. The output MUST explain which drivers matter to the business and why. 
+
+SECTION 6 - Business Enablers & Constraints
+This is the integrated Service Delivery view. Don’t create four disconnected functional reports. 
+
+The question is: How are WFM, Quality, and Training influencing the business trajectory?
+WFM Input
+BIDS should ask WFM for:
+
+Historical
+Actual Hours
+Interval Compliance
+Shrinkage
+Attrition
+Adherence
+Utilization/Productivity where applicable
+
+Forward Looking
+Staffing outlook
+Classes booked in the horizon
+Upcoming capacity constraints
+
+Required Narrative: WFM should be able to identify what capacity condition materially explains current or future state of KPI movements? 
+
+Example: 
+Pre-commerce to General will move by 30%; approximately 45 advisors between MTQ and HTW on W-9 which is in 4 weeks. Incubators are encouraged to plan ahead by utilizing TaskUs training auxes to drive upskilling sessions. 
+Holiday in PH is forecasted to drive 5% higher shrinkage on W-12. Operations are directed to facilitate clawbacks otherwise concurrency will be set to 3 and this will potentially impact ticket quality. 
+Quality Input
+BIDS should ask QA for: 
+
+Performance:
+Quality score
+PACE to target
+Trends
+Long-standing behavioral trends
+Emerging trends
+Hygiene movements
+Critical errors
+ZTPs
+
+Experience
+Merchant journey themes
+Complexity Category
+General Inquiry
+Service Request
+Technical Issue
+Complaints
+Escalation/Follow-up
+Recurring failure points
+Process-specific concerns
+
+Validation: Does QA evidence support the operational story? 
+
+Example: When Ops says, “Smiley decline is caused by uncontrollable policy-bound blockers” QA should help validate whether interaction behavior and process execution support that hypothesis. 
+
+Training Input
+BIDS should ask Training for: 
+
+New Hire
+Pipeline view of NH and their projected milestone (CVQ, PST, Pre-commerce, Incubation)
+Throughout
+Attrition in stages of training
+Graduation
+Ramp status
+
+Existing Advisors
+Continuing education - All LX initiatives that help drive skill development
+Mandatory courses
+Completion rates
+Sponsored Targeted Interventions
+
+Training Needs
+Curriculum Assessment
+Profile Review
+
+Business Connection: LX must identify: Is capability/readiness contributing to the performance movement? Based on the current trajectory of new hire classes how will NH impact the business and which weeks will they impact and which sites? 
+
+Example: Wave 186 throughput is projected to be at 100% however baseline scores are just within lower control limits. 90% of the population sits at 75% smileys against the certification target of 73% while the positive outliers only deliver 77%. This wave will neutralize MTQ by -340 bps when the batch gets endorsed to production on W-10. This wave is challenged with money topics which comprises 60% of their smiley drivers. Learning packets and behavioral markers are readily available for Operations to pick-up once the wave is endorsed. 
+SECTION 7 - Change Management Register
+This slide will be primarily for documentation. Not every change requires discussion. 
+
+
+Change
+LOB/Site
+Effective Date
+Status
+Expected Impact
+Observed Impact
+KPI Link
+Change Champion
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Status
+Planned
+Implementing
+Monitoring
+Validated
+Closed
+
+Impact
+None
+Emerging
+Confirmed
+
+Change Champions must provide
+What changed
+Where
+When
+Why
+Expected business impact
+Current status
+Evidence
+KPI potentially affected
+
+Important rule: If a change has a material impact, BIDS should reference it on the relevant KPI/LOB slide. The change register remains the documentation source. 
+
+SECTION 8 - Action Effectiveness
+Existing LOB/site action logs must become part of the business story. The format you worked on for the SLT is already working; we just need to refine the effectiveness status. 
+
+Every action should eventually receive an effectiveness status: 
+
+Effective Status
+Definition
+Validated
+Clear evidence of desired impact
+Partially Effective
+Some movement, but insufficient or inconsistent
+No Observable Effect
+Completed but no meaningful movement identified
+Insufficient Evidence
+Too early or insufficient data to determine impact
+
+
+
+Every action in the log MUST be evaluated by Operations using the following guiding questions with an explanation. 
+Status of the action
+Ongoing 
+Completed - What changed after completion? 
+Which behavior markers moved? 
+Which KPI moved?
+Did the movement meet expectations?
+Is the effect sustained? 
+Should we & why?
+Continue
+Stop
+Adjust
+Scale
+Delayed - What caused the delay? When is the adjusted completion date?
+
+SECTION 9 - Forward Plans & Decisions Required
+Every site should have this as on their slides. All input MUST be consolidated for global view. 
+
+
+Continue
+Adjust
+Scale Globally
+Intervention
+Decisions/Support Required
+Actions that are effective and should remain in-place locally
+Actions that are producing partial/no impact and needed modification
+Local practices that have demonstrated sufficient evidence to be replicated across LOBs/sites
+Issues requiring a new intervention or leadership involvement
+Executive decisions, resources, policy changes, or cross-functional support
+
+
+Global Scalability Governance
+A local action should only be recommended for global scaling when it meets the following principles. BIDS, QA, Training, Client Services and the Global Accounts Lead are the governing team responsible for deciding that a local action will be globally scaled. 
+Proven Impact:
+There is measurable improvement on the intended KPI or business outcome. There is enough evidence to distinguish the practice from concidence or unrelated environmental changes. 
+
+	Action → measurable movement → sustained effect
+Repeatability
+The result isn’t dependent on one exceptional leader, team, or individual. The practice can be reasonably reproduced elsewhere. 
+Transferability
+The practice can work across different
+LOBs
+Sites
+Channel
+Tenure populations
+Operating environments
+
+Or, a clearly defined adaptation is required. 
+Sustainability
+The improvement survives beyond the initial intervention period. Avoid scaling something that worked for one week. 
+Low Risk
+The practice does not introduce unacceptable:
+Compliance risks
+Security risks
+Merchant experience risks
+People risks
+Operational instability
+
+Scale Decision Matrix
+Evidence
+Recommendation
+High impact + high repeatability
+Scale globally
+High impact + Requires adoption
+Pilot in additional site/team LOB
+Promising but insufficient evidence
+Continue monitoring
+No measurable impact
+Do not scale
+Negative/material risk
+Stope/Reassess
+
+
+
+
