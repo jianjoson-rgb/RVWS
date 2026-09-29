@@ -1,1 +1,818 @@
+QUICK NOTES
 
+Weekly business review metrics evaluated via automated reporting and structured operational thresholds.
+
+Business review SOP and WBR deck structure
+The BR deck encompasses all LOBs and summarizes performance views, site components, and score variations.
+The structure incorporates what's so what and what's next analyses across all WBR instances.
+Storytelling elements remain consistent while underlying content adapts to variable operational trends.
+
+Week-on-week basis point magnitude and alert thresholds
+Movements under 50 bps are classified as normal variations requiring no specific callout.
+Movements from 50 bps to 99 bps serve as amber alert signal candidates for monitoring.
+Events ranging from 100 bps to 199 bps trigger formal investigations and immediate operational actions.
+Fluctuations exceeding 200 bps require direct involvement from directors and client services.
+Negative movements of at least 50 bps across 2 consecutive weeks trigger operational alarms.
+
+AHT, concurrency, and operational environment analysis
+Historical data establishes normal deviations for AHT measurements without applying direct basis point targets.
+Concurrency upper and lower control limits signal abnormal operational overwhelm in the environment.
+Tenure mix changes like onboarding new hires impact performance metrics through expected learning curves.
+Capacity plans forecast new hire influxes to anticipate performance downturns and prevent client surprises.
+
+Action item effectiveness and scalability framework
+Action registry evaluations categorize operational interventions by effectiveness, including validated, partially effective, or insufficient evidence.
+Global scalability requires proven high impact, high repeatability, transferability, sustainability, and low risk.
+Local accountability maintains independent internal trackers to review action effectiveness before client sharing.
+
+Salesforce P0 escalation and governance workflow
+Salesforce P0 escalations automatically notify DVPs regarding unresolved operational performance issues.
+Sites placed on P0 escalations participate in weekly ad hoc governance meetings to align on next steps.
+
+New hire performance forecasting and signal analysis
+Carl emphasized using 13-week data to forecast business trends and distinguish signals from noise.
+New hire performance dips matching expected proficiency trajectories require no direct operational intervention.
+
+Business review framework and presentation standards
+The WBR framework establishes structured operational direction and eliminates analysis paralysis across teams.
+Presentation decks must satisfy standard 3-second, 30-second, and 3-minute executive review tests.
+
+Organizational role alignment and stakeholder management
+Christine transitioned toward strategic stakeholder management and executive-level director engagement.
+System builds, reporting architecture, and publishing responsibilities align under Jian ownership.
+Periodic data sanity checks require direct coordination with VMs.
+
+Next steps
+[Jian] Create Automation: Build an automated generation process for the Business Review document by the end of this week.
+[Jian] Configure Script: Modify the automation script logic to flag specific basis point movements week-over-week.
+[Wes] Implement Registry: Set up the action registry measurement system to audit and evaluate the effectiveness of operational actions.
+[Wes, Carl] Develop Filter: Partner to create a system for forecasting and filtering the impact of action items prior to logging.
+[Wes] Review Action Plans: Return items for revision if they lack measurable baselines or clear definitions of success.
+[Carl] Implement Escalation Path: Implement the escalation path using Salesforce P0 for site performance issues to notify DVP level leadership.
+[Carl] Grant Access: Grant Wes access to the Salesforce P0 escalation process.
+[Carl] Initiate Governance Meetings: Initiate regular governance meetings for sites on P0 escalation to clarify actions, milestones, and next steps.
+[Jian] Build Presentation: Build a presentation deck for the business review, focusing on functionality, story, and the 3 second, 30 second, and 3 minute test standards.
+[Tin] Manage Stakeholders: Engage operations directors to ensure the team is using the delivered reporting and properly measuring performance baselines.
+[Tin, Wes] Data Sanity Check: Coordinate with the VMs periodically to perform data sanity checks and build professional relationships.
+
+
+FULL NOTES
+
+Sep 29, 2026
+Analytics Exercises
+Invited Carl Salii Christine Pinza Jian Joson Al Wesley Saclayan Paulene Isabela De Los Reyes
+Attachments Analytics Exercises
+Meeting records Transcript 
+
+
+Summary
+Weekly business review metrics evaluated via automated reporting and structured operational thresholds.
+
+Weekly Business Review Metrics
+Weekly business review deck evaluated performance across lines. Automation script proposed for report generation.
+
+Metric Thresholds and Escalations
+Metric changes defined by specific basis point movements. Salesforce P0 escalations established for governance.
+
+Operational Restructuring and Alignment
+Responsibilities restructured between team members for strategic focus. Slide deck layout prioritized function for leadership.
+
+
+Decisions
+Aligned
+Independent action logging without pre-filtering The group agreed against pre-filtering action plans before logging, choosing instead to maintain independent trackers and use unvalidated actions as teachable moments for directors.
+Deck creation and visualization approach Jian will draft the initial deck structure focusing on function and story rather than aesthetics, and use Gemini to generate visual concepts for the discussion.
+
+
+Next steps
+[Jian] Create Automation: Build an automated generation process for the Business Review document by the end of this week.
+[Jian] Configure Script: Modify the automation script logic to flag specific basis point movements week-over-week.
+[Wes] Implement Registry: Set up the action registry measurement system to audit and evaluate the effectiveness of operational actions.
+[Wes, Carl] Develop Filter: Partner to create a system for forecasting and filtering the impact of action items prior to logging.
+[Wes] Review Action Plans: Return items for revision if they lack measurable baselines or clear definitions of success.
+[Carl] Implement Escalation Path: Implement the escalation path using Salesforce P0 for site performance issues to notify DVP level leadership.
+[Carl] Grant Access: Grant Wes access to the Salesforce P0 escalation process.
+[Carl] Initiate Governance Meetings: Initiate regular governance meetings for sites on P0 escalation to clarify actions, milestones, and next steps.
+[Jian] Build Presentation: Build a presentation deck for the business review, focusing on functionality, story, and the 3 second, 30 second, and 3 minute test standards.
+[Tin] Manage Stakeholders: Engage operations directors to ensure the team is using the delivered reporting and properly measuring performance baselines.
+[Tin, Wes] Data Sanity Check: Coordinate with the VMs periodically to perform data sanity checks and build professional relationships.
+
+
+Details
+VPN Constraints and Meeting Kickoff: The meeting opened with participants discussing bandwidth issues and virtual private network (VPN) limitations, where Tin noted that the VPN allows meeting access but restricts email and chat capabilities (00:00:01). Carl transitioned the discussion to review the business review standard operating procedure (SOP) they created, proposing a teach-back format where participants teach back their learnings from the reviewed document (00:01:05).
+WBR Deck Structure and Business Signals: Following Carl's prompt for a teach-back, Tin summarized the all-encompassing Weekly Business Review (WBR) deck, explaining that it covers all lines of business, identifies areas needing focus over weekly or monthly periods, utilizes white paper business signals, and highlights high-level performance views alongside per-site components and variations (00:02:21).
+Automation Script Development for WBR: Building on the WBR document summary, Jian proposed building an automation script to generate the report by Thursday or Friday of the week while incorporating the document's logic, noting that manual generation by business intelligence developers on Mondays is tedious (00:05:44).
+Week-on-Week Changes and Magnitude Thresholds: Carl and Tin discussed week-on-week metric changes, where Carl explained that material changes are defined by specific basis point movements (where 1 point equals 100 basis points) and require isolating whether a decline is a new normal or an isolated event (00:07:23). Carl detailed specific magnitude thresholds for percentage KPIs: movements under 50 basis points are normal variations requiring no callout, 50 to 99 basis points serve as Amber Alert signal candidates, 1 to 1.99 percentage points require urgent investigation led by Wes, and movements over 200 basis points involve directors and client services (00:11:51).
+Persistence and Action Urgency in Metrics: Carl explained how to handle metric persistence, noting that consecutive negative movements totaling at least 50 basis points over multiple weeks should be treated as signals requiring immediate team alignment, with Jian sounding the alarm and Wes driving the investigation and intervention (00:15:59).
+AHT Guidance, Metrics Correlation, and Deviations: Addressing Tin's concern regarding hard volume and Average Handle Time (AHT) metrics, Carl advised using statistically sound historical data to establish normal deviations for AHT without applying basis points directly (00:17:25). While acknowledging the correlation between AHT and customer satisfaction ("smiley"), Carl noted that causation must still be proven, leading to a consensus that AHT will receive rehabilitative, isolated studies rather than rigorous performance improvement plan sprints until quality behavior markers are fully established in the first quarter (00:20:15).
+Concurrency, Volume, and Environmental Assessment: Carl explained that volume is not heavily relied upon because workforce management shifts personnel, directing participants instead to use actual concurrency, application usage, and AHT standard deviations to spot abnormal spikes indicating environmental overwhelm (00:23:01). Carl and Tin outlined the operational assessment process for environment changes, determining whether busyness is caused by absenteeism or client-induced ticket elevations, concluding that operations must fix the environment rather than creating new customer satisfaction action plans when concurrency spikes (00:24:38).
+Operational Scenario Analysis on Performance Dips: During a scenario quiz posed by Carl regarding normal volume and absenteeism paired with increased AHT and decreased quality and customer satisfaction, Tin suggested potential causes such as agent handle times or leadership presence, while Jian and Wes highlighted interaction complexity, policy changes, and technology latency, with Carl adding tenure mix changes and onboarding curves as a primary factor (00:27:05).
+Forecasting New Hire Glide Paths and Preventing Client Surprises: Discussing how to prevent client surprises during predictable performance dips caused by new hire onboarding, Tin described monitoring live performance reactively, while Carl argued for a system-based approach through capacity planning and forecasting (00:32:21). Jian and Wes suggested balancing performance with tenured staff and forecasting glide paths, resulting in Carl's guidance that anticipated performance drops from new hires should be documented in trajectory forecasts as expected downturns rather than major events, provided they match glide path expectations (00:36:27).
+Action Registry and Efficacy Validation: Reviewing the action registry managed by Wes, Carl established that operations must evaluate every action weekly and categorize them by efficacy: validated with clear evidence, partially effective, no observable effect, or insufficient evidence (00:42:20). Carl noted that low overall success rates will place operations on the spot during senior leadership team calls to revisit and audit their actions (00:44:54). Wes raised execution questions, confirming with Carl that improperly executed actions fall under no observable effect (00:46:09).
+Global Scalability Criteria for Actions: Carl outlined the strict criteria required for an action to be scaled globally, stating it must demonstrate high impact with high repeatability, transferability across different lines of businesses and tenures, sustainability beyond initial intervention periods, and low operational, compliance, and security risks (00:47:10).
+Filtering and Managing Action Plans Locally: Wes raised concerns about filtering action plans before they enter the log, but Carl and Tin agreed that internal and client-facing trackers should remain independent to preserve creativity and use unmeasured or ineffective actions as teachable moments for operations directors rather than sanitizing them away (00:48:20). Carl instructed Wes to return unmeasurable actions for revision (00:54:17).
+Salesforce P0 Escalation Path and Governance: Carl introduced section 10 of the SOP regarding escalation paths, explaining that Salesforce P0 escalations will be utilized to notify divisional vice presidents directly and trigger ad hoc governance meetings and weekly calls for struggling sites, with Wes granted access to the tool (00:56:36).
+Managing New Hire Performance and Client Expectations: The underlying problem involved managing client pressure caused by new hire performance impacts. Wes argued for starting with a training needs analysis, topic mastering, refreshers, and leveraging quick wins from tenure operators (00:59:07) (01:01:29). Carl countered that this approach was overly complex, explaining that the issue should instead be evaluated by checking if new hires were expected in the capacity file, whether bids captured performance forecasting, and if new hires performed within expected normal delivery curves week by week (01:00:14). Carl concluded that if proper projections and client expectations were established (such as a 6-week window to proficiency), operating sites should not face undue pressure, and persistent drops outside predicted paths indicate problems elsewhere (01:02:25).
+Noise versus Signal and Business Forecasting: The discussion focused on separating operational noise from true performance signals to guide business operations. Carl stated that leadership must evaluate data using a 13-week historical and forward-looking window, factoring in predictable events such as Black Friday Cyber Monday volume increases and Q4 bottom performer reductions (01:03:27). Jian added that the defining file separates noise from signal, providing operations with structured direction rather than raw numbers (01:06:25).
+Team Takeaways and Operational Restructuring: The team addressed the information overload and structural clarity needed to prevent analysis paralysis. Tin shared takeaways on the education received regarding viewing operations, noting that white paper brilliance often only reached Carl, Paul, and Rowi when requested (01:08:52). Jian noted that the defined file structures call-outs and governance (01:07:35). In response, Carl directed Tin and Jian to restructure their responsibilities, assigning system architecture and report publishing builds to Jian while directing Tin to focus on strategic stakeholder management (01:12:35) (01:15:15).
+Stakeholder Management and Vendor Management Alignment: A key challenge was the persistent data sanity rift between the analytics team and operations management (01:11:23) (01:14:04). Carl instructed Tin to stop fighting fires and instead build a network, participate in vendor management one-on-ones every other week for data sanity checks involving personnel like Mike Moran, Vong, Aninsley, and Natty, and pull in Carlo Domingo or directors if visibility or report usage was lacking (01:14:04) (01:20:00). Carl emphasized that Tin must remain stubborn on behalf of the analytics team's measurements unless operations provide solid contradictory evidence (01:12:35). Tin agreed to align strategically and leverage relationships with Aninsley and Natty to address data mining issues (01:20:00).
+Next Steps on Deck Design and Standalone Visuals: The meeting addressed the need for business review decks to be easily understood by leadership outside the immediate business. Carl instructed Jian to draft the next week's slide deck layout, prioritizing function and story over aesthetics and utilizing Gemini to generate standalone visuals. The final deck output is intended for Jared, Steph, and Joe so they can instantly grasp business status and struggles without requiring calls (01:21:05).
+
+
+You should review Gemini's notes to make sure they're accurate. Get tips and learn how Gemini takes notes
+How is the quality of these specific notes? Take a short survey to let us know your feedback, including how helpful the notes were for your needs.
+
+
+TRANSCRIPT
+
+Sep 29, 2026
+Analytics Exercises - Transcript
+00:00:01
+
+Wes: Sorry that you were breaking up, Jian.I don't know if it's my letter or what.
+Carl: I think it's Jian'sinternet. You're you're grainy in your video,
+Wes: Okay.
+Carl: Jian.Do you want to preserve your bandwidth and turn off your video instead?
+Jian: Yep.
+Carl: Yeah, that's what I'm doing, too. Then we'll all we're all off cam to preserve bandwidth.
+Tin: Yes. Grab the VPN. It's crawling.
+Carl: Is it?
+Tin: Experience it too. Yes.
+Carl: Um,
+Wes: I'm not I'm not a GP.
+Tin: Like it's not.
+Carl: it's it's auto it's autoconnect right right now. I think that's what it is.
+Tin: No, it's not. Actually, you can, but you cannot do anything aside from doing meetings. So if you remove your VPN you can do your meetings but you cannot access your email chat there but you can do your meetings.
+Carl: No, I think in um in island it's autoconnect.
+Tin: No, you still need to get in and and put in your details.
+
+
+00:01:05
+
+Tin: Well, at least for us. Maybe with you it's different.
+Jian: Hm.
+Wes: That's
+Tin: It's not autoconnected for us.
+Carl: All right.
+Tin: Carl like a na 5 to 10 minutes before I can open a a chat, a call, a document blackout document.
+Carl: Hold
+Tin: Okay. All right.
+Carl: on.
+Tin: Sorry, this hampers our productivity. Carl,I apologize.
+Carl: It's okay. But um Okay. So, let's discuss the um business review SOP that I created.
+Wes: See?
+Carl: Um and then I'm going to do it differently. What I'm going to do is I'm going to have you guys teach back what you learned to me based on what you um based on the document that you reviewed. And then we'll discuss um we'll brainstorm and then we'll take um you know actions on what's next, what our timelines will be um and take it from there. Sounds good.
+Wes: It's good.
+Tin: Good.
+Carl: Okay. All right.
+
+
+00:02:21
+
+Carl: Who would like to take a stab at it? Who would like to discuss first?
+Tin: Jian,would you like to go first and then I'll supplement after Yeah.
+Jian: Yep.
+Carl: All right, Jianready for you.
+Jian: Can you hear me? All right. My screen. Sorry.
+Carl: Yeah.
+Jian: Can you hear me? I'm lost connection.
+Tin: Yes, we can hear you cutting in and out. against
+Jian: It's notifying at my end but yeah what I understood on this file uh we are trying to build A.
+Tin: Sorry, was I the only one?
+Carl: Yeah, he's cutting in and out.
+Wes: Yeah.
+Tin: Okay, I'm afraid it was my laptop, but uh Jian,
+Jian: Yeah, let me
+Tin: would you want me to at least give a heads up first before
+Jian: Yep. Yep. Same with the questions that I also raised to them.
+Tin: Okay. So Carl, I'll just summarize cuz your document is quite lengthy, but at least when I wrap my head around um the summary, it's u it's a an overall or an all-encompassing WBR deck or a BR deck that has all of the lines of business considered.
+
+
+00:04:24
+
+Tin: So what it does need to understand or what it does need to reflect are that of all the lines of businesses what amongst it are the ones that's needing that much love and focus uh over a period of week or weeks or month or in that given month that needs to go in first. Uh the document will have everything in it. um and using the business signals that we are usually using in our uh white paper. So what that what then needs to happen there is that we'll just be summarizing most of the highle views that's needed to be pointed out in terms of the performance. what are the things that are needed to be highlighted and what are the per site components that's also be needed to be discussed including the variation in their scores uh which has the best practice which needs to be improved and all of that stuff. So it's more of revamping how we're doing things right now. Um, and then in terms of terms of the business signals there.
+Carl: Hey,
+
+
+00:05:44
+
+Tin: We'll be using this name this business signals that we've been using in our white paper. That's all I can see that's there. And then bypassing the other parts where there's purpose and
+Carl: heat.
+Tin: stuff. Um the what's so what and the what's next needs to be present in every deck that will come into focus for all of the WBRs. I'll probably end it there and then leave the other items for Jianto discuss.
+Carl: Okay, very good. That's a very good summary. Thank you, Tin. Um, GN or Wes, what about you guys? What did you make of the document?
+Wes: I'll let Jiango if that kind of builds up from what been shared already.
+Jian: Yeah. Can you hear me clearly? No. Still cutting out.
+Carl: Yeah,
+Wes: Yeah.
+Carl: better.
+Jian: But yeah.
+Carl: Better.
+Jian: Yeah. Uh but I'm from the explanation of badam or and from the document. What I plan here is uh to create an automation first because uh seeing this it's uh a bit tedious for for bids to create or generate it on a Monday and um on that automation we will still consider all of the things on the document and um I can share or have a minimum variable output by Thursday or Friday this week.
+
+
+00:07:23
+
+Jian: uh I've already started um generating the
+Carl: Yeah.
+Jian: script which includes the logic of of the doc file card and um some questions are let me just check I've written some here uh will this be a fixed view like for example Um if if a signal is telling us this as a historical uh would it be still a historical or we're just comparing yeah didn't answer or comparing it week by week.
+Carl: Yeah. So I think the guidance the answer to that question Gian is um found in section three.
+Tin: I have it. Yeah. Sample table.
+Carl: Yes.
+Tin: The three together.
+Carl: Correct. So when you go down to uh I'm trying to look for that document because I want to make sure that you're guided,
+Tin: at me strange or Yeah,
+Carl: right? Yes.
+Tin: I am I have it ready cuz I was supposed
+Jian: Yep.
+Wes: It's
+Carl: Okay, correct there. Spot on tin. So um when you look at the week on week
+
+
+00:08:55
+
+Jian: Thank you.
+Carl: changes you want to identify the type of event that happened for that particular week and the definition of these events are also below.
+Wes: Excellent.
+Carl: Right? So what do we mean when we say material change? When you go to the definition of material change, um it tells you that it is defined by a specific um basis points movement. So for example, a material change should be um at least um 100 to 199 basis points. So for example um one 100 basis points equal to 1%. So if last week you were at week five, take week five and uh sorry take week eight and week seven as an example. So right there is a material change um because that moved by how much in terms of basis points um more than 100 basis points right sorry I'm I'm talking about week seven week six comparison so that's 120 basis points um and it's a sustained decline so then that is what you will call out the next piece of information there is to isol olate and understand is this the new
+
+
+00:10:24
+
+Jian: Mhm.
+Carl: normal or is this just a particular um event that happened isolated to that week. And so therefore this is where quality and insights will start to get to work to answer the question whether or not this is a isolated case for that particular week or is this something that we should continue to monitor. Does that make sense?
+Tin: Yep.
+Jian: Yep. And
+Tin: I think where the basis points I think the only question Gen wanted to go to maybe he wasn't able to exactly point it out is that what methodology of the magnitude basis points would you like to use because there will be the school of thoughts for the magnitude of basis points I'm I'm just not sure though which one would you prefer to
+Carl: So straight up um points percentage is equal to um one point is equal to 100 basis points then so movement from the previous week simple simple subtraction addition is what you would look at it. Does that make sense?
+Jian: Mhm.
+Tin: That's for the volume, right?
+
+
+00:11:51
+
+Carl: Correct.
+Tin: Okay.
+Carl: Yes. So for example, let me just clarify that. So for example, um 100 basis points of 78 is equal to uh negative 100 basis points of 78. that should be 77 because 100 basis points is equal to 1 percentage. Um right so that's how you treat it and so if for example um you don't call it out let's go to let me share my screen so that I can clarify um specifically what I mean by the guide right so this is clear right this table is clear Yes.
+Tin: Yes,
+Carl: Okay.
+Tin: just the the leveling of or alignment of the matte basis points. I think that's the only thing that we need done,
+Carl: Okay.
+Tin: you
+Carl: Here. So, plus - 100 basis points week on week is what you would consider a um magnitude. So, you basically treat it as so. So here um if your week-on-week movement is less than 50 basis points um the movement from the previous week let me just clarify that the movement from the previous week is less than 50 basis points then that's what you would consider a normal variation.
+
+
+00:13:30
+
+Carl: So technically you don't call this out you'll just say okay this is a normal variation. So example 78 and then 78 um 5 you don't call that as a success neither you call a failure 77.5 clear all right but when the change is within 50 to 99 basis points so this is already a signal candidate so meaning you say okay you know what um you can treat this as a yellow alert um an Amber Alert. Okay, Amber alert. Previous week we are um 85 basis points. Meaning you went from 80 to 79.5 uh 70 what is 85? 70 9.1 right? Something like that. It's not 79.15. So it's not a full onepoint percentage but it's almost a
+Wes: Who's that?
+Carl: percentage. Does that make sense? So that is a signal. So then you isolate, okay, who's causing this? Your white paper already captures that GN. All you need to do is to configure um the language to draw attention to how much basis points moved week on week.
+
+
+00:14:49
+
+Jian: It's
+Carl: Now, if it's one to 1.99 basis point, this is already what you would call um a magnitude event, right? Because it it is between your 1 to 1.9 percentage. So, you you you make sure that you mark this event, you make sure that you investigate, and then you take action. So the the urgency of action should be um west you start signaling okay um one 1.9 um basis points movement from the previous week. So you go ahead and call for an investigation. What's happening here? Um where did we miss? Was there a critical deliverable miss? What's going on here? What drivers are we seeing? If it's above 200 basis points, then that's the time that you involve the directors. That's a time that we involve client services on a particular week. So this is going to be a guidance mechanism on how urgent situation should be called. Make sense?
+Wes: Yeah.
+Tin: Yep.
+Jian: Come on.
+Carl: So very similar to your signal and noise, right?
+
+
+00:15:59
+
+Carl: But you're just um putting a little bit more emphasis on what kind of urgency is required. So west when it's 50 to 999 this is going to be um monitored by you tin g and pow to make sure that the OMS and the sooms are on top of it 100 to 199 you guys should start getting the directors involved over 200 plus this is
+Wes: Mhm.
+Carl: when I get involved for that particular week.
+Wes: Yep.
+Carl: So if a single this captures a single movement, huh? So from previous week to this week, um now what happens if there's persistence? It's not quite um 100 bps, but it's just 50, but it's already moving down two consecutive weeks. So for example, week 1 78, week 2 77.5. So you did not call out week 2 because that was considered a within normal variation. But week three you went down again to 77. So now you're moving at least 50 basis points negative week on week. So how do you treat that?
+
+
+00:17:25
+
+Carl: You treat it like a signal. So you start calling in the team. Team, this is the second week that this is going down. The following people are responsible for going down. Can we make sure that we have an answer to what's going on here? Isolate the issue. What's happening here? Make sense? So that provides you um a specific action step on how urgent this needs to be treated.
+Wes: investigation.
+Carl: So Jian,this is going to be you sounding the alarm. Wes, this is going to be you making sure that you call for the um investigation and the intervention, right?
+Tin: Yep. Yep.
+Carl: Okay.
+Tin: Well, actually, um, that was not the message that I was wanting to to convey a while back. It's more of So, we're clear with the magnitude for everything that is KPI under percentage. Uh, that's pretty clear to me.
+Carl: Correct.
+Tin: Anything that's within the threshold of the standard deviation of plus minus two that's usually a cause of alarm when it comes to trended um view I think where I'm trying to align on you when it comes to school of thought anything that's volume related so anything that's hard numbers EHT volume um that's where we would need your guidance on how do you want that be tied up with the percentages the percentages
+
+
+00:18:59
+
+Tin: cuz are all right we're pretty familiar I think the magnitude of because we're going to do Carl multivariates so Manova will always be laid out right that's at least how I communicated with GN you don't you don't only look at one KPI most often than not you do two to three and then you do manova for it
+Carl: Yes.
+Tin: but I think where it cuts to the throat is the volume in the AHC. I would would need your guidance there.
+Carl: Oh, okay. Very good. So this is something that I have not um calculated here but the guidance here is you use um statistically sound historical data pin to understand what you would consider normal deviation on your HD and then since it's volume related or like for example HD is measured in time you don't um you don't um necessarily um apply the basis points towards it.
+Tin: Yep.
+Carl: So what you do is
+Tin: Cuz see we also do not want to use the target itself, Carl. Cuz you remember our ADHD is mostly tied up swaying with smiling.
+
+
+00:20:15
+
+Tin: So we don't know the sweet spot. We cannot just blatantly use or um just use the target AHT for for sounding the alarm. I'm a little bit Yeah,
+Carl: Yes.
+Tin: I'm a little bit cautious about uh sending the wrong signals.
+Carl: Correct. You're right. That's correct. But I'll give you a butt there. Right. the butt that I would like for you to consider. And maybe this is an exercise that we need to do throughout Q4 is to understand um is the HT and smiley relationship absolute in a term in the sense of causation because while there is correlation at this point you can't really say that lower AHD is an absolute causation to a higher smiley We have to still prove that but at the same time you need to have a hygiene guidance for operations so they don't totally neglect the HD. Now you will still call it out as a signal but the approach is not going to be as rigorous as smiley. So if smiley um which occupies a higher percentage of weight in your KPI and HT is the least um weighted KPI.
+
+
+00:21:40
+
+Carl: If you call for a sprint on a smiley, you don't call for a sprint on a HD. Instead, what you do is you call for an isolated HD study. And instead of it being a unitive type of um PIP discussion, it will a lot more um rehabilitative type of approach in HD until we are able to fully conclude what sweet spot in HD, what HD behaviors we are going to target and then when QA finally surfaces is behaviors that predict AHD and smiley relationship. You go ahead and find those HD markers, HD behavior markers, and you penalize people based on the behaviors and not the numbers. Now, that is going to be a tedious work. So I'm going to reserve that for Q1. But you still need to develop um where you should consider normal deviation, abnormal deviation on AHD so that it helps you prime that study for next year. Make sense?
+Tin: Got it. Yep.
+Carl: Yeah. Volume I don't necessarily because we don't have visibility to the volume.
+
+
+00:23:01
+
+Carl: Um I I I I know we we do, but the volume is not necessarily um something that you heavily rely on to predict potential um disruption in operation because WFP move people from different um you know segments, right? And so either they put them on NMF or they they do that. Where you want to look at though to predict busyiness is your actual concurrency. So you look up your concurrency, use same application and HT you look for standard deviations and abnormal upper and lower control limits and then the moment that it reaches your threshold you say ah this is an abnormal spike in concurrency something is up. So concurrency is a symptom of overwhelm. It's not something that you would um technically solve for, but it's something that will tell you how the environment changed. Does that make sense? So now when you look at it, so when you look at it now, the way how you would analyze this thing and this is really you um and GM, right? Because you know from a business insight standpoint you both first assess the environment operationally.
+
+
+00:24:38
+
+Wes: Oh s***.
+Carl: Um do you have what is the environment? So when you look at your environment what is the concurrency? What is the AHD? Is the concurrency telling you a story of HD and is AHD somehow pulling experience in directions? Which directions are they pulling towards? Right. So what is the environment? Is concurrency caused by high absenteeism or was there really a spark in in in in volume? Which workforce can answer? If it's an absentism, so it is a self-induced um busyiness on the environment. If it's not, then it is a client induced um environment busyness. So from there, did you increase did you see an increase in elevation of tickets? Um so when you see an elevation of HD the next question there would be how is QA perceiving the quality of the tickets? Are the key stake key key um you know table stakes behavior maintaining um in terms of quality or are they degrading? So the signal there would be AFK is going to be one right like what are the easiest behaviors that you can find to to prove your theory that the environment has changed.
+
+
+00:26:00
+
+Carl: Therefore because of high volume and increased concurrency there is a degradation in service and it can be predicted by the variance in quality behavior. So where did they see the change right? So is this within normal deviation based on what QA is capturing? If the answer to that is yes, then that technically potentially answers your signal for that particular week. Does that make sense?
+Tin: Yeah.
+Carl: And so therefore the problem that you are really going to solve for is to improve the environment because in normal conditions the behaviors are going to be taken care of by itself. So operations need to better there. Absolely. TSM so they don't create phantom volume through increased concurrency and therefore they don't degrade the tickets that will then impact your smiley. You see the train of thought.
+Tin: Yep.
+Carl: Yeah. So therefore do you need new action plans for seesat? You don't.
+Tin: No.
+Carl: You just need you just need butts in the seat.
+Tin: Yeah.
+Jian: Mhm.
+
+
+00:27:05
+
+Tin: The environment.
+Carl: There you go. So that's that's how that is. Now second you notice that there is no volume. So let's let's quiz. You can answer. There is no increase in volume. There's no increase in absentism. There is an increase in HD. And there is also a decrease in quality and smiling. Give me two potential reasons.
+Tin: Sorry, did you say again there are no absences? Right.
+Carl: Yes,
+Tin: And
+Carl: there's no increase in concurrency. There's no increase in absentism. That environment is normal. However, um your your smiley decreased and your um HD increased and your quality also decreased at the network level.
+Tin: Okay.
+Carl: What two potential um situations may have taken in
+Tin: So if the volume is still normal, what could have happened is that due to the low volume, teammates could have been taking time in terms of solving their issues. It could be that or um in the environment I would be needing to check how many TLS are in place.
+
+
+00:28:31
+
+Tin: If there are no absences in the workforce or in the grassroots that should be fine but I should be needing to check in the environment. How many TLS OM are in place during that time? Are there no requests for any other pull outs in between if the ins are okay? Um and what could have been the reason which is he made sticking
+Carl: Okay, very good. That's a good angle to look at. What's your opinion, Jian?
+Jian: Yeah, for me it's uh the interaction comp complexity by uh the taxonomies. If we are getting a more difficult um interactions compared to what we got for x number of days or weeks like that.
+Carl: Mhm. That could be two, right? Like that's actually one.
+Jian: Mhm. Mhm.
+Carl: What's your What's your opinion, Wes?
+Wes: I I'm with Jianon complexity. Uh but at the same time, Christine brought up a good point about uh seeing what the environment looks like on the ground. Um no volume, no increase in in volume.
+
+
+00:29:37
+
+Wes: Um and the same kind of staffing is uh unremarkable. I'm thinking advisors might be facing a sudden knowledge gap due to an unannounced, you know, client policy change or or and this is only if there's a broken standard operating procedure or a lack of clear escalation path for a new trend issue. Um, so this is new. This is an emerging trend type of situation that is likely extending our AHD. The last bit that I'm I can think of and the only other thing I can think of is a technology issue either it's system latency um a problem with the Shopify apps and tools that are being um shared or or utilized by the team. Those are just the ones off the top of my head.
+Carl: Okay. So, all belong to interaction interaction complexity, right? Like um new process and all of that. There's one thing that you guys have not considered and it is a 10-year mix change. What if for that particular week you suddenly onboarded 60 people um to move from pre-commerce to general obviously your numbers will go down um there's no issue when it comes to staffing because they're accounted for IC is good but their age increase their smiley and their ticket went down that's because of a learning curve um you know issue so um so where does that hit you hits you from an envir environment standpoint.
+
+
+00:31:12
+
+Carl: So thin is correct. Um and you know you the the operational governance is the second layer that you'll have to check right.
+Wes: Yeah.
+Carl: Um so when you diagnose it Tinyou're from the medical field so you know there are varying protocols in triaging um the levels of um treatment in urgency right so treat it like
+Tin: Yes. The urgency and treatment. Yeah.
+Carl: so. So when you look at it first um you know obviously you will scan for obvious um obvious um physical changes symptoms before you apply any type of internal um investigations if you don't see any obvious physical um conditions. So very similar right? So you look at the environment first what changed in the environment right can it be explained by that? All right so when you look at it okay now the new hires started coming in 60 of them are there the network tanked when you isolate it they are within your um expected learning curve and your tenure team are also within their normal performance.
+
+
+00:32:21
+
+Carl: Is it is it an event?
+Wes: No,
+Carl: Why not?
+Tin: No, if it's
+Wes: it I was just going to say we're we're talking natural STP of new joiners. If I captured that correctly, I wouldn't consider there that that's an expected impact towards performance I'd say not something that is a byproduct of um what do you call this basically nothing that I would consider as an
+Carl: Okay. So, how do you ensure that your clients are not surprised by that? What needs to be done?
+Tin: So typically Carl the appliance shouldn't and wouldn't be surprised because they also have their own glide ride.
+Jian: Yeah.
+Tin: That's why I will always check if I have TLS, the right TLS and the right support in place because there will be two things that's needed to be happening whenever I have new cars transitioning from pre-commerce to general. One is that I needed to be able to be kept in check with the volume. When I say volume, how many are the types of ticket complexity that's going in within that span of new harvests that we are that we are monitoring in a given period that I will need to make sure the clients know real time when I say real time within the day end of day I need to be able to always communicate with them that this is what's going on and WFM should also be in check every so often.
+
+
+00:33:59
+
+Carl: Mhm.
+Tin: The second part is that as if I'm an OM or a DL, I'd always be live in live monitoring just to ensure that if there are strugglers, I would eventually be able to catch base in them immediately.
+Carl: Okay,
+Tin: That's the only thing that I can think about and that will chase no surprise to our clients because you can only point out a few heads out of say if you have 20 or two teams, you could only point out two to four. Four at max who will struggle in that specific time frame? Who will probably be your outliers?
+Carl: very good. But then I will um tell you it is real time but it is also reactive, right? Yes, absolutely. Your clients will not be surprised but they will um ask you first what happened? How do you prevent the client from asking questions? You're spot on, but that's reactive. That's what that's what a mature operation is going to do. But we are not aiming for mature.
+
+
+00:35:17
+
+Carl: We are aiming for a systembased operation. So I I will I need a better um answer to that. Wes or Jian?
+Wes: So our our problem statement is how do we ensure they don't get surprised
+Carl: Yes.
+Wes: when there is slight fluctuation in our performance.
+Carl: Yeah. So correct. So that particular scenario that we have discussed right you have new hires the performance is within expected limit um on both new hires and your tenure team and therefore it is not a signal because we all said that oh this is you know normal behavior of the numbers.
+Wes: Mhm.
+Carl: How do you ensure that the client don't ask you wait task two points down this week compared to the previous week that's supposed to be a major event. Why are you not calling it as a major event? And we agreed that it shouldn't be called out as a major event because it is within normal limit. So how do you ensure the clients don't ask you that
+
+
+00:36:27
+
+Jian: I think um this will be the part that uh Jianwill come in since we are expected to have uh new hires and STP for them will be low and then we should have at least a bank of of performance from our uh tenured folks.
+Wes: Yeah.
+Jian: But there will be uh there will always come a time that those performance from the new hires will dare the performance of the site.
+Wes: I I agree with Jianthat it Oh,
+Jian: But that should be Yes.
+Wes: sorry. I'm sorry,
+Jian: Yes.
+Wes: J. So, I was just agreeing with you that ideally we're supposed to boost performance from the bench to cushion the blow and that's most likely what the client is going to expect us to to do in the first place knowing that we have a new hair bash. My concern is this is after the fact. Um and I think you're correct that visibility and you know setting expectations that we have this batch coming through uh might yield this level
+
+
+00:37:34
+
+Jian: Look
+Wes: of impact and I'm thinking that's the only way we can avoid any surprises if we are able to um help them help kind of let them see that this is going to be the anticipated impact towards performance.
+Carl: Mhm.
+Tin: or what's the right word?
+Carl: Okay. Jiansaid it forecasting,
+Jian: Yeah.
+Wes: forecast again.
+Carl: right?
+Jian: of
+Carl: Forecasting, right? So when you create your glide path, pin your glide path is not progressive linear progressive because remember we talked about before you have to forecast your attrition, you have to forecast your new hires. And so if this particular week you're expecting 60 new hires and if your tenure team performs at 81 and then your new hires say for example you know start delivering 76 which is within what you've expected and you went down from 80 to 78. Let's just say while that should be considered a major event that gets vetoed by the um influx of new hire. So you all already have that in your capacity plan right so in the horizon you will already be able to see okay um in the next 5 weeks I'm expecting 60 people to come in um that's already minus the throughput you know training has this information and so therefore what I can expect is I can expect the number to go down by x right here this is that example I can expect the number to go down by x and therefore there is a recommendation for operations that this is how the new heart should be
+
+
+00:39:16
+
+Carl: treated but this is not going to be a signal. So when after five weeks down the line, you mark that in your calendar, you mark that in your glide path, you then say, "Tin,Allison, and Amy, um five weeks down the line, we expect the numbers to go down by 200 basis points and not because we anticipated, you know, anything. Um we just have new hires coming in on board. The tenure um are expected to perform this. The new hires is in this volume and therefore this is a natural movement. So this is what we're going to do from there. If everything is kept normal, the numbers will start picking up. This is the new normal that you will expect what five five weeks from now. And so therefore, your clients will not ask you questions because you've forecasted it
+Tin: Right. Okay.
+Carl: ahead.
+Tin: I think that's the one that's not clear to me. And and that could go as your headline, right?
+Carl: Correct.
+
+
+00:40:12
+
+Tin: Or Okay.
+Carl: Exactly.
+Tin: All right. Got it.
+Carl: Yeah.
+Tin: Got it.
+Wes: What's here?
+Carl: because you know it will be a better um position for um a Joe, a Denise, even um a DVP, right? Like think of a DVP, think of a COO when they look at your spread and they you send them a deck and then you you give them a trajectory forecast and then in your trajectory forecast suddenly the number goes down and then you have an you have um you know a sort of like um an annotation on that particular graph going down and saying expected new hire shift from pre-commerce to general XXX um forecasted performance within normal limit. This is not an event. This is not a signal. This is an expected downturn there.
+Wes: Mhm.
+Carl: So when I look at it from the executive summary and that's what I'm seeing, I'm going to be I'm going to be okay. Yep. We've accounted for this growth. This is expected.
+
+
+00:41:09
+
+Carl: It becomes an event. If on the fourth week something happened and we missed it by 100 basis points, that's when it becomes a major event,
+Tin: Got it.
+Carl: right?
+Tin: That's where I'm trying to position it.
+Carl: So that's when investig that's when investigation needs to happen. What happened? Why did we what was it right? Like operations didn't do this um or you know an interaction complexity change happened. We started receiving this and or pre-Comer started getting these types of calls are not supposed to be getting them. So there was a routing issue, you know, so a lot of those things. So that's how you interpret it. But you always need to look ahead. So this this business review discipline and the reason why this is as extensive because if you do this right you'll only you'll only build this once and it will be repurposed for a
+Jian: Mhm.
+Carl: site WBR a global WBR an MBR even a QBR are
+Tin: I agree. That's why I told Jianit won't be fixed.
+
+
+00:42:20
+
+Tin: It will always be flexible depending on trends.
+Carl: yes but your story will continue to change. What's variable here uh sorry your your the way how you tell the story is the same. What's variable here will be the um content of the story.
+Tin: And I think yeah,
+Carl: And so that's
+Tin: we'll just need a placeholder, Carl, to probably close off some actions of the previous week. That's where I'm trying to find where we position it cuz while this is really
+Carl: Yes.
+Tin: very good for at least for our this small group, for me it's awesome. If I'm your client, I will appreciate this better. Um, there. Okay,
+Carl: I have a section for that.
+Tin: this needs to Okay,
+Carl: I answered that for you already. So,
+Tin: I haven't gotten to the party
+Carl: Wes, this is yours, right?
+Wes: Yes.
+Carl: So remember we have the action registry now in the format that you guys created um in the deck that you've um published wherein you have the number of actions and then the number of ongoing actions what I need is a true effectiveness validation on the action.
+
+
+00:43:31
+
+Carl: So in the action registry summary west you should have number of actions that are validated, number of actions that are partially effective, number of actions that are with with no observable effect and then actions with insufficient evidence. So every week you know operations need to evaluate the actions. Every single action needs to be evaluated if they are validated with clear evidence and desired impact. And there needs to be evidence to support these actions. If it's not, you go ahead and mark the action as insufficient evidence or no observable effect. Therefore, needing um readjustment by operations. So think of commission and audit discipline, right? This is how you audit the actions. So Wes, this is going to be in your wheelhouse.
+Wes: Okay,
+Carl: So this is where you need to get really good at um measuring the actions. So when when bits tells the story with quality, when they look at the actions and they Okay. Okay. Out of 10 actions that were um executed last week, only two of them were validated with clear evidence of desired impact.
+
+
+00:44:54
+
+Carl: And therefore, the success rate of the action is only 20%. Even if 100% of the actions were executed, operations will still bound to fail because the viability of the actions um success is only at 20%. How did we know? none of the actions outside of these two out of 10 are sufficient
+Wes: No.
+Carl: with evidence or we we can't determine whether this action will truly solve the problem. Right?
+Wes: Yeah.
+Carl: So when we go to the W uh when we go to the um the SLTS this is when we put operations on the spot. So India you have 10 actions and only two of those actions you said had clear
+Wes: See
+Carl: evidence of desire impact. So what's the use of the other eight actions right then we go line by line um action by action and then direct operations to revisit their actions audit and then present evidence.
+Wes: Mhm.
+Carl: Zero evidence on the action will automatically be tagged as insufficient evidence.
+Wes: Right.
+
+
+00:46:09
+
+Wes: I had two questions here for you, Carl, by the way, after I reviewed this the other day. Um the first one is so the effect the effective status measures your overall efficacy through uh gradation. Validated means we we see it pointing towards the a healthy direction. What if my concern is it's not yielding the impact because the action plan was not executed properly? Where does that kind of fall under? or do I simply say um insuffici? Yeah, there you go.
+Carl: There you go.
+Wes: No observable effect and then my root cause is Yeah.
+Carl: Observable effect. It's completed. Yeah, there you go.
+Wes: Okay.
+Carl: That's a root cause.
+Wes: Okay.
+Carl: Cuz while this is the definition, you will still have to identify the root cause.
+Wes: Mhm.
+Carl: Now, what if this action is validated with clear evidence of desired impact? This is your guidance. Can you scale this action?
+
+
+00:47:10
+
+Wes: Yeah.
+Carl: Right.
+Wes: All
+Carl: What are the requirements for scalability here?
+Wes: right.
+Carl: High impact plus high repeatability automatically scale globally.
+Wes: All right.
+Carl: High impact that requires adoption pilot in additional sites or LOBS. Right? So what are the conditions for an action to be globally scalable? Number one, it has to be proven impactful. Right? This measures improvement on the intended KPI or business outcome. Meaning action is equal to measurable movement is equal to sustainable effect. Repeatability. the result isn't dependent on one exceptional leader for example in this case you know Vlad um right like if Vlad is out then the site moves to last place so therefore we cannot replicate it um transferability the practice can work across different lines of businesses sites channel 10ear population or operating environment if the action is too rooted in cultural for example you know we are going to cancel lunch for people. That might work in some sites, but in some culture um where they don't have very high um labor
+
+
+00:48:20
+
+Wes: Goodbye.
+Carl: um cases, but it might not work in other areas. So therefore, it can't be replicated. Of course, that's an extreme example, right? Sustainability, the improvement survives beyond the initial intervention period. This is very important because a lot of the actions that they are going to put forward would be team leaders will sit down with the agents and um observe five tickets and you know it's all intervention. Now is that something that can survive after the initial intervention? What if I stop paying attention because I have other things to do? if the action dies after that that it's not sustainable. And then um low risk um this is self-explanatory compliance risk security risk merchant experience risk um you know if if none of the actions pass this limos test it can't be scaled globally
+Wes: I agree with this uh formula.
+Carl: makes sense.
+Wes: Yeah, this is very clear. The only other item I have for section 8 uh Carl,
+Carl: Yeah.
+Wes: and I don't want to rework this section because I think it's great.
+
+
+00:49:32
+
+Wes: Um what I'd like to partner with you on is how do we make um a system that kind of filters these actions before they get to the action log. Uh section 8 focuses on measuring efficacy of existing uh site actions. I'd like to see if there's a way for us to determine, you know, and forecast how it would yield impact before it even gets there. because if you don't feel that it's sound to begin with, I'd like to scratch it off and they go immediately back to the drawing board before we log any of the actions.
+Carl: Okay, I have a counter um thought to that and I don't want you to gatekeep that because that's a teachable opportunity for us, right? Um, if you say, "Okay, this action is not working. Let's kill it before it gets into the tracker." You have an internal tracker and a client-f facing tracker.
+Wes: Mhm.
+Carl: It's important that those trackers are maintained independent from each other because in case an action item is put in the log and it's not effective, you don't want to share share that with a client.
+
+
+00:50:44
+
+Carl: However,
+Wes: Yeah.
+Carl: you don't want to um discourage people from putting actions. Now, what happens if they put an action plan and it's not measured, it's not effective. That's a teachable moment for the operations director, right? You go back to the director and say, "Hey, director, there are five actions here that are not smart filled out by your S Soom.
+Wes: Mhm.
+Carl: It went through. Um we are going to um we are going to put this through review. Do you want do you want to review this with your team before we discuss this globally? So you give the operations director to redirect their team because if it's too sanitized then you don't get to hold the teams accountable because they are sheltered by the sanitation process. Does that make sense?
+Wes: Yeah, that that that actually makes sense. Yeah. And I agree.
+Carl: Yes.
+Wes: I don't want to kill creativity either. I suppose only in extreme cases where we are at wartime and every effort counts.
+
+
+00:51:48
+
+Carl: And it correct. I agree. But we shouldn't be in that position though because when we are put in that position either the client has burned the environment down and you know turned the business over from its head which they could do
+Wes: Yeah. Yeah.
+Carl: um and puts us all in a you know war mode but if nothing and it's just because they have a lot of outliers and all of that they have created a war for themselves and so therefore The accountability should stay local. It shouldn't, you know, bleed from a global perspective. So the treatment there is we isolate them. We put them through an internal escalation process and then we rehabilitate and intervene until they recover until everything is clear. But globally,
+Wes: Yeah.
+Carl: we shouldn't be put in a situation where we'll have to, you know, constantly firefight. The reason why the systems are in place and this is the blueprint of our system. It's for us to always be steps ahead of the business.
+
+
+00:52:57
+
+Carl: So to answer your question, Tin,what if the base or what baseline? So for example, for actions, ask them where the baseline is or what baseline will they use. Exactly. They will always have to be measured. Actions will always have to be measured.
+Tin: Yeah, because right now that's what we're missing Carl. I think that's where uh Wesis coming from with his question be doing actions coming into the lab. So this is the one or the two things that I think we can start doing. So when they thought of any action plan which we wouldn't stop them from just being creative, the best thing that we can do to also direct them and indirectly teach them um how to be My about things is that we need to ask them what is your baseline or what is your basis what's your starting point and then if they have then we can measure if they don't then what's the output maybe that's one thing cuz most of the things that we are seeing now Carl in the tracker and we did the first uh try of just us doing the whole WBR the first site um actions does not translate to the global.
+
+
+00:54:17
+
+Tin: There are a few that will fall into the global but most of them will have their own intrinsic um action items which we would yeah it would be hard for us to measure sometime because the baseline is not as
+Carl: Okay. So the table here is a guidance for that. No observable effect, insufficient evidence, too early or insufficient data to determine impact. There you go. So, um I guess we need to add a treatment here. But that's already clear. If it's validated, it is right. Anything that is not um anything no observable and insufficient evidence, you have to return for revision. So,
+Tin: Yep.
+Carl: Wes, that's going to be you.
+Wes: Yeah.
+Carl: say okay the following actions need to be returned for revision. We cannot we cannot measure this action right and so it has to be known by
+Wes: Mhm.
+Carl: everybody that these actions are are are difficult to measure. We cannot you know we cannot measure this action because it doesn't answer um any of the following question.
+
+
+00:55:34
+
+Carl: What is it that we are trying to solve for? What is the direction? what does success look like? Right? So, you could create a gem um to um evaluate actions and then overlay this table and then create um next step. But again, you do not make the actions.
+Wes: Yeah.
+Carl: Operations will create actions.
+Wes: Mhm. Mhm. Completely. I agree. In my head, I'm more thinking of the timeline for observing the impact of the action as they go forward. Yeah, I'll work on that, Carl. I'll feed this entire section as a Nexus memory card for the jet as
+Carl: Yeah. So,
+Wes: a resource.
+Carl: here's the next the next piece of what we're going to do, which will be a section 10 to this document that I'm going to write, is your escalation path. And we're going to utilize um Salesforce escalation P 0 for all of these. Right?
+
+
+00:56:36
+
+Carl: For example, in the case of um Pabla's site, there's a lot of things that are being missed. no particular action. So, we compile all of those and then we open a Salesforce P 0 escalation. I'm going to have you um granted access to that
+Wes: Mhm.
+Carl: was and then what it does is it goes through um the process of notification directly to their DVPs. It alert their DVPs. So it allows us layer of scrutiny and then we will have an escalation ma matrix um handling wherein if a site is on a P 0 escalation then what we will do is we will hold an ad hoc governance meeting similar to what we're doing in
+Wes: Yeah.
+Carl: India and automatically evaluate um you know what next steps needed to be done what actions needed to be clarified what milestones needed to be documented we all agree and approve of it and then every week they go on a governance call with us. That make sense.
+Wes: there. Yeah.
+Carl: So that needs to be part of our um operating DNA.
+
+
+00:57:50
+
+Carl: Okay. All right. So um before we close the session and before I will ask you of your takeaways and what your next steps are as students in this master class um do you have any questions
+Tin: No questions.
+Jian: Done for
+Carl: what yeah go ahead
+Wes: I had a had a sorry you know what I'll just bring that up later on.
+Carl: Quest.
+Wes: No it it's a it's situational and I don't even think it's going to be a situation we face dating. What if we are currently uh taking care of a nesting class sorry uh a new batch of graduates and then week over week we see dips in performance. I just wanted to know if we maintain that as part of uh STP which is a predictable outcome versus you know we look at the category of persistence which is under you
+Carl: Okay.
+Wes: know
+Carl: All right. I will let you try to answer your question. Suppose you know supposedly I'm not there and you you will call the shots and you will give direction to the team and that's your situation.
+
+
+00:59:07
+
+Carl: How are you going to steer bids and operations and training into a direction that will allow you to get clarity on what actions next? How do you set expectations to your client? What are you going to hold accountable to? How do you treat the situation?
+Wes: Yeah. Uh, if it were me in that particular situation, I'd start off with I already know what the root cause is. I have a a class that's impacting my performance.
+Carl: Mhm.
+Wes: My go-to next step is usually a training needs analysis that points me to the direction of what needs reinforcement. ment uh during training. I can address that for future classes. I can run refreshers uh for those that are fresh off training, not too fresh off uh but within development stage. Um for those that require reinforcement, specific topics, I'm talking topic mastering. Um and then I need to supplement this with lowhanging fruits and quick wins from tenur operators. uh specific topics and uh what was I saying?
+
+
+01:00:14
+
+Wes: Are there quick wins from from the floor that could yield me uh the quickest impact and performance that gives me uh a lift on overall site or uh or campaign performance for tasks. Before I even share anything to to my client, I'd like those in place first. What what do you think about that?
+Carl: It's not wrong, but it's also way too complex. The problem is very simple. You have new hires and uh they're starting to impact your performance. So the first question that you need to ask is okay did we expect these new hires to come in? Are they in the capacity file? The short answer to that is yes because you know you don't put new hires
+Wes: Mhm.
+Carl: um it takes time for new hires to impact operations. So did bids capture the performance forecasting? And if the the answer to that should be yes. Okay. So let's assume both answers are yes. The next thing that you need to look into are they performing within normal delivery?
+
+
+01:01:29
+
+Carl: Meaning I expected them to perform this um you know this level week 1, this level week 2, this level week three. Um if the answer to that is yes, are you going to do anything? What if the answer to that is yes, but your numbers are still down? meaning there's a persistent number of um decrease going down. So is it your new house or you have to start looking elsewhere, right?
+Wes: So,
+Carl: That's your guidance.
+Wes: right, I I was exactly there actually in in that particular situation where I feel like there's
+Carl: Yeah. So So
+Wes: consistent pressure from my client because week over week my story is going to be the same. This is still impact for my new hire. This is still impact for my new hire. Uh they're working through their normal speed to proficiency. Um, which is why I'm starting to look at the angle of uh compensating with quick winds coming from my tenure batch.
+Carl: Okay.
+
+
+01:02:25
+
+Carl: Yes, you could do that. However, if you did forecast it correctly and then you told your client that this is going to be the impact
+Wes: Mhm. Mhm.
+Carl: on fifth week, sixth and seventh, this is the direction that we're going to to take. And if your numbers continue to follow that projection, granted that you were clear during the client expectation and that they have accepted it. Typically, you shouldn't have any problems. If the client forgot about it, then you'll have to reiterate and reexplain because clients will be clients. However, are you going to um put pressure to your operating sites? The answer to that is no,
+Wes: No,
+Carl: right?
+Wes: no.
+Carl: They're performing within within normal conditions and therefore, you know,
+Wes: Mhm.
+Carl: it will you said it will take 6 weeks. Let's just say you said that 6 weeks for performance to be normalized after new hires have fully grasped your your um time to proficiency then you you are exactly in the trajectory where you're supposed to be.
+
+
+01:03:27
+
+Carl: However,
+Wes: Yeah.
+Carl: if you continue to go down but your new hires are are trending in the predicted um path then your problem is not your new hires. you have to go find what's causing the problem somewhere else. Does that make sense?
+Wes: That makes sense. Thanks,
+Carl: Yeah.
+Wes: Carl.
+Carl: Mhm. So, I guess you know um when you look at it, this is not only a lesson of how to well ultimately this is a lesson of what's noise and what's signal. How do you manage noise and how do you manage signal? What is an event? What is not? When do you put your feet down? When do you allow things to just naturally take its course? The lesson there is you have to have a very strong outlook of the future and understanding of the past. And that's why you're looking at your data in 13 weeks. That covers a quarter and a week. And then when you look ahead, you also want to look ahead in the future on the same length of time thin and gn right factoring in events that you are you are expecting to happen BFCM volume increase um bottom performer u reduction that's going to happen in Q4.
+
+
+01:04:49
+
+Carl: So you have that outlook already. So when you look at your business in a quarter behind and quarter ahead and if you are good at forecasting and you know exactly when your attrition is going to hit you, when you're going to replace those, when your new are going to impact you, you can already tell how your business will e and flow. When you have that forecast and outlook, you can predict outcomes. When you focus on the present and you observe the operating rhythm, if nothing materially changed and if the conditions remain to be true from where you forecasted it, then there's no reason for a large deviation in performance. When there is deviation in performance and your run rate is changing your forecast, you react. How do you react. You react based on how you define the events. Right? to there. So this playbook is not only a bridge to um creating um a business review but this will help you define how you're going to steer operations. This is you operating the ship.
+
+
+01:06:25
+
+Carl: Make sense?
+Tin: Hey green.
+Carl: Okay. All right. What other questions before I ask you for an extemporaneous speech on your takeaways? Because that's required in this class.
+Wes: Carl, I am so sorry. I I'll do the speech as an assignment if that's okay. I have a one-on-one with Crest pending.
+Carl: Okay.
+Wes: This was a very engaging activity.
+Carl: All right.
+Wes: Thank you so much. I hope we have another one soon.
+Carl: Oh, we'll do this every week.
+Wes: Perfect.
+Tin: It's clear.
+Jian: This is
+Wes: Perfect. All right. Thanks guys. Thanks AR.
+Carl: Okay.
+Tin: Thanks.
+Carl: All right, GN, you want to go first and then you you close us out, Pin.
+Tin: Yep. Goian.
+Jian: Yeah. Uh for me um yes this file uh defines the noise and the cigar even doing on the uh the white paper and um will help operations uh give more direction a more solid direction compared to what just a number.
+
+
+01:07:35
+
+Jian: Why why are we calling them on these numbers so we can give more um structure on the call out that we are doing for them. Not just a call out but uh where to focus on where to check on the things that they need to see. And on the forecasting side, yes, we will also need to show them what can happen, what will happen on the next uh future because we are doing this um trainings or we have this uh event will come on the next uh x number of weeks. And then yeah uh this file is not just for a a business review that but also more on the governance of a campaign or or a group that we need to foreseeing. That's for me.
+Carl: Yeah, thank you. That's a lot of great takeaways. Oh, what about you, Tin?
+Tin: My great takeaway is I get to be educated to be a V.
+Jian: Yep.
+Tin: time cuz you technically have transferred some weight of of your shoulders to us having this view.
+
+
+01:08:52
+
+Tin: This is actually great. Um this also has cancelled the noise of the many things that we know. I know so that the usual noise on our side is that we know a lot. it's analysis paralysis and because of the many books that we've read um it would always be difficult for us to just really tailor fit what's necessary in any specific sections because there are a lot of sections in there. So that's great.
+Carl: Here
+Tin: We're able to get clarity on how are we going to do this because the the deck in itself is for me doable.
+Carl: we go.
+Tin: The execution is the ones that's a little bit for me giving an apprehensive sort of feeling. But when Wes was airing out all of his questions, his clarifications, and how the partnership would work out between us and Wes and my job here is to ensure that there's little intervention from you unless otherwise it's a total escalation that we need you in. And that's also a job that I wanted to make sure I have for myself and Gian and 100% of where my head wanted to go is to get Gian closer to how I'm understanding things right now.
+
+
+01:10:11
+
+Tin: I know he's my hands. I'm still his mouth and his partly the analytic side of crunching things up to make it easier for him. But I also wanted to make sure that we're just going to be an inch away from each other after several weeks running the the sort of activity. That's where I wanted to go. Carl, the key takeaway is also in order for Gian to perfectly articulate his brilliance cuz he really is brilliant when it comes to creation. He just needed to be able to perfectly articulate, timely articulate what's necessary and then at the same time be able to sustain from where it last left because right now you have to be we have to be very transparent with each other. The brilliance of the white paper only lands in your hands. Paul is also reading that. I'm happy but Rowi has a different direction and the ops also reads it when you ask them and that's only when they get the answer. So it's kind of it's kind of a little bit frustrating but that's how our work uh should be.
+
+
+01:11:23
+
+Tin: So the next step for us is to be able to make this digestible, easy to understand and that people will want to always go here despite the fact that the caveat will be the variance in terms of their assumed data sanity because you know that's always the rift between us and ops right And we cannot blame them because their VMs are always steering them in that direction. So we'll try as much as we can to ensure that this is properly used because this will keep everyone at bay in terms of where they need it to go without really needing to burn the bridges or without needing to burn the ocean. Cuz most often than not when there is a client call out the tendency is for everyone to panic. when you're right there's supposed not be any cost and that there will be items where essentially it's a BAU issues within the operation side that we don't need to constantly call out. So I also hope that this specific SOP will be able to ease that out because it would make things a lot easier not only for us but also for operations.
+
+
+01:12:35
+
+Tin: So that's it.
+Carl: Yeah.
+Tin: Yeah.
+Carl: So, you're right. I guess what I'm going to say um and I have been saying this before and I will say this again and maybe we need to strategize in your team tin um so that you and Gian will be um clearly deviated in terms of what you do for the org. Um so I think right now concepts like these building um systems I don't know about you but I am comfortable with Gian's ability meaning the build the architecture the design we can start loading them to GN right and GN does all of the um all of uh ensuring that you know you have your truth um be published where I need you to be focusing on is to bringing operations in alignment to what your team delivered. Yes, you hear them on their perspective on data, but you need to be so stubborn on my behalf that you say, "We already measured this, right? The work that my team has done is to ensure that you have an understanding of your
+
+
+01:14:04
+
+Carl: of your of your performance. I'm not going to ask my team to redo it. Unless you have solid evidence which you have not communicated to my team that you should then we will flip the script to your perspective. Unless there's none, this is the truth. So that's one. Second is I need you to be I need you to start building your network with you and Wes once in a while would have to sit down with the VMs um for data sanity. So Wes has a one-on-one with the VMs. Um, every other week I'm going to have you sit in maybe to that um every you know five minutes the first five minutes will be for you to just have a sanity check on the data this is how we're looking at the numbers are is this how you're looking at it right because if you rely on Mike Moran then they will be looking at it very differently we have relied on Moran we have relied on Mike and so um Vong and you know we are still in the position where we are in it will allow you to also build the rel.
+
+
+01:15:15
+
+Carl: But I need you and Wes to tag team together so that you can let Wes communicate back to operations. You communicate to your team and you align with PAL on how should we measure. So your your your role now Tin is while you can help build and you know put some structure. I think GN you can manage that completely. I need you tin to be strategic now. Meaning um do less of um gate gating of what your team needs to do. Let GN call the shots on what reports to be published, what what needs to be done. You know, you and I trust GN's work. What I need you to do is stakeholder management, right? Manage workforce. If your team does not have any visibility on the data, pull Carlo Domingo on a on a one-on-one. Make sure things get done. If operations are not using the report, set up a one-on-one with the director and tell them, hey, you know, this is a lot of work that my team is doing and I'm not seeing your team using it.
+
+
+01:16:29
+
+Carl: I need you to start, you know, using it. This is of value. I am not going to ask you if this is valuable for you. we know this is of value to you. So I need you to start using it. What what what guarantee do I need to get to make sure that this is being used, right? Um if there's any incorrect in terms of calling out in um the business reviews when I'm not there, error in measurement, error in quantification, you need to start making sure that you redirect the team to that. Right? So that's that's what I need you to to safeguard. That will take a lot of your bandwidth because I will literally ask you to meet every operations leader on a regular basis to give feedback on how they're measuring their baseline, give feedback on how they're, you know, creating their action plans along with Wes. Um, and you come in from a measurement standpoint, but anything systems wise, I think we can rely on GN and his team.
+
+
+01:17:27
+
+Carl: And my suggestion is assign your bids to home sites that they can take care of. Um and while their work needs to be collective um I don't know if it is to their benefit if they are assigned in a home site so that they can um say okay I am the reporting responsible for um reporting and analytics responsible for this site you know um and therefore my concentration is to ensure that do I have everything that I need from this site to ensure the data intelligence and data science of um Shopify global continues to work right and so in that way you know who to chase and who's responsible for the chasing and all of that. So I think that's the transformation that I am going to ask from your team um so that you are efficient and you also are able to advocate for the work that you do and I will be there as your point of escalation but I should not be in these conversations all the time because you know Tin your level of empowerment should be the directors Gian your level of empowerment should be the senior managers Right?
+
+
+01:18:46
+
+Carl: Your team should be leveling with the operations managers in my view. That's how I see you in the organization and that's the level of empowerment that you should have.
+Tin: Yep.
+Carl: You you I'll always right and I'll always have your back.
+Tin: We're 100% aligned, Carl.
+Carl: You know, you can always manage conflicts but I need you to um make sure that you are um you know acting on my behalf.
+Tin: 100% aligned. And yeah, that's where my head is going. Uh, just on the side of assigning a specific person on a per site, I won't dare to do that. I've done that before. it won't work. I will I will just strategically probably center in uh to Gian request so that he also will be able to practice uh entertaining which ones comes in um in terms of prioritization. But yeah, 100% sure that I will be more strategic this time. I highly appreciate that you're pulling me in on the VMs one to one cuz it's kind of hard for me to get one one um appointment with them.
+
+
+01:20:00
+
+Tin: And yes, you're right. The trying to get support from the mics is not getting us in as much as where we wanted it to be. And I don't want to be fighting fires as it comes. I wanted to be proactive and ensure that I have alignment with the VMs. If they will be needing to have their own directions, I would be there to suggest to run in the same path just so it could be sustainable for everyone. But I will also allow them to freely navigate on where they wanted to go for their own sake. But I would encourage them to also align because there will always be that enterprise level that everyone needs to agree on and and I haven't had that kind of relationship on a perVM point of view. I specifically wanted to connect with Aninsley and Natty because they are the two headaches and in most often than not sort of data mining. I wanted to be able to leverage on whatever they have. So that's that's going to be a great help on your side for
+
+
+01:21:05
+
+Carl: Yeah. Okay.
+Tin: me.
+Carl: Very good. All right.
+Tin: What?
+Carl: Okay. That's it. Um so next week um Jianif you want to take a stab at how this would look like in a deck. Um and then um we can have a working session together on okay what will this look like? How do you present this visually? Um so don't focus on the aesthetic just yet. Focus on the function and the story.
+Jian: Hey,
+Carl: Anyway later on we can pritify it. So just you know what this tech needs to be and your guidance will be um in the um standard slide test you know 3 second test 30 second test 3 minute test
+Jian: Yeah.
+Carl: and then um the slide anatomy so what what I think you should do um in your is you can put this in Gemini and then have Gemini's sort of create visuals for you, how to imagine and then bring that over to the discussion so that we can brainstorm on how do we make the slide stand alone. Think of it when it gets to the desk of Jared, when it gets to the desk of Steph, when it gets to the desk of Joe and they're not in the business. The goal is for them to be able to pick up and understand exactly where the business is, how the business is struggling without them having to spend time on calls with us. So if we achieve that, that's that is um you know a very successful WBR or business review. Okay. All right. Thank you guys. I appreciate you. Thanks for indulging me on this conversation. I enjoyed it.
+Tin: us to Carl.
+Jian: Thanks for the Yeah.
+Tin: Thank you for the free education.
+Carl: Yeah. Next week again.
+Tin: Yep.
+Carl: All right.
+Tin: Thank you.
+Jian: Thanks.
+Carl: Bye.
+Jian: a boy.
+Tin: I
+
+
+Transcription ended after 01:23:14
+
+This editable transcript was computer generated and might contain errors. People can also change the text after it was created.
