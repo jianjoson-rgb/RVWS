@@ -1,1 +1,167 @@
-TEST
+i need you to check the following meeting items that we got, ignore the OMG discussion as it was added to this meeting
+what do we need to add?
+how do you plan to do it?
+
+AppScript action tracker demonstration and team leader habit tracker planning via design updates and workflow reviews.
+
+Appcript Action Plan Tracker and Feedback Features
+Jian presented the centralized action plan tracker app script capturing site selections, metrics, and statuses.
+Carl requested renaming action descriptions to action steps to ensure specific validation procedures.
+Carl proposed adding comment capabilities and senior manager review workflows for submitted actions.
+Carl suggested incorporating action effectiveness categories to assess whether completed tasks yield desired impacts.
+Carl targeted Q4 to share effective tracking methodologies with a wider group following successful pilot results.
+
+Team Leader Daily Activity Tracker and Operating Rhythm
+Carl proposed developing a TL activity tracker app script to monitor daily habits without backdating.
+Tin suggested adding OM or SOOM monitoring fields to track TL leave statuses.
+Wes targeted tomorrow to finalize daily activity tracker design specifications with Hez and Roel.
+
+Next steps
+[Jian] Update Action Steps: Rename the Action Description field to Action Steps. Ensure the form captures specific steps to facilitate validation of the action plan.
+[Jian] Implement Effectiveness Status: Add an Action Effectiveness status field to the tracker. Configure the field to track whether actions are validated or require further improvement based on the effectiveness guide.
+[Wes] Design Activity Tracker: Coordinate with Hez and Roel to design a daily activity tracker for Team Leaders. Create a system that captures daily habits and task completion without allowing users to backdate entries.
+[Wes] Update Monitoring Fields: Update the Operations Management form to include monitoring fields for Team Leader leave status. Ensure Operations Managers can track attendance via Paid Leave or Unpaid Leave markers.
+
+
+Summary
+AppScript action tracker demonstration and team leader habit tracker planning via design updates and workflow reviews.
+
+AppScript Action Plan Tracker
+Presentation of tracker features with requests for renaming descriptions to steps and adding commenting capabilities.
+
+Tracker Categories and Workflow
+Agreement on new action categories and an internal director approval workflow for submitted actions.
+
+Team Leader Habit Tracker
+Introduction of a daily tracking form with anti-backtracking rules and real-time logging.
+
+
+Decisions
+Aligned
+Renaming action description to action steps The group agreed to change the action description field in the Appscript action tracker to action steps.
+Adding action effectiveness status tracking The group aligned on incorporating an action effectiveness status to evaluate whether specific actions yield the desired impact.
+Enforcing non-backtracking on team leader tracker The team established a non-backtracking design rule for the daily team leader tracker to prevent task procrastination.
+
+
+Next steps
+[Jian] Update Action Steps: Rename the Action Description field to Action Steps. Ensure the form captures specific steps to facilitate validation of the action plan.
+[Jian] Implement Effectiveness Status: Add an Action Effectiveness status field to the tracker. Configure the field to track whether actions are validated or require further improvement based on the effectiveness guide.
+[Wes] Design Activity Tracker: Coordinate with Hez and Roel to design a daily activity tracker for Team Leaders. Create a system that captures daily habits and task completion without allowing users to backdate entries.
+[Wes] Update Monitoring Fields: Update the Operations Management form to include monitoring fields for Team Leader leave status. Ensure Operations Managers can track attendance via Paid Leave or Unpaid Leave markers.
+
+
+Details
+AppScript Action Plan Tracker Overview: Jian presented the AppScript action plan tracker, explaining that while the live form remains available, entries should be directed to the tracker as a one-stop shop. Jian demonstrated how users can choose from four sites or a global action plan, enter action names, descriptions, KPIs, behaviors, action owners, categories, baselines, performance metrics, end goals, statuses, and start dates. Additionally, Jian reviewed the summary snapshot view and the screenshot mode designed for Business Review slides.
+Action Plan Tracker Refinements and Commenting Feature: Carl requested several modifications to the action tracker, including renaming action descriptions to action steps to ensure specificity, and asked for access to review the tool. Carl proposed adding a commenting feature for senior managers and directors to flag unrealistic or vague plans, while Tin suggested incorporating internal statuses such as readjust, for approval, or declining. Carl also introduced the action effectiveness guide to assess whether actions yield desired impacts, utilizing categories like validated, partially effective, or insufficient evidence.
+Action Tracker Categories and Approval Workflow: Tin compared the tracker's mechanism to previous automation projects, and Carl proposed updating action categories to include corrective, reinforcement, and redirection, agreeing to provide a design sheet to avoid disrupting Jian's development rhythm. Furthermore, Carl and Tin established an internal approval workflow requiring directors, particularly for the Philippines site, to review and approve submitted actions, ensuring visibility into director engagement.
+Team Leader Operating Rhythm Daily Tracker Initiative: Carl introduced a new project to develop a Team Leader Operating Rhythm daily activity tracking form to capture daily tasks such as planned coachings, documentation, team member acknowledgements, and daily closeouts. Carl assigned Wes to work with Hez and Roel to map out current tracking methods and build an AppScript. Tin requested the inclusion of operations manager or senior operations manager monitoring checkboxes to account for paid leave or unpaid leave schedules and prevent attendance reporting skews, while Carl emphasized capturing a complete day-in-the-life habit tracking view of team leader behaviors.
+Team Leader Habit Tracker Anti-Backtracking Rule and Rollout Plan: Carl specified that the team leader daily tracker must function as a gamified habit tracker that explicitly prevents back-tracking, ensuring team leaders log activities on the exact day they occur to eliminate procrastination, bulk-auditing, and cramming. Wes confirmed adjusting data entry fields to exclude manual date inputs so the tool captures only real-time entries. Jian will build the AppScript once Wes, Hez, and Roel finalize the specifications, leading to a planned two-week rollout period for team leaders.
+Tracker Design Delivery Target and Future Analytics: Wes set a delivery target date of tomorrow to lock in the initial design specifications for the team leader daily tracker, drawing inspiration from Apple Health and Samsung Health profiles to display daily coaching and task completion scores. Jian will subsequently implement advanced backend analytics to evaluate team leader productivity patterns across different days of the week. Finally, Carl addressed asynchronous feedback on the action registry, projected effective usage visibility for the fourth quarter, and concluded the meeting.
+
+
+Carl: Morning.
+Jian: Anything
+Wes: Morning.
+Jian: important?
+Carl: All right, Jian,walk us through the Appcript um action tracker. I ask I asked for access to it. So,
+Jian: Oh. Uh,
+Carl: but maybe later when um you know this is published
+Jian: sure. there. Okay. Um this is the list. Let me start with the list that we I asked our uh to be placed on the action plan tracker first on the form itself and then towards the actual app.
+Carl: Mhm.
+Jian: Um these are the uh tabs or the inputs that we need to get from ops or from the users and we place this um to the apps directly to the app script itself not to the form but the live form is still there we but I won't share that since we have the action plan tracker already uh accept accepting entries.
+Carl: Okay.
+Jian: is so it's uh onetop shop for the action plan tracker. Um first let me do how do we um do entries?
+
+
+00:02:10
+
+Jian: Uh if we scroll down here we'll have um the site we can choose um from the four sites or global action plan and then we have action plan name and then the description and then the needed entries KPI behavior um we can add uh KPIs or behavior though sorry that we need to add here But for now, these are the uh KPI and behavior that I've added. Um action plan, owner, category, baseline, uh performance, end goal, and the status, start date, depending. And below that it should show all of the action plan uh that is currently running or closed or cancelled uh depending on the status. Uh and if we want to update an action plan, we need just need to click the action plan here and then it will be chosen under this um dropdown. It will show all of the details of the action plan including the remaining start date, who started it or last updated it, who was the owner. And then below here, you can update the current performance status and additional comment for you updated. And then once submitted um it will show it here on this uh summary also on this uh snapshot.
+
+
+00:03:59
+
+Jian: We'll have we'll have this uh top exemptions meaning if we have an overdue this will uh show up site snapshot will have each of the sites and the global uh view um summary on the account of the action plus we are doing and then if we do a screenshot mode let me select a filter there. If we do a screenshot mode, this will be the one that will be placed under uh the BR is serve slides. We'll have the action plan snapshot, the action plans ongoing, and then a short narrative on what's going on with the site or the global actions.
+Carl: H okay.
+Jian: Any questions?
+Carl: Yeah. Um can you go back to the action plan selector? So when you click on the specific action plan action description. Yeah, I wanted to see um what's inside the specific action. So you have action ID, description, baseline, outcome, action status. Um do we want so the action description act could we change it to action plan detail or steps? Um action steps, right?
+
+
+00:05:34
+
+Carl: cuz you know sometimes how people can be very generic with the actions and so we want to make sure that when they write the action plans there are specific steps that we can validate um to understand how action is
+Wes: You're muting.
+Jian: Yeah. Should we add steps or action plan details?
+Carl: Yes. Action plan. Um action steps.
+Jian: Action.
+Carl: Yeah.
+Jian: All right. I'll change that later Carlso that we can save time here. But any other um changes that we need to do?
+Carl: Can you give me access to this? Jian,I want to just review um because I have a lot of questions and comments and I just want
+Jian: Mhm.
+Carl: to make sure that I am able to go through it. Um I'm able to go through it all. And then um the one thing that I'd like to also have there would be um ability to comment like my ability to comment on the action plan. Um so the the commentators on the action plan would be um me um directors um like just allow the senior managers plus to be able to comment on the action.
+
+
+00:07:38
+
+Carl: um in case we need to you know you know how some actions um have sorry I don't know how to work this in my brain just yet. So, let's start with the the comment ma cuz I want to make sure that I'm able to um have um you know the ability to send feedback on the action.
+Jian: Can you try this? You access
+Carl: Um the second one.
+Jian: the second
+Carl: Okay. Mhm. Submit a new update. There is an update here. Um that's basically if I wanted to update the action, right?
+Jian: Yep.
+Carl: But if I just want to comment on the action. So for example, I will say um um sort of like a status for flagging here.
+Jian: Thank you.
+Carl: Um or I don't know how you want to categorize it, but say for example, I audited the action, right? Um and then what's the what is my um where do I put the status of the audit of the action like a remark on the action bar.
+
+
+00:09:33
+
+Jian: Mhm.
+Carl: So for example this one um I want to put some comments on this one but not to update the action plan but to comment on the plan. I say I don't think this plan is realistic. I'm not sure if this is, you know, I'm not or the action plan steps are are um, you know, vague. So, something that I can send back to them.
+Tin: We can put status like readjust or you can put the status for approval
+Carl: Yes. Yes.
+Tin: and then it could be declining.
+Wes: But it will still go through the step.
+Carl: That could also be the case.
+Wes: Sorry, I was just going to say it still goes through the step of adding a current performance though unless we have an NA option there. And then on the action status as Christine mentioned, we can just plug in extra drop down.
+Carl: you know, the action effectiveness um action effectiveness guide that I gave you guys in the business review, I want to be able to um use that to assess the specific action.
+
+
+00:10:51
+
+Carl: I think um part of this too is um for ops to audit it but at the same time we need to be aligned on on the action um status right like the effectiveness score of the action. So if the action is validated that means there's clear evidence of the desired impact. um if it's partially effective, you know, there's some movement but insufficient or inconsistent, no observable effect, um insufficient evidence. So maybe um instead of it a status, you just put in an action effectiveness status. I don't know if it's status is what I would like to call it, but I want to make sure that you know when you look at it, you can say, okay, how many of the actions are cuz it's one thing to track the completion of the action. The other thing is to to track whether or not the action is effective. How many things are people doing that they have clearly you know understanding of the impact because sometimes people just make actions and then those actions don't really result into something Right. So you want that captured here.
+
+
+00:12:07
+
+Jian: Yes sir. I'll take a quick minute and then try to
+Tin: Carl, are you already able to try when Gian sent the
+Carl: Yeah, I have it. I'm actually on it now.
+Jian: Yep.
+Carl: I am able to like update. Um, so overall, I like this look. I think this is exactly what I need.
+Tin: Same Carl. Same na ng ano nin. What was the project? The the one that the automation team did for us.
+Carl: Ah, the I know the
+Tin: Uh oh. BNP ba? I forgot.
+Carl: Oh, you zus.
+Tin: And then you KK Wes the the ones that Wes is working on
+Carl: Ah, light us.
+Tin: parang ganuno na
+Carl: Yeah. But this one is for the actions.
+Tin: per that's the same level of ano app scripting I'll
+Carl: Mm-
+Tin: show that to Gian maybe we can pick up some points from there because I think you're running on the almost the same mechanism as that fun.
+
+
+00:13:16
+
+Carl: Correct. Yes. And so um and then on your site or department's GN because sometimes training will also have their own actions right um quality will have their own actions workforce will have their own actions here's a drop down so um we need to make sure that um part and then can I share my screen ma so I can show you how I'm navigating this.
+Jian: It's okay.
+Carl: All right. So when I go here um drop down here is the action effectiveness another action effectiveness category coaching process improvement security compliance. I think we'll need to change the um category here. So the category that I'm thinking is um we can put this in the readme definition. Is it um corrective? Is it um you know cuz there are actions that are corrective in nature meaning um your your entire activity is to redirect the team. Redirect. Ah there you go. Reinforcement. Um redirection. Reinforce. Um let me just expand the category here right um um begin category of the action and then I will also give you a type of action.
+
+
+00:14:44
+
+Carl: Um, can you ano can you give me um what is the ano ba y ano? Do you want a table that I can fill out um that's for you so that it's easier cuz if I I communicate it the way how I design it, I'll probably screw up your design. So, I just want to build it on um the sheet that you're already building so that I don't disrupt your rhythm and then you know it makes sense still for you.
+Tin: Do you have the scratch?
+Jian: I'll share the caption I'll facing.
+Carl: Okay. And then I like the um review um slashapprove um option tin um which we will give to the directors right so for example for PH um everything has to be reviewed and approved and so you have status of internal status of the actions that were submitted but were not reviewed were not approved um call out why was this not reviewed why was this not approved
+Tin: Yes, you have a good visibility Carl of how much a directors are really invested to the things that their ops needs are writing.
