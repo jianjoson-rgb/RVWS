@@ -1,1 +1,6002 @@
-test
+
+I HAVE THIS SCRIPT, I NEED TO ADD DATA FROM THIS FILE https://docs.google.com/spreadsheets/d/1_g7JQY24ltzlR7Cwxcb3AU-r9HNMaFTYU96l2JLRa4U/edit?gid=261907758#gid=261907758
+
+IT SHOULD BE COMING FROM THE COLUMNS Ownership, MERCHANT EFFORT, AND GENUINE EMPATHYY
+
+USE THE Ticket ID/SID COLUMN AS AN IDENTIFIER TO CONNECT TO THE REST OF THE DATA
+
+THE VALUES ON THE 3 COLUMNS ARE MET AND NOT MET AND SHOULD BE TAG AS 1 AND 0 (1 = MET / 0 = NOT MET)
+
+TICKET CLEAN UP - SOME CELLS CONTAIN #70726114, OR https://shopify.zendesk.com/agent/tickets/70703513 wherein what we need is 70703513 the numbers only to be used as a looker on the current file/source
+
+
+context on the ownership, merchant effort and genuine empathy
+
+Ownership
+
+*
+Did the advisor confidently explains the existing path, confirms the merchant is in the right process, and makes clear where the response will come from without implying support can force or speed up the process.
+
+
+Merchant Effort
+*
+Did the advisor reduce effort by using available context, giving direct paths, links and clear instructions, or doing the work where possible?
+
+
+
+Genuine Empathy Comments/Notes
+*
+Please provide insights or feedback explaining your selection above.  What went well and what can still be transformed or improved?
+
+THE SCRIPT IS BELOW
+
+
+#@title STEP 1 : MASTER RAW DATA LOADER - MERCHANT ENRICHED WITH TAXONOMY + TENURE GROUP + SITE + RAMP + ELEVATE QA + AFTR + INTERACTIONS + DEEP DIVE [RUN ONCE]
+#@markdown Merchant loader uses a 22-week window. Ticket, taxonomy, Elevate QA, AFTR, Interaction, and Deep Dive lookups use the same window.
+#@markdown Elevate QA attributes are matched by Ticket ID from the Elevate `Ticket link` column.
+#@markdown AFTR is matched by Tickets CSV `ticket_id` to raw `Ticket ID`.
+#@markdown Interaction metrics are matched by Interactions CSV Ticket ID to raw `Ticket ID`.
+#@markdown Deep Dive responses are matched from `Form Responses 2` header `Ticket Number` to raw `Ticket ID`.
+#@markdown Output layout is raw!A:AW. Tool Utilization and old impact columns are excluded.
+#@markdown This version keeps only raw and load_summary in the target workbook, trims generated sheets, and uses header-based Deep Dive mapping so shifted source columns do not break the output.
+
+LOOKBACK_WEEKS = 22
+
+# =========================
+# AUTH
+# =========================
+from google.colab import auth
+auth.authenticate_user()
+
+# =========================
+# IMPORTS
+# =========================
+import os
+import re
+import time
+import math
+import shutil
+import logging
+import tempfile
+import warnings
+from datetime import datetime, timedelta, date
+from zoneinfo import ZoneInfo
+
+import pandas as pd
+import httplib2
+import google_auth_httplib2
+
+from google.auth import default
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+
+try:
+    from tqdm.auto import tqdm
+except Exception:
+    tqdm = None
+
+logging.getLogger("google_auth_httplib2").setLevel(logging.ERROR)
+
+# =========================
+# GOOGLE LINKS - EDIT HERE
+# =========================
+# Update links in this section only when source/destination files move.
+# Deep Dive source ID corrected: Db9SI_ uses uppercase I, not lowercase l.
+TARGET_SPREADSHEET_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1ZdfpriF2AE3KXXGSd9zCqkUPToe2pVztOeDQhO8H8eM/edit"
+)
+
+MERCHANT_SOURCE_FOLDER_URL = (
+    "https://drive.google.com/drive/folders/"
+    "1CWVBuVmvWiq6t3VBw2PqY2DMOMFTjFgu"
+)
+
+TAXONOMY_SOURCE_FOLDER_URL = (
+    "https://drive.google.com/drive/folders/"
+    "1UYklYLLz4UrlO_P9QBJU6j-C1NvR_kEb"
+)
+
+TICKETS_SOURCE_FOLDER_URL = (
+    "https://drive.google.com/drive/folders/"
+    "1XeluuLQxyHjdlqEx7aGail4RqheIz6uj"
+)
+
+INTERACTIONS_SOURCE_FOLDER_URL = (
+    "https://drive.google.com/drive/folders/"
+    "1XukjF7xttPuDc1a6IR66h33LJSVSv0x4"
+)
+
+DEEP_DIVE_SOURCE_SPREADSHEET_URL = (
+    "https://docs.google.com/spreadsheets/d/"
+    "1SjQVohk9Db9SI_gcnrBSc9Yn0S1WA61FP8pkk94rpE8/"
+    "edit?gid=2104089445#gid=2104089445"
+)
+
+ELEVATE_QA_SOURCE_FOLDER_URLS = [
+    "https://drive.google.com/drive/folders/12RhNHoyjBng7rO34JCjycOWOpsgQPmHi",
+    "https://drive.google.com/drive/folders/1Dus7kbHTrVbXzFHyKOZ1oRPHDxyZ_es0",
+]
+
+
+# =========================
+# GLOBAL CONFIG
+# =========================
+TIMEZONE_NAME = "Asia/Manila"
+
+CSV_CHUNK_SIZE = 100_000
+SHEETS_WRITE_BATCH_ROWS = 2_000
+
+MAX_RETRIES = 5
+INITIAL_RETRY_WAIT_SECONDS = 3
+BACKOFF_MULTIPLIER = 2
+REQUEST_TIMEOUT_SECONDS = 300
+
+RAW_SHEET_NAME = "raw"
+SUMMARY_SHEET_NAME = "load_summary"
+RAW_DEST_START_COLUMN = "A"
+
+NULL_TEXT = "null"
+NO_DATA_TEXT = "No data"
+INVALID_LOOKUP_VALUES = {"", "null", "n/a", "na", "#n/a", "none", "nan"}
+NO_DATA_LOOKUP_VALUES = INVALID_LOOKUP_VALUES | {
+    "#error!",
+    "#value!",
+    "#ref!",
+    "#div/0!",
+    "error",
+    "errored",
+    "undefined",
+}
+
+ENABLE_PROGRESS_BAR = True
+SHOW_FILE_DOWNLOAD_PROGRESS = False
+
+# =========================
+# SAFE OPTIMIZATION CONFIG
+# =========================
+# These defaults preserve the current raw output and load_summary behavior.
+# Set SCAN_NON_MASTER_REFERENCE_DATES to False only when you want extra speed
+# and are okay with Taxonomy/Ticket reference dates being filename-derived
+# in load_summary. Raw output logic is unchanged either way.
+REUSE_DOWNLOADED_LATEST_MERCHANT_FILE = True
+SCAN_NON_MASTER_REFERENCE_DATES = True
+CACHE_SPREADSHEET_METADATA = True
+LIGHTWEIGHT_SHEET_WRITE_PREP = True
+ENABLE_FINAL_TICKET_ID_DEDUPE = False
+
+# Google Sheets has a workbook-level cell cap. The raw sheet is generated
+# by this loader, so it is safe to resize it to the exact output size before
+# writing. This prevents accidental cell-limit failures caused by unused rows
+# or columns left over in the destination sheet.
+GOOGLE_SHEETS_CELL_LIMIT = 10_000_000
+RESIZE_GENERATED_SHEETS_BEFORE_WRITE = True
+RAW_EXTRA_BUFFER_ROWS = 0
+SUMMARY_EXTRA_BUFFER_ROWS = 0
+
+# =========================
+# TARGET WORKBOOK CLEANUP CONFIG
+# =========================
+# This loader now treats the target Google Sheet as a staging workbook only.
+# When enabled, the script permanently deletes every tab in the TARGET_SPREADSHEET
+# except raw and load_summary before writing the refreshed output.
+# Keep this True only when old analysis/signal/helper tabs are no longer needed.
+DELETE_NON_OUTPUT_TABS_FROM_TARGET = True
+TARGET_OUTPUT_SHEETS_TO_KEEP = [RAW_SHEET_NAME, SUMMARY_SHEET_NAME]
+
+SUMMARY_HEADERS = [
+    "Loader",
+    "Run Timestamp",
+    "Lookback Weeks",
+    "Window Start",
+    "Window End",
+    "Reference Latest File",
+    "Reference Latest Date",
+    "Processed File",
+    "Modified Time",
+    "File Size MB",
+    "Matched Rows",
+    "Status",
+]
+
+NUMERIC_OUTPUT_COLUMNS = ["Smiley Rate", "Non-Smiley Survey", "Responses"]
+DATEVALUE_OUTPUT_COLUMNS = ["Date"]
+
+# =========================
+# MERCHANT CONFIG
+# =========================
+MERCHANT_COMPANY_FILTER_VALUE = "TaskUs"
+MERCHANT_DATE_COLUMN = "Smiley Registered At"
+MERCHANT_COMPANY_COLUMN = "Company"
+
+MERCHANT_REQUIRED_COLUMNS = [
+    "Smiley Registered At",
+    "Company",
+    "Team",
+    "Team Code",
+    "Squad Code",
+    "Employee Name",
+    "SSA Name(s)",
+    "Level Of Detail Value",
+    "Ticket Channel",
+    "Ticket ID",
+    "Smiley Rating",
+    "Smiley Comment",
+]
+
+MERCHANT_BASE_OUTPUT_COLUMNS = [
+    "Ticket ID",
+    "Smiley Registered At",
+    "Company",
+    "Team",
+    "Team Code",
+    "Squad Code",
+    "Employee Name",
+    "SSA Name(s)",
+    "Level Of Detail Value",
+    "Ticket Channel",
+    "Smiley Rating",
+    "Smiley Comment",
+]
+
+MERCHANT_FILE_REGEX = re.compile(
+    r"^(?P<month>[A-Za-z]{3})\s+EOM\s+(?P<year>\d{4})\s+Merchant\s+Smileys?\.csv$",
+    re.IGNORECASE,
+)
+
+# =========================
+# TAXONOMY CONFIG
+# =========================
+TAXONOMY_COMPANY_FILTER_VALUE = "TaskUs"
+TAXONOMY_DATE_COLUMN = "Interaction Date"
+TAXONOMY_COMPANY_COLUMN = "Company"
+
+TAXONOMY_REQUIRED_COLUMNS = [
+    "Ticket URL",
+    "Interaction Date",
+    "Company",
+]
+
+TAXONOMY_HEADER_ALIASES = {
+    "Ticket ID": ["Ticket ID", "ticket_id", "Ticket Id", "TicketID", "ID"],
+    "Ticket URL": ["Ticket URL", "ticket_url", "Ticket Url", "URL", "Url"],
+    "Interaction Date": [
+        "Interaction Date",
+        "interaction_date",
+        "Create Date",
+        "Created Date",
+        "Created At",
+        "created_at",
+        "Ticket Created Date",
+        "Ticket Created At",
+    ],
+    "Company": ["Company", "company"],
+    "Level One": [
+        "Level One",
+        "level_one",
+        "last_issue_taxonomy_level_one",
+        "Last Issue Taxonomy Level One",
+        "Issue Taxonomy Level One",
+        "taxonomy_level_one",
+        "Taxonomy Level One",
+    ],
+    "Level Two": [
+        "Level Two",
+        "level_two",
+        "last_issue_taxonomy_level_two",
+        "Last Issue Taxonomy Level Two",
+        "Issue Taxonomy Level Two",
+        "taxonomy_level_two",
+        "Taxonomy Level Two",
+    ],
+    "Employee Name": [
+        "Employee Name",
+        "employee_name",
+        "employee_full_name",
+        "Employee Full Name",
+        "Agent Name",
+        "Assignee Name",
+    ],
+    "Tenure": [
+        "Tenure",
+        "tenure",
+        "tenure_category",
+        "Tenure Category",
+        "agent_tenure",
+        "Agent Tenure",
+    ],
+    "BPO Site": [
+        "BPO Site",
+        "bpo_site",
+        "bpo_location",
+        "BPO Location",
+        "Site",
+        "Location",
+    ],
+}
+
+ROUTING_TOPICS_FILE_REGEX = re.compile(
+    r"^ROUTING_TOPICS_(?P<date_token>\d{6})\.csv$",
+    re.IGNORECASE,
+)
+LEGACY_TAXONOMY_FILE_REGEX = re.compile(
+    r"^(?P<date_token>\d{6})_Taxonomy\.csv$",
+    re.IGNORECASE,
+)
+
+# =========================
+# TICKETS CONFIG
+# =========================
+TICKETS_COMPANY_FILTER_VALUE = "TaskUs"
+TICKETS_DATE_COLUMN = "Time Zone Adjusted Date"
+TICKETS_COMPANY_COLUMN = "Company"
+
+TICKETS_REQUIRED_COLUMNS = [
+    "ticket_id",
+    "employee_full_name",
+    "Time Zone Adjusted Date",
+    "Company",
+]
+
+AFTR_OUTPUT_COLUMNS = [
+    "advisor_first_touch_resolution_rate_numerator",
+    "advisor_first_touch_resolution_rate_denominator",
+]
+
+# AFTR fields are optional at file-validation time so older ticket files do
+# not stop the whole raw load. Missing/unusable values output as "No data".
+TICKETS_OPTIONAL_COLUMNS = [
+    "agent_tenure",
+    "bpo_location",
+] + AFTR_OUTPUT_COLUMNS
+
+TICKETS_FILE_REGEX = re.compile(
+    r"^(?P<month>[A-Za-z]{3})\s+EOM\s+(?P<year>\d{4})\s+Tickets\.csv$",
+    re.IGNORECASE,
+)
+
+MONTH_MAP = {
+    "JAN": 1, "FEB": 2, "MAR": 3, "APR": 4, "MAY": 5, "JUN": 6,
+    "JUL": 7, "AUG": 8, "SEP": 9, "OCT": 10, "NOV": 11, "DEC": 12,
+}
+
+# =========================
+# INTERACTIONS CONFIG
+# =========================
+INTERACTIONS_FILE_REGEX = re.compile(
+    r"^(?P<month>[A-Za-z]{3})\s+"
+    r"(?P<start_day>\d{1,2})\s*-\s*"
+    r"(?P<end_day>\d{1,2})\s+"
+    r"(?P<year>\d{4})\s+Interactions(?:\.csv)?$",
+    re.IGNORECASE,
+)
+
+INTERACTION_OUTPUT_COLUMNS = [
+    "Async_follow_up_count",
+    "chat__answered_count",
+    "chat__queue_duration_min",
+    "Chat Average Handle Time",
+]
+
+INTERACTION_SOURCE_TO_OUTPUT_COLUMN = {
+    "Async_follow_up_count": "Async_follow_up_count",
+    "chat__answered_count": "chat__answered_count",
+    "chat__queue_duration_sec": "chat__queue_duration_min",
+    "Chat Average Handle Time": "Chat Average Handle Time",
+}
+
+INTERACTION_HEADER_ALIASES = {
+    "Ticket ID": [
+        "Ticket ID",
+        "ticket_id",
+        "Ticket Id",
+        "TicketID",
+    ],
+    "Async_follow_up_count": [
+        "Async_follow_up_count",
+        "async_follow_up_count",
+        "Async Follow Up Count",
+        "Async follow up count",
+    ],
+    "chat__answered_count": [
+        "chat__answered_count",
+        "Chat Answered Count",
+        "chat_answered_count",
+    ],
+    "chat__queue_duration_sec": [
+        "chat__queue_duration_sec",
+        "Chat Queue Duration Sec",
+        "chat_queue_duration_sec",
+        "Queue Duration Sec",
+    ],
+    "Chat Average Handle Time": [
+        "Chat Average Handle Time",
+        "chat_average_handle_time",
+        "Chat AHT",
+        "chat_aht",
+    ],
+}
+
+# =========================
+# DEEP DIVE GOOGLE SHEET CONFIG
+# =========================
+# Current source tab is the original Google Form response tab.
+# The read is intentionally wider than the old fixed AY:BI range so the
+# script can find headers even if the form columns shift.
+# Matching is header-based, not column-letter-based:
+#   Ticket Number -> raw Ticket ID
+#   Timestamp -> latest response per Ticket Number
+#   Deep Dive headers + Contact Category -> output columns below
+# Duplicate Ticket Numbers keep the latest Timestamp; if Timestamp is blank,
+# the last matching row found in the source sheet wins.
+DEEP_DIVE_SOURCE_SHEET_NAME = "Form Responses 2"
+DEEP_DIVE_SOURCE_GID = 2104089445
+DEEP_DIVE_SOURCE_READ_RANGE = "A:ZZ"
+DEEP_DIVE_TICKET_HEADER_ALIASES = [
+    "Ticket Number",
+    "Ticket ID",
+    "ticket_id",
+    "Ticket Id",
+]
+DEEP_DIVE_TIMESTAMP_HEADER_ALIASES = [
+    "Timestamp",
+    "Submitted At",
+    "Created At",
+    "Submission Time",
+]
+
+DEEP_DIVE_OUTPUT_COLUMNS = [
+    "Smiley L1",
+    "Smiley L2",
+    "Smiley L3",
+    "Smiley Drilldown",
+    "AFTR L1",
+    "AFTR L2",
+    "AFTR L3",
+    "AHT L1",
+    "AHT L2",
+    "AHT L3",
+    "AHT Drilldown",
+    "Contact Category",
+]
+
+DEEP_DIVE_SOURCE_HEADER_ALIASES = {
+    "Smiley L1": ["Smiley L1"],
+    "Smiley L2": ["Smiley L2"],
+    "Smiley L3": ["Smiley L3"],
+    "Smiley Drilldown": ["Smiley Drilldown"],
+    "AFTR L1": ["AFTR L1"],
+    "AFTR L2": ["AFTR L2"],
+    "AFTR L3": ["AFTR L3"],
+    "AHT L1": ["AHT L1"],
+    "AHT L2": ["AHT L2"],
+    "AHT L3": ["AHT L3"],
+    "AHT Drilldown": ["AHT Drilldown"],
+    "Contact Category": ["Contact Category"],
+}
+
+NO_DATA_OUTPUT_COLUMNS = AFTR_OUTPUT_COLUMNS + INTERACTION_OUTPUT_COLUMNS + DEEP_DIVE_OUTPUT_COLUMNS
+MIXED_NUMBER_OUTPUT_COLUMNS = AFTR_OUTPUT_COLUMNS + [
+    "Async_follow_up_count",
+    "chat__answered_count",
+    "chat__queue_duration_min",
+]
+DECIMAL_NUMBER_OUTPUT_COLUMNS = ["chat__queue_duration_min"]
+
+# =========================
+# ELEVATE QA CSV CONFIG
+# =========================
+ELEVATE_QA_FILE_REGEX = re.compile(
+    r"^Elevate_QA_Trends_(?P<year>\d{4})_(?P<month>\d{2})[-_](?P<day>\d{2})\.csv$",
+    re.IGNORECASE,
+)
+
+ELEVATE_QA_REQUIRED_COLUMNS = [
+    "Ticket link",
+    "QA Attribute",
+    "Opportunity level",
+]
+
+# Final QA attributes written to raw.
+# Tool Utilization was intentionally removed because it is no longer populated.
+# With this layout plus AFTR, Interaction, and Deep Dive enrichment, FINAL_OUTPUT_COLUMNS has 49 columns and writes raw!A:AW.
+QA_OUTPUT_COLUMNS = [
+    "Issue Understanding",
+    "Context Gathering",
+    "Active Engagement",
+    "Tailored Explanations",
+    "Resolution Recap",
+    "Shopify Voice",
+]
+
+ELEVATE_OPPORTUNITY_BINARY_MAP = {
+    "no_opportunity": 1,
+    "minor_opportunity": 1,
+    "major_opportunity": 0,
+}
+
+ELEVATE_QA_ATTRIBUTE_TO_OUTPUT_COLUMN = {
+    "issue understanding": "Issue Understanding",
+    "context gathering": "Context Gathering",
+    "active engagement": "Active Engagement",
+    "engagement support": "Active Engagement",
+    "tailored explanations": "Tailored Explanations",
+    "tailored guidance": "Tailored Explanations",
+    "resolution recap": "Resolution Recap",
+    "resolution takeover appropriateness": "Resolution Recap",
+    "shopify voice": "Shopify Voice",
+}
+
+AUDIT_OUTPUT_COLUMNS = QA_OUTPUT_COLUMNS
+AUDIT_BINARY_OUTPUT_COLUMNS = QA_OUTPUT_COLUMNS
+AUDIT_TEXT_OUTPUT_COLUMNS = []
+
+# =========================
+# SITE CONVERSION MAPS
+# =========================
+RAW_TAXONOMY_SITE_TO_CODE = {
+    "TaskUs - Clark": "HTW",
+    "TaskUs - Manila": "PHX",
+    "TaskUs - Cali": "ARN",
+    "TaskUs - India": "MTQ",
+    "TaskUs - Medellin": "ARN",
+}
+
+RAW_TICKETS_SITE_TO_CODE = {
+    "TaskUs -Outsourced Employees (TaskUs), Pampanga, Philippines - Office": "HTW",
+    "TaskUs -Outsourced Employees (TaskUs), Manila, Philippines - Office": "PHX",
+    "TaskUs -Outsourced Employees (TaskUs), Cali, Colombia - Office": "ARN",
+    "TaskUs -Outsourced Employees (TaskUs), Gurugram, India - Office": "MTQ",
+    "Outsourced Employees (TaskUs), Medellin, Colombia - Office": "ARN",
+}
+
+# =========================
+# FINAL OUTPUT CONFIG
+# =========================
+FINAL_OUTPUT_COLUMNS = [
+    "Ticket ID",
+    "Smiley Registered At",
+    "Company",
+    "Team",
+    "Team Code",
+    "Squad Code",
+    "Employee Name",
+    "SSA Name(s)",
+    "Level Of Detail Value",
+    "Ticket Channel",
+    "Smiley Rating",
+    "Smiley Comment",
+    "Level One",
+    "Level Two",
+    "Created Date",
+    "Date",
+    "Week",
+    "Month",
+    "Smiley Rate",
+    "Non-Smiley Survey",
+    "Responses",
+    "Ticket Age",
+    "Tenure Group",
+    "Site",
+    "Ramp",
+] + AUDIT_OUTPUT_COLUMNS + AFTR_OUTPUT_COLUMNS + INTERACTION_OUTPUT_COLUMNS + DEEP_DIVE_OUTPUT_COLUMNS
+
+
+# =========================
+# PROGRESS TRACKER
+# =========================
+class ProgressTracker:
+    def __init__(self, enabled=True, description="Master Loader"):
+        self.enabled = bool(enabled and tqdm is not None)
+        self.description = description
+        self.bar = None
+        self.total = 0
+        self.completed = 0
+        self.started = False
+
+    def start(self):
+        self.started = True
+        if self.enabled:
+            self.bar = tqdm(
+                total=0,
+                desc=self.description,
+                unit="step",
+                dynamic_ncols=True,
+            )
+        else:
+            print(f"{self.description} started.")
+
+    def add_total(self, units=1):
+        units = int(max(units or 0, 0))
+        if units == 0:
+            return
+        self.total += units
+        if self.bar is not None:
+            self.bar.total = self.total
+            self.bar.refresh()
+
+    def update(self, units=1, message=None):
+        units = int(max(units or 0, 0))
+        if units == 0:
+            return
+        self.completed += units
+        if self.bar is not None:
+            if message:
+                self.bar.set_description_str(str(message)[:80])
+            self.bar.update(units)
+            self.bar.refresh()
+        elif message:
+            print(f"[{self.completed}/{self.total}] {message}")
+
+    def set_message(self, message):
+        if self.bar is not None:
+            self.bar.set_description_str(str(message)[:80])
+            self.bar.refresh()
+        elif message:
+            print(message)
+
+    def close(self):
+        if self.bar is not None:
+            self.bar.close()
+        elif self.started:
+            print(f"{self.description} complete.")
+
+
+PROGRESS = ProgressTracker(enabled=ENABLE_PROGRESS_BAR)
+
+
+# =========================
+# GENERAL HELPERS
+# =========================
+def extract_google_id(url: str) -> str:
+    patterns = [
+        r"/d/([a-zA-Z0-9-_]+)",
+        r"/folders/([a-zA-Z0-9-_]+)",
+        r"id=([a-zA-Z0-9-_]+)",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, str(url))
+        if match:
+            return match.group(1)
+    raise ValueError(f"Could not extract Google ID from URL: {url}")
+
+
+def normalize_header(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value).strip())
+
+
+def canonical_header(value: str) -> str:
+    return normalize_header(value).casefold()
+
+
+def normalize_lookup_text(value) -> str:
+    if pd.isna(value):
+        return ""
+    text = re.sub(r"\s+", " ", str(value).strip()).casefold()
+    if text in INVALID_LOOKUP_VALUES:
+        return ""
+    return text
+
+
+def normalize_display_text(value) -> str:
+    if pd.isna(value):
+        return ""
+    text = re.sub(r"\s+", " ", str(value).strip())
+    if text.casefold() in INVALID_LOOKUP_VALUES:
+        return ""
+    return text
+
+
+def normalize_audit_binary_value(value):
+    """
+    Convert final QA binary values safely.
+
+    Supported truthy values:
+      yes, 1, 1.0, "1", "1.0"
+
+    Supported falsy values:
+      no, 0, 0.0, "0", "0.0"
+
+    Missing, unknown, or unrecognized values return NULL_TEXT.
+    Source score 2 is intentionally not accepted for raw output.
+    """
+    if pd.isna(value):
+        return NULL_TEXT
+
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        numeric_value = float(value)
+        if numeric_value == 1.0:
+            return 1
+        if numeric_value == 0.0:
+            return 0
+        return NULL_TEXT
+
+    text = normalize_display_text(value).casefold()
+
+    if text in {"yes", "1", "1.0"}:
+        return 1
+    if text in {"no", "0", "0.0"}:
+        return 0
+    return NULL_TEXT
+
+
+def normalize_lookup_series(series: pd.Series) -> pd.Series:
+    out = series.fillna("").astype(str).str.strip()
+    out = out.str.replace(r"\s+", " ", regex=True).str.casefold()
+    out = out.where(~out.isin(INVALID_LOOKUP_VALUES), "")
+    return out
+
+
+def normalize_display_series(series: pd.Series) -> pd.Series:
+    out = series.fillna("").astype(str).str.strip()
+    out = out.str.replace(r"\s+", " ", regex=True)
+    out = out.where(~out.str.casefold().isin(INVALID_LOOKUP_VALUES), "")
+    return out
+
+
+def is_usable_lookup_value(value) -> bool:
+    text = normalize_display_text(value)
+    return text != "" and text.casefold() not in INVALID_LOOKUP_VALUES
+
+
+def normalize_no_data_output_value(value):
+    """Return a cleaned value or NO_DATA_TEXT for unusable lookup output."""
+    if pd.isna(value):
+        return NO_DATA_TEXT
+
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        numeric_value = float(value)
+        if pd.isna(numeric_value):
+            return NO_DATA_TEXT
+        return int(numeric_value) if numeric_value.is_integer() else numeric_value
+
+    text = re.sub(r"\s+", " ", str(value).strip())
+    if text.casefold() in NO_DATA_LOOKUP_VALUES:
+        return NO_DATA_TEXT
+    return text
+
+
+def normalize_contact_category_output_value(value):
+    """
+    Return only the Contact Category label before the first dash.
+
+    Example:
+      "General Inquiry - Can be answered using..." -> "General Inquiry"
+
+    Blank, n/a, null, none, nan, and unusable values return NO_DATA_TEXT.
+    """
+    cleaned = normalize_no_data_output_value(value)
+    if cleaned == NO_DATA_TEXT:
+        return NO_DATA_TEXT
+
+    text = str(cleaned).strip()
+    text = re.split(r"\s+-\s+", text, maxsplit=1)[0].strip()
+    if not text or text.casefold() in NO_DATA_LOOKUP_VALUES:
+        return NO_DATA_TEXT
+    return text
+
+
+def normalize_optional_numeric_output_value(value):
+    """Return int/float for usable numeric lookup values, else NO_DATA_TEXT."""
+    cleaned = normalize_no_data_output_value(value)
+    if cleaned == NO_DATA_TEXT:
+        return NO_DATA_TEXT
+
+    if isinstance(cleaned, (int, float)) and not isinstance(cleaned, bool):
+        return cleaned
+
+    numeric_text = str(cleaned).replace(",", "").strip()
+    numeric_value = pd.to_numeric(numeric_text, errors="coerce")
+    if pd.isna(numeric_value):
+        return NO_DATA_TEXT
+
+    numeric_value = float(numeric_value)
+    return int(numeric_value) if numeric_value.is_integer() else numeric_value
+
+
+def convert_seconds_to_minutes_output(value):
+    """Convert seconds to minutes for chat__queue_duration_sec output."""
+    seconds_value = normalize_optional_numeric_output_value(value)
+    if seconds_value == NO_DATA_TEXT:
+        return NO_DATA_TEXT
+
+    minutes_value = float(seconds_value) / 60.0
+    return int(minutes_value) if minutes_value.is_integer() else minutes_value
+
+
+def get_nested_lookup_value(lookup_dict, ticket_id, column_name):
+    row = lookup_dict.get(ticket_id, {})
+    if not isinstance(row, dict):
+        return NO_DATA_TEXT
+    return row.get(column_name, NO_DATA_TEXT)
+
+
+def column_letter_to_number(column_letter: str) -> int:
+    text = str(column_letter).strip().upper()
+    if not text or not re.fullmatch(r"[A-Z]+", text):
+        raise ValueError(f"Invalid column letter: {column_letter}")
+
+    number = 0
+    for char in text:
+        number = number * 26 + (ord(char) - ord("A") + 1)
+    return number
+
+
+def column_number_to_letter(column_number: int) -> str:
+    number = int(column_number)
+    if number < 1:
+        raise ValueError("Column number must be at least 1.")
+
+    letters = []
+    while number:
+        number, remainder = divmod(number - 1, 26)
+        letters.append(chr(ord("A") + remainder))
+    return "".join(reversed(letters))
+
+
+RAW_DEST_END_COLUMN = column_number_to_letter(len(FINAL_OUTPUT_COLUMNS))
+
+EXPECTED_RAW_DEST_END_COLUMN = "AW"
+EXPECTED_RAW_OUTPUT_COLUMN_COUNT = column_letter_to_number(
+    EXPECTED_RAW_DEST_END_COLUMN
+)
+
+if len(FINAL_OUTPUT_COLUMNS) != EXPECTED_RAW_OUTPUT_COLUMN_COUNT:
+    raise ValueError(
+        "Final output column count does not match the expected raw range. "
+        f"Expected {EXPECTED_RAW_OUTPUT_COLUMN_COUNT} columns "
+        f"for raw!A:{EXPECTED_RAW_DEST_END_COLUMN}, "
+        f"but found {len(FINAL_OUTPUT_COLUMNS)} columns."
+    )
+
+if RAW_DEST_END_COLUMN != EXPECTED_RAW_DEST_END_COLUMN:
+    raise ValueError(
+        "Raw destination end column mismatch. "
+        f"Expected {EXPECTED_RAW_DEST_END_COLUMN}, "
+        f"but calculated {RAW_DEST_END_COLUMN}."
+    )
+
+RAW_DEST_CLEAR_RANGE = (
+    f"{RAW_SHEET_NAME}!{RAW_DEST_START_COLUMN}:{RAW_DEST_END_COLUMN}"
+)
+
+
+def normalize_ticket_id_series(series: pd.Series) -> pd.Series:
+    """
+    Normalize plain Ticket IDs and extract IDs from Zendesk-style ticket URLs.
+
+    Supported examples:
+      65493820
+      65493820.0
+      https://company.tool.com/agent/tickets/65493820
+      https://company.tool.com/agent/tickets/65493820?foo=bar
+    """
+    clean = series.fillna("").astype(str).str.strip()
+    clean = clean.where(~clean.str.casefold().isin(INVALID_LOOKUP_VALUES), "")
+    clean = clean.str.replace(r"[?#].*$", "", regex=True).str.rstrip("/")
+
+    zendesk_id = clean.str.extract(
+        r"(?i)(?:^|/)tickets/(\d+)(?:/|$)",
+        expand=False,
+    ).fillna("")
+
+    decimal_integer = clean.str.extract(
+        r"^\s*(\d+)\.0+\s*$",
+        expand=False,
+    ).fillna("")
+
+    digits_only = clean.where(clean.str.fullmatch(r"\d+", na=False), "")
+
+    last_numeric_group = clean.str.extract(
+        r"(\d+)(?!.*\d)",
+        expand=False,
+    ).fillna("")
+
+    result = zendesk_id.copy()
+    result = result.where(result != "", decimal_integer)
+    result = result.where(result != "", digits_only)
+    result = result.where(result != "", last_numeric_group)
+
+    return result.fillna("").astype(str).str.strip()
+
+
+def normalize_ticket_id_value(value) -> str:
+    """Fast scalar Ticket ID normalization for row-wise Google Sheets reads."""
+    if pd.isna(value):
+        return ""
+
+    text = str(value).strip()
+    if text.casefold() in INVALID_LOOKUP_VALUES:
+        return ""
+
+    text = re.sub(r"[?#].*$", "", text).rstrip("/")
+
+    zendesk_match = re.search(
+        r"(?i)(?:^|/)tickets/(\d+)(?:/|$)",
+        text,
+    )
+    if zendesk_match:
+        return zendesk_match.group(1)
+
+    decimal_integer_match = re.fullmatch(r"\s*(\d+)\.0+\s*", text)
+    if decimal_integer_match:
+        return decimal_integer_match.group(1)
+
+    if re.fullmatch(r"\d+", text):
+        return text
+
+    numeric_groups = re.findall(r"\d+", text)
+    return numeric_groups[-1] if numeric_groups else ""
+
+
+def build_combined_key(ticket_id, employee_name) -> str:
+    ticket_key = normalize_ticket_id_value(ticket_id)
+    name_key = normalize_lookup_text(employee_name)
+    if not ticket_key or not name_key:
+        return ""
+    return f"{ticket_key}||{name_key}"
+
+
+def build_combined_key_series(
+    ticket_series: pd.Series,
+    name_series: pd.Series,
+) -> pd.Series:
+    ticket_norm = normalize_ticket_id_series(ticket_series)
+    name_norm = normalize_lookup_series(name_series)
+    valid = (ticket_norm != "") & (name_norm != "")
+
+    combined = pd.Series(
+        [""] * len(ticket_series),
+        index=ticket_series.index,
+        dtype="object",
+    )
+    combined.loc[valid] = (
+        ticket_norm.loc[valid] + "||" + name_norm.loc[valid]
+    )
+    return combined
+
+
+def build_site_conversion_map(raw_map: dict) -> dict:
+    return {normalize_lookup_text(key): value for key, value in raw_map.items()}
+
+
+TAXONOMY_SITE_TO_CODE = build_site_conversion_map(RAW_TAXONOMY_SITE_TO_CODE)
+TICKETS_SITE_TO_CODE = build_site_conversion_map(RAW_TICKETS_SITE_TO_CODE)
+
+
+def compute_ramp_from_tenure_group(
+    tenure_series: pd.Series,
+    null_text: str = "null",
+) -> pd.Series:
+    tenure_clean = tenure_series.fillna("").astype(str).str.strip()
+    out = pd.Series(
+        [null_text] * len(tenure_series),
+        index=tenure_series.index,
+        dtype="object",
+    )
+
+    usable_mask = (
+        tenure_clean.ne("")
+        & ~tenure_clean.str.casefold().isin(INVALID_LOOKUP_VALUES)
+    )
+
+    if usable_mask.any():
+        ramping_mask = (
+            usable_mask
+            & tenure_clean.str.contains(
+                r"(?i)^[a-f]\.",
+                regex=True,
+                na=False,
+            )
+        )
+        ramped_mask = (
+            usable_mask
+            & tenure_clean.str.contains(
+                r"(?i)^[g-n]\.",
+                regex=True,
+                na=False,
+            )
+        )
+
+        out.loc[ramping_mask] = "Ramping (a. 0-6 Months)"
+        out.loc[ramped_mask] = "Ramped (b. 6+ Months)"
+
+    return out
+
+
+def retry_sleep(attempt_number: int) -> None:
+    wait_seconds = (
+        INITIAL_RETRY_WAIT_SECONDS
+        * (BACKOFF_MULTIPLIER ** (attempt_number - 1))
+    )
+    print(f"    Retry wait: {wait_seconds} seconds...")
+    time.sleep(wait_seconds)
+
+
+def run_with_retry(label, fn):
+    last_error = None
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            return fn()
+        except Exception as exc:
+            last_error = exc
+            print(
+                f"{label} failed on attempt "
+                f"{attempt}/{MAX_RETRIES}: {exc}"
+            )
+            if attempt < MAX_RETRIES:
+                retry_sleep(attempt)
+    raise last_error
+
+
+def safe_cleanup_file(local_path: str) -> None:
+    try:
+        if local_path and os.path.exists(local_path):
+            folder = os.path.dirname(local_path)
+            os.remove(local_path)
+            shutil.rmtree(folder, ignore_errors=True)
+    except Exception:
+        pass
+
+
+def parse_dates_general(series: pd.Series) -> pd.Series:
+    try:
+        parsed = pd.to_datetime(series, errors="coerce", format="mixed")
+    except Exception:
+        parsed = pd.to_datetime(series, errors="coerce")
+
+    try:
+        if getattr(parsed.dt, "tz", None) is not None:
+            parsed = parsed.dt.tz_convert(None)
+    except Exception:
+        pass
+
+    try:
+        parsed = parsed.dt.tz_localize(None)
+    except Exception:
+        pass
+
+    return parsed
+
+
+def clean_mojibake_datetime_series(series: pd.Series) -> pd.Series:
+    out = series.fillna("").astype(str)
+    out = out.str.replace("\u202f", " ", regex=False)
+    out = out.str.replace("\xa0", " ", regex=False)
+    out = out.str.replace("â€¯", " ", regex=False)
+    out = out.str.replace(r"\s+", " ", regex=True).str.strip()
+    out = out.str.replace(r",\s+", ", ", regex=True)
+    out = out.str.replace(
+        r"(?i)(\d)(am|pm)\b",
+        lambda match: f"{match.group(1)} {match.group(2).upper()}",
+        regex=True,
+    )
+    out = out.str.replace(
+        r"(?i)\b(am|pm)\b",
+        lambda match: match.group(1).upper(),
+        regex=True,
+    )
+    return out
+
+
+def parse_dates_with_known_formats(
+    series: pd.Series,
+    formats: list[str],
+) -> pd.Series:
+    cleaned = clean_mojibake_datetime_series(series)
+    parsed = pd.Series(
+        pd.NaT,
+        index=series.index,
+        dtype="datetime64[ns]",
+    )
+
+    remaining_mask = cleaned.ne("")
+
+    for fmt in formats:
+        if not remaining_mask.any():
+            break
+
+        candidate = pd.to_datetime(
+            cleaned.loc[remaining_mask],
+            errors="coerce",
+            format=fmt,
+        )
+
+        success_mask = candidate.notna()
+        if success_mask.any():
+            success_index = candidate.index[success_mask]
+            parsed.loc[success_index] = candidate.loc[success_index]
+            remaining_mask.loc[success_index] = False
+
+    if remaining_mask.any():
+        try:
+            fallback = pd.to_datetime(
+                cleaned.loc[remaining_mask],
+                errors="coerce",
+                format="mixed",
+            )
+        except (TypeError, ValueError):
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", UserWarning)
+                fallback = pd.to_datetime(
+                    cleaned.loc[remaining_mask],
+                    errors="coerce",
+                )
+
+        success_mask = fallback.notna()
+        if success_mask.any():
+            success_index = fallback.index[success_mask]
+            parsed.loc[success_index] = fallback.loc[success_index]
+
+    try:
+        if getattr(parsed.dt, "tz", None) is not None:
+            parsed = parsed.dt.tz_convert(None)
+    except Exception:
+        pass
+
+    try:
+        parsed = parsed.dt.tz_localize(None)
+    except Exception:
+        pass
+
+    return parsed
+
+
+def parse_dates_taxonomy(series: pd.Series) -> pd.Series:
+    formats = [
+        "%b %d, %Y, %I:%M:%S %p",
+        "%B %d, %Y, %I:%M:%S %p",
+        "%b %d, %Y %I:%M:%S %p",
+        "%B %d, %Y %I:%M:%S %p",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y-%m-%d %I:%M:%S %p",
+        "%m/%d/%Y %H:%M:%S",
+        "%m/%d/%Y %I:%M:%S %p",
+        "%m/%d/%Y",
+        "%Y-%m-%d",
+    ]
+    return parse_dates_with_known_formats(series, formats)
+
+
+def count_invalid_datetime_values(
+    raw_series: pd.Series,
+    parsed_series: pd.Series,
+) -> int:
+    raw_clean = clean_mojibake_datetime_series(raw_series)
+    nonblank_mask = (
+        raw_clean.ne("")
+        & ~raw_clean.str.casefold().isin(INVALID_LOOKUP_VALUES)
+    )
+    return int((nonblank_mask & parsed_series.isna()).sum())
+
+
+def format_created_date_output(
+    series: pd.Series,
+    null_text: str = "",
+) -> pd.Series:
+    out = pd.Series(
+        [null_text] * len(series),
+        index=series.index,
+        dtype="object",
+    )
+    valid = series.notna()
+    if valid.any():
+        out.loc[valid] = series.loc[valid].dt.strftime(
+            "%b %d, %Y %H:%M:%S"
+        )
+    return out
+
+
+def format_datevalue_output(series: pd.Series) -> pd.Series:
+    out = pd.Series(
+        [""] * len(series),
+        index=series.index,
+        dtype="object",
+    )
+    valid = series.notna()
+    if valid.any():
+        out.loc[valid] = series.loc[valid].dt.strftime("%Y-%m-%d")
+    return out
+
+
+def compute_week_label(series: pd.Series) -> pd.Series:
+    valid = series.notna()
+    out = pd.Series(
+        [""] * len(series),
+        index=series.index,
+        dtype="object",
+    )
+    if valid.any():
+        base_dates = series.loc[valid].dt.normalize()
+        days_since_sunday = (base_dates.dt.weekday + 1) % 7
+        result_dates = (
+            base_dates
+            - pd.to_timedelta(days_since_sunday, unit="D")
+        )
+        out.loc[valid] = "WB" + result_dates.dt.strftime("%m%d")
+    return out
+
+
+def format_month_output(series: pd.Series) -> pd.Series:
+    valid = series.notna()
+    out = pd.Series(
+        [""] * len(series),
+        index=series.index,
+        dtype="object",
+    )
+    if valid.any():
+        out.loc[valid] = series.loc[valid].dt.strftime("%m")
+    return out
+
+
+def compute_ticket_age(
+    smiley_dt: pd.Series,
+    created_dt: pd.Series,
+    null_text: str = "null",
+) -> pd.Series:
+    out = pd.Series(
+        [null_text] * len(smiley_dt),
+        index=smiley_dt.index,
+        dtype="object",
+    )
+    valid = smiley_dt.notna() & created_dt.notna()
+
+    if valid.any():
+        diff_days = (
+            smiley_dt.loc[valid] - created_dt.loc[valid]
+        ).dt.total_seconds() / 86_400.0
+
+        ceil_days = diff_days.apply(
+            lambda value: (
+                int(math.ceil(value))
+                if pd.notna(value)
+                else None
+            )
+        )
+
+        def to_label(days):
+            if days is None:
+                return null_text
+            if days <= 1:
+                return "1 Day"
+            if days > 7:
+                return ">7 Days"
+            return f"{days} Days"
+
+        out.loc[valid] = ceil_days.map(to_label)
+
+    return out
+
+
+def month_keys_between(start_date, end_date):
+    keys = []
+    year = start_date.year
+    month = start_date.month
+
+    while (year, month) <= (end_date.year, end_date.month):
+        keys.append((year, month))
+        if month == 12:
+            year += 1
+            month = 1
+        else:
+            month += 1
+
+    return keys
+
+
+def date_ranges_overlap(
+    left_start,
+    left_end,
+    right_start,
+    right_end,
+) -> bool:
+    return left_start <= right_end and left_end >= right_start
+
+
+def validate_and_map_headers(
+    header_cols,
+    required_columns,
+    file_name,
+    optional_columns=None,
+):
+    normalized_lookup = {}
+    for column in header_cols:
+        key = canonical_header(column)
+        if key not in normalized_lookup:
+            normalized_lookup[key] = column
+
+    missing = [
+        column
+        for column in required_columns
+        if canonical_header(column) not in normalized_lookup
+    ]
+    if missing:
+        raise ValueError(
+            f"{file_name}: missing required columns: {missing}. "
+            f"Found columns: "
+            f"{[normalize_header(c) for c in header_cols]}"
+        )
+
+    actual_source_columns = []
+    rename_map = {}
+
+    for column in required_columns:
+        actual = normalized_lookup[canonical_header(column)]
+        actual_source_columns.append(actual)
+        rename_map[actual] = column
+
+    present_optional = set()
+    for column in optional_columns or []:
+        key = canonical_header(column)
+        if key in normalized_lookup:
+            actual = normalized_lookup[key]
+            actual_source_columns.append(actual)
+            rename_map[actual] = column
+            present_optional.add(column)
+
+    deduped_actuals = list(dict.fromkeys(actual_source_columns))
+    return deduped_actuals, rename_map, present_optional
+
+
+def find_actual_header_by_alias(header_cols, aliases):
+    normalized_lookup = {}
+    for column in header_cols:
+        key = canonical_header(column)
+        if key not in normalized_lookup:
+            normalized_lookup[key] = column
+
+    for alias in aliases:
+        actual = normalized_lookup.get(canonical_header(alias))
+        if actual is not None:
+            return actual
+
+    return None
+
+
+def find_header_index_by_alias(headers, aliases):
+    canonical_headers = [canonical_header(header) for header in headers]
+
+    for alias in aliases:
+        alias_key = canonical_header(alias)
+        for index, header_key in enumerate(canonical_headers):
+            if header_key == alias_key:
+                return index
+
+    for alias in aliases:
+        alias_key = canonical_header(alias)
+        if not alias_key:
+            continue
+        for index, header_key in enumerate(canonical_headers):
+            if alias_key in header_key:
+                return index
+
+    return None
+
+
+def validate_and_map_taxonomy_headers(
+    header_cols,
+    file_name,
+    require_ticket=True,
+):
+    actual_source_columns = []
+    rename_map = {}
+    present_columns = set()
+
+    for canonical_column, aliases in TAXONOMY_HEADER_ALIASES.items():
+        actual = find_actual_header_by_alias(header_cols, aliases)
+        if actual is not None:
+            actual_source_columns.append(actual)
+            rename_map[actual] = canonical_column
+            present_columns.add(canonical_column)
+
+    missing_required = [
+        column
+        for column in ["Interaction Date", "Company"]
+        if column not in present_columns
+    ]
+
+    if (
+        require_ticket
+        and "Ticket ID" not in present_columns
+        and "Ticket URL" not in present_columns
+    ):
+        missing_required.append("Ticket ID or Ticket URL")
+
+    if missing_required:
+        raise ValueError(
+            f"{file_name}: missing required taxonomy columns: "
+            f"{missing_required}. Found columns: "
+            f"{[normalize_header(c) for c in header_cols]}"
+        )
+
+    deduped_actuals = list(dict.fromkeys(actual_source_columns))
+    return deduped_actuals, rename_map, present_columns
+
+
+def validate_and_map_interaction_headers(
+    header_cols,
+    file_name,
+):
+    actual_source_columns = []
+    rename_map = {}
+    present_columns = set()
+
+    for canonical_column, aliases in INTERACTION_HEADER_ALIASES.items():
+        actual = find_actual_header_by_alias(header_cols, aliases)
+        if actual is not None:
+            actual_source_columns.append(actual)
+            rename_map[actual] = canonical_column
+            present_columns.add(canonical_column)
+
+    if "Ticket ID" not in present_columns:
+        raise ValueError(
+            f"{file_name}: missing required interaction lookup column "
+            "'Ticket ID' or 'ticket_id'. Found columns: "
+            f"{[normalize_header(c) for c in header_cols]}"
+        )
+
+    deduped_actuals = list(dict.fromkeys(actual_source_columns))
+    return deduped_actuals, rename_map, present_columns
+
+
+def parse_merchant_filename(file_name: str):
+    match = MERCHANT_FILE_REGEX.match(str(file_name).strip())
+    if not match:
+        return None
+
+    month_abbr = match.group("month").upper()
+    year = int(match.group("year"))
+
+    if month_abbr not in MONTH_MAP:
+        return None
+
+    month = MONTH_MAP[month_abbr]
+    return {
+        "year": year,
+        "month": month,
+        "sort_key": (year, month),
+    }
+
+
+def parse_six_digit_month_year_token(date_token: str):
+    token = str(date_token).strip()
+    if not re.fullmatch(r"\d{6}", token):
+        return None
+
+    month_from_left = int(token[:2])
+    year_from_right = int(token[2:6])
+    if 1 <= month_from_left <= 12 and 1900 <= year_from_right <= 2100:
+        return {
+            "yyyymm": f"{year_from_right:04d}{month_from_left:02d}",
+            "mmyyyy": f"{month_from_left:02d}{year_from_right:04d}",
+            "year": year_from_right,
+            "month": month_from_left,
+            "sort_key": (year_from_right, month_from_left),
+        }
+
+    year_from_left = int(token[:4])
+    month_from_right = int(token[4:6])
+    if 1 <= month_from_right <= 12 and 1900 <= year_from_left <= 2100:
+        return {
+            "yyyymm": f"{year_from_left:04d}{month_from_right:02d}",
+            "mmyyyy": f"{month_from_right:02d}{year_from_left:04d}",
+            "year": year_from_left,
+            "month": month_from_right,
+            "sort_key": (year_from_left, month_from_right),
+        }
+
+    return None
+
+
+def parse_taxonomy_filename(file_name: str):
+    clean_name = str(file_name).strip()
+    match = ROUTING_TOPICS_FILE_REGEX.match(clean_name)
+
+    if not match:
+        match = LEGACY_TAXONOMY_FILE_REGEX.match(clean_name)
+
+    if not match:
+        return None
+
+    return parse_six_digit_month_year_token(
+        match.group("date_token")
+    )
+
+
+def parse_tickets_filename(file_name: str):
+    match = TICKETS_FILE_REGEX.match(str(file_name).strip())
+    if not match:
+        return None
+
+    month_abbr = match.group("month").upper()
+    year = int(match.group("year"))
+
+    if month_abbr not in MONTH_MAP:
+        return None
+
+    month = MONTH_MAP[month_abbr]
+    return {
+        "year": year,
+        "month": month,
+        "sort_key": (year, month),
+    }
+
+
+def parse_interactions_filename(file_name: str):
+    clean_name = str(file_name).strip()
+    match = INTERACTIONS_FILE_REGEX.match(clean_name)
+    if not match:
+        return None
+
+    month_abbr = match.group("month").upper()
+    year = int(match.group("year"))
+    start_day = int(match.group("start_day"))
+    end_day = int(match.group("end_day"))
+
+    if month_abbr not in MONTH_MAP:
+        return None
+
+    month = MONTH_MAP[month_abbr]
+
+    try:
+        start_date = date(year, month, start_day)
+        end_date = date(year, month, end_day)
+    except ValueError:
+        return None
+
+    if end_date < start_date:
+        return None
+
+    return {
+        "year": year,
+        "month": month,
+        "start_day": start_day,
+        "end_day": end_day,
+        "start_date": start_date,
+        "end_date": end_date,
+        "file_date": end_date,
+        "sort_key": (year, month, end_day),
+    }
+
+
+def parse_elevate_qa_filename(file_name: str):
+    match = ELEVATE_QA_FILE_REGEX.match(str(file_name).strip())
+    if not match:
+        return None
+
+    year = int(match.group("year"))
+    month = int(match.group("month"))
+    day = int(match.group("day"))
+
+    try:
+        file_date = date(year, month, day)
+    except ValueError:
+        return None
+
+    return {
+        "year": year,
+        "month": month,
+        "day": day,
+        "file_date": file_date,
+        "sort_key": (year, month, day),
+    }
+
+
+def ensure_taxonomy_standard_columns(
+    chunk: pd.DataFrame,
+) -> pd.DataFrame:
+    if "Ticket ID" not in chunk.columns:
+        chunk["Ticket ID"] = ""
+
+    chunk["Ticket ID"] = normalize_ticket_id_series(
+        chunk["Ticket ID"]
+    )
+
+    if "Ticket URL" in chunk.columns:
+        derived_ticket_id = normalize_ticket_id_series(
+            chunk["Ticket URL"]
+        )
+        blank_ticket_mask = chunk["Ticket ID"].eq("")
+        chunk.loc[blank_ticket_mask, "Ticket ID"] = (
+            derived_ticket_id.loc[blank_ticket_mask]
+        )
+
+    for required_column in [
+        "Employee Name",
+        "BPO Site",
+        "Level One",
+        "Level Two",
+        "Tenure",
+    ]:
+        if required_column not in chunk.columns:
+            chunk[required_column] = ""
+
+    return chunk
+
+
+# =========================
+# GOOGLE API SETUP
+# =========================
+def build_service(api_name, api_version, creds):
+    http = httplib2.Http(timeout=REQUEST_TIMEOUT_SECONDS)
+    authed_http = google_auth_httplib2.AuthorizedHttp(
+        creds,
+        http=http,
+    )
+    return build(
+        api_name,
+        api_version,
+        http=authed_http,
+        cache_discovery=False,
+    )
+
+
+creds, _ = default()
+drive_service = build_service("drive", "v3", creds)
+sheets_service = build_service("sheets", "v4", creds)
+
+TARGET_SPREADSHEET_ID = extract_google_id(TARGET_SPREADSHEET_URL)
+MERCHANT_SOURCE_FOLDER_ID = extract_google_id(MERCHANT_SOURCE_FOLDER_URL)
+TAXONOMY_SOURCE_FOLDER_ID = extract_google_id(TAXONOMY_SOURCE_FOLDER_URL)
+TICKETS_SOURCE_FOLDER_ID = extract_google_id(TICKETS_SOURCE_FOLDER_URL)
+INTERACTIONS_SOURCE_FOLDER_ID = extract_google_id(INTERACTIONS_SOURCE_FOLDER_URL)
+DEEP_DIVE_SOURCE_SPREADSHEET_ID = extract_google_id(DEEP_DIVE_SOURCE_SPREADSHEET_URL)
+ELEVATE_QA_SOURCE_FOLDER_IDS = [
+    extract_google_id(url)
+    for url in ELEVATE_QA_SOURCE_FOLDER_URLS
+]
+
+
+# =========================
+# DRIVE HELPERS
+# =========================
+def get_drive_file_metadata_by_id(
+    drive_service,
+    file_id,
+):
+    return run_with_retry(
+        "Get Drive file metadata",
+        lambda: drive_service.files().get(
+            fileId=file_id,
+            fields="id, name, modifiedTime, size",
+            supportsAllDrives=True,
+        ).execute(),
+    )
+
+
+def list_all_matching_source_files(
+    drive_service,
+    folder_id,
+    filename_parser,
+):
+    query = f"'{folder_id}' in parents and trashed = false"
+    files = []
+    page_token = None
+
+    while True:
+        response = run_with_retry(
+            "List source files",
+            lambda: drive_service.files().list(
+                q=query,
+                fields=(
+                    "nextPageToken, "
+                    "files(id, name, modifiedTime, size)"
+                ),
+                pageToken=page_token,
+                pageSize=1_000,
+                supportsAllDrives=True,
+                includeItemsFromAllDrives=True,
+            ).execute(),
+        )
+
+        for file_meta in response.get("files", []):
+            parsed = filename_parser(file_meta["name"])
+            if parsed:
+                file_meta["parsed_filename"] = parsed
+                files.append(file_meta)
+
+        page_token = response.get("nextPageToken")
+        if not page_token:
+            break
+
+    files.sort(
+        key=lambda item: item["parsed_filename"]["sort_key"]
+    )
+    return files
+
+
+def download_drive_file_with_retry(
+    drive_service,
+    file_id,
+    file_name,
+    temp_prefix,
+):
+    last_error = None
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        temp_dir = tempfile.mkdtemp(prefix=temp_prefix)
+        local_path = os.path.join(temp_dir, file_name)
+
+        try:
+            request = drive_service.files().get_media(
+                fileId=file_id,
+                supportsAllDrives=True,
+            )
+
+            with open(local_path, "wb") as file_handle:
+                downloader = MediaIoBaseDownload(
+                    file_handle,
+                    request,
+                )
+                done = False
+                while not done:
+                    status, done = downloader.next_chunk()
+                    if status and SHOW_FILE_DOWNLOAD_PROGRESS:
+                        print(
+                            "    Download progress: "
+                            f"{int(status.progress() * 100)}%"
+                        )
+
+            return local_path
+
+        except Exception as exc:
+            last_error = exc
+            print(
+                f"Download failed on attempt "
+                f"{attempt}/{MAX_RETRIES} for {file_name}: {exc}"
+            )
+            safe_cleanup_file(local_path)
+
+            if attempt < MAX_RETRIES:
+                retry_sleep(attempt)
+
+    raise last_error
+
+
+def get_latest_file_by_filename(files):
+    if not files:
+        raise ValueError(
+            "No matching source files were found in the folder."
+        )
+
+    return max(
+        files,
+        key=lambda item: item["parsed_filename"]["sort_key"],
+    )
+
+
+def get_file_size_mb(file_meta) -> object:
+    size = file_meta.get("size", "")
+    if not size:
+        return ""
+
+    try:
+        return round(int(size) / (1024 * 1024), 2)
+    except Exception:
+        return ""
+
+
+def get_reference_date_from_filename(file_meta):
+    parsed = file_meta.get("parsed_filename", {}) or {}
+
+    if parsed.get("file_date") is not None:
+        return parsed["file_date"]
+
+    year = parsed.get("year")
+    month = parsed.get("month")
+    if year is not None and month is not None:
+        return f"{int(year):04d}-{int(month):02d}"
+
+    return ""
+
+
+def get_latest_date_from_local_csv(
+    local_csv,
+    file_name,
+    required_columns,
+    date_column,
+    company_column,
+    company_filter_value,
+    parse_dates_func,
+    header_mapper_func=None,
+):
+    file_max_date = None
+
+    header_df = pd.read_csv(
+        local_csv,
+        nrows=0,
+        dtype=str,
+        keep_default_na=False,
+        low_memory=False,
+    )
+
+    if header_mapper_func is None:
+        _, rename_map, _ = validate_and_map_headers(
+            list(header_df.columns),
+            required_columns,
+            file_name,
+        )
+    else:
+        _, rename_map, _ = header_mapper_func(
+            list(header_df.columns),
+            file_name,
+        )
+
+    actual_date_column = next(
+        actual
+        for actual, expected in rename_map.items()
+        if expected == date_column
+    )
+    actual_company_column = next(
+        actual
+        for actual, expected in rename_map.items()
+        if expected == company_column
+    )
+
+    chunk_iter = pd.read_csv(
+        local_csv,
+        dtype=str,
+        keep_default_na=False,
+        low_memory=False,
+        chunksize=CSV_CHUNK_SIZE,
+        usecols=[actual_date_column, actual_company_column],
+    )
+
+    company_target = company_filter_value.casefold()
+    invalid_date_rows = 0
+
+    for chunk_number, chunk in enumerate(chunk_iter, start=1):
+        chunk = chunk.rename(columns=rename_map)
+        company_mask = (
+            normalize_lookup_series(chunk[company_column])
+            == company_target
+        )
+        date_series = parse_dates_func(chunk[date_column])
+
+        invalid_date_rows += count_invalid_datetime_values(
+            chunk.loc[company_mask, date_column],
+            date_series.loc[company_mask],
+        )
+
+        valid_dates = date_series[
+            company_mask & date_series.notna()
+        ]
+
+        if not valid_dates.empty:
+            chunk_max = valid_dates.max()
+            if file_max_date is None or chunk_max > file_max_date:
+                file_max_date = chunk_max
+
+        if chunk_number % 5 == 0:
+            PROGRESS.set_message(
+                f"Scanned {chunk_number} chunks from {file_name}"
+            )
+
+    if file_max_date is None:
+        raise ValueError(
+            f"No valid '{date_column}' values found for "
+            f"company '{company_filter_value}' in {file_name}."
+        )
+
+    print(f"  Latest {date_column}: {file_max_date}")
+    if invalid_date_rows:
+        print(
+            f"  Invalid {date_column} rows skipped: "
+            f"{invalid_date_rows:,}"
+        )
+
+    return file_max_date
+
+
+def get_latest_date_from_file(
+    drive_service,
+    file_meta,
+    required_columns,
+    date_column,
+    company_column,
+    company_filter_value,
+    parse_dates_func,
+    temp_prefix,
+    header_mapper_func=None,
+):
+    file_name = file_meta["name"]
+    local_csv = None
+
+    try:
+        print("--------------------------------------------------")
+        print(f"Scanning latest date from latest file: {file_name}")
+        PROGRESS.set_message(
+            f"Scanning latest date: {file_name}"
+        )
+
+        local_csv = download_drive_file_with_retry(
+            drive_service=drive_service,
+            file_id=file_meta["id"],
+            file_name=file_name,
+            temp_prefix=temp_prefix,
+        )
+
+        return get_latest_date_from_local_csv(
+            local_csv=local_csv,
+            file_name=file_name,
+            required_columns=required_columns,
+            date_column=date_column,
+            company_column=company_column,
+            company_filter_value=company_filter_value,
+            parse_dates_func=parse_dates_func,
+            header_mapper_func=header_mapper_func,
+        )
+
+    finally:
+        safe_cleanup_file(local_csv)
+
+
+# =========================
+# GOOGLE SHEETS HELPERS
+# =========================
+SPREADSHEET_METADATA_CACHE = {}
+
+
+def invalidate_spreadsheet_metadata_cache(spreadsheet_id=None):
+    if spreadsheet_id is None:
+        SPREADSHEET_METADATA_CACHE.clear()
+        return
+
+    SPREADSHEET_METADATA_CACHE.pop(spreadsheet_id, None)
+
+
+def get_spreadsheet_metadata(
+    sheets_service,
+    spreadsheet_id,
+    force_refresh=False,
+):
+    if (
+        CACHE_SPREADSHEET_METADATA
+        and not force_refresh
+        and spreadsheet_id in SPREADSHEET_METADATA_CACHE
+    ):
+        return SPREADSHEET_METADATA_CACHE[spreadsheet_id]
+
+    metadata = run_with_retry(
+        "Get spreadsheet metadata",
+        lambda: sheets_service.spreadsheets().get(
+            spreadsheetId=spreadsheet_id,
+            fields=(
+                "properties(title),"
+                "sheets(properties(sheetId,title,gridProperties))"
+            ),
+        ).execute(),
+    )
+
+    if CACHE_SPREADSHEET_METADATA:
+        SPREADSHEET_METADATA_CACHE[spreadsheet_id] = metadata
+
+    return metadata
+
+
+def ensure_sheet_exists(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+):
+    metadata = get_spreadsheet_metadata(
+        sheets_service,
+        spreadsheet_id,
+    )
+    existing_names = [
+        sheet["properties"]["title"]
+        for sheet in metadata.get("sheets", [])
+    ]
+
+    if sheet_name in existing_names:
+        return
+
+    body = {
+        "requests": [
+            {
+                "addSheet": {
+                    "properties": {"title": sheet_name}
+                }
+            }
+        ]
+    }
+
+    run_with_retry(
+        f"Create sheet '{sheet_name}'",
+        lambda: sheets_service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body=body,
+        ).execute(),
+    )
+    invalidate_spreadsheet_metadata_cache(spreadsheet_id)
+    get_spreadsheet_metadata(
+        sheets_service,
+        spreadsheet_id,
+        force_refresh=True,
+    )
+
+
+def get_sheet_id_by_name(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+):
+    metadata = get_spreadsheet_metadata(
+        sheets_service,
+        spreadsheet_id,
+    )
+
+    for sheet in metadata.get("sheets", []):
+        properties = sheet.get("properties", {})
+        if properties.get("title") == sheet_name:
+            return properties.get("sheetId")
+
+    raise ValueError(f"Sheet '{sheet_name}' not found.")
+
+
+def get_sheet_properties_by_name(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+    force_refresh=False,
+):
+    metadata = get_spreadsheet_metadata(
+        sheets_service,
+        spreadsheet_id,
+        force_refresh=force_refresh,
+    )
+
+    for sheet in metadata.get("sheets", []):
+        properties = sheet.get("properties", {})
+        if properties.get("title") == sheet_name:
+            grid_properties = properties.get("gridProperties", {})
+            return {
+                "spreadsheet_title": (
+                    metadata.get("properties", {}).get("title", "")
+                ),
+                "sheet_id": properties.get("sheetId"),
+                "sheet_title": properties.get("title"),
+                "row_count": int(grid_properties.get("rowCount", 0) or 0),
+                "column_count": int(grid_properties.get("columnCount", 0) or 0),
+                "metadata": metadata,
+            }
+
+    available = [
+        sheet.get("properties", {}).get("title")
+        for sheet in metadata.get("sheets", [])
+    ]
+
+    raise ValueError(
+        f"Sheet '{sheet_name}' not found in spreadsheet "
+        f"{spreadsheet_id}. Available sheets: {available}"
+    )
+
+
+def calculate_workbook_cell_usage(metadata):
+    usage_rows = []
+    total_cells = 0
+
+    for sheet in metadata.get("sheets", []):
+        properties = sheet.get("properties", {})
+        grid_properties = properties.get("gridProperties", {})
+        row_count = int(grid_properties.get("rowCount", 0) or 0)
+        column_count = int(grid_properties.get("columnCount", 0) or 0)
+        cells = row_count * column_count
+        total_cells += cells
+
+        usage_rows.append(
+            {
+                "sheet_title": properties.get("title", ""),
+                "sheet_id": properties.get("sheetId"),
+                "row_count": row_count,
+                "column_count": column_count,
+                "cells": cells,
+            }
+        )
+
+    return total_cells, usage_rows
+
+
+def log_top_sheet_cell_usage(usage_rows, top_n=8):
+    sorted_rows = sorted(
+        usage_rows,
+        key=lambda row: row.get("cells", 0),
+        reverse=True,
+    )
+
+    print("Largest sheets by allocated cells:")
+    for row in sorted_rows[:top_n]:
+        print(
+            "  "
+            f"{row['sheet_title']}: "
+            f"{row['row_count']:,} rows x "
+            f"{row['column_count']:,} cols = "
+            f"{row['cells']:,} cells"
+        )
+
+
+
+def prepare_target_workbook_output_tabs(
+    sheets_service,
+    spreadsheet_id,
+    keep_sheet_names=None,
+):
+    """
+    Keep the target workbook lean by retaining only generated output tabs.
+
+    This affects TARGET_SPREADSHEET_ID only. It does not touch any source
+    folders or source spreadsheets.
+
+    When DELETE_NON_OUTPUT_TABS_FROM_TARGET is True, all sheets except the
+    configured keep tabs are permanently deleted. This prevents old signal,
+    analysis, helper, pivot, and temporary tabs from consuming workbook cells.
+    """
+    keep_sheet_names = list(
+        keep_sheet_names or TARGET_OUTPUT_SHEETS_TO_KEEP
+    )
+    keep_set = set(keep_sheet_names)
+
+    if not keep_sheet_names:
+        raise ValueError(
+            "keep_sheet_names cannot be empty. At least one sheet must be kept."
+        )
+
+    if not DELETE_NON_OUTPUT_TABS_FROM_TARGET:
+        print(
+            "Target workbook cleanup is disabled. "
+            "Ensuring output tabs exist only."
+        )
+        for sheet_name in keep_sheet_names:
+            ensure_sheet_exists(
+                sheets_service=sheets_service,
+                spreadsheet_id=spreadsheet_id,
+                sheet_name=sheet_name,
+            )
+        return
+
+    print("======================================")
+    print("TARGET WORKBOOK CLEANUP START")
+    print("======================================")
+    print(
+        "Target workbook will keep only: "
+        f"{', '.join(keep_sheet_names)}"
+    )
+
+    metadata = get_spreadsheet_metadata(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        force_refresh=True,
+    )
+    sheets = metadata.get("sheets", [])
+
+    if not sheets:
+        raise RuntimeError(
+            "Target spreadsheet metadata returned no sheets. "
+            "Cannot prepare output workbook."
+        )
+
+    current_titles = [
+        sheet.get("properties", {}).get("title", "")
+        for sheet in sheets
+    ]
+
+    existing_keep_titles = [
+        title for title in current_titles if title in keep_set
+    ]
+
+    # If the workbook does not yet contain any of the keep tabs, rename the
+    # first existing tab to raw instead of adding a new tab. This avoids
+    # unnecessary cell growth in already-full workbooks.
+    if not existing_keep_titles:
+        first_sheet = sheets[0].get("properties", {})
+        first_sheet_id = first_sheet.get("sheetId")
+        first_sheet_title = first_sheet.get("title", "")
+        primary_keep_title = keep_sheet_names[0]
+
+        print(
+            "No output tabs were found. Renaming first existing tab "
+            f"'{first_sheet_title}' to '{primary_keep_title}'."
+        )
+
+        run_with_retry(
+            f"Rename sheet '{first_sheet_title}' to '{primary_keep_title}'",
+            lambda: sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={
+                    "requests": [
+                        {
+                            "updateSheetProperties": {
+                                "properties": {
+                                    "sheetId": first_sheet_id,
+                                    "title": primary_keep_title,
+                                },
+                                "fields": "title",
+                            }
+                        }
+                    ]
+                },
+            ).execute(),
+        )
+        invalidate_spreadsheet_metadata_cache(spreadsheet_id)
+
+        metadata = get_spreadsheet_metadata(
+            sheets_service=sheets_service,
+            spreadsheet_id=spreadsheet_id,
+            force_refresh=True,
+        )
+        sheets = metadata.get("sheets", [])
+
+    sheets_to_delete = []
+    for sheet in sheets:
+        properties = sheet.get("properties", {})
+        title = properties.get("title", "")
+        sheet_id = properties.get("sheetId")
+
+        if title not in keep_set:
+            sheets_to_delete.append(
+                {
+                    "title": title,
+                    "sheet_id": sheet_id,
+                }
+            )
+
+    if sheets_to_delete:
+        print("Deleting non-output tabs from target workbook:")
+        for item in sheets_to_delete:
+            print(f"  - {item['title']}")
+
+        delete_requests = [
+            {
+                "deleteSheet": {
+                    "sheetId": item["sheet_id"]
+                }
+            }
+            for item in sheets_to_delete
+        ]
+
+        # Batch delete requests. This is safer for workbooks with many tabs.
+        batch_size = 100
+        for batch_number, start_index in enumerate(
+            range(0, len(delete_requests), batch_size),
+            start=1,
+        ):
+            request_batch = delete_requests[
+                start_index:start_index + batch_size
+            ]
+            run_with_retry(
+                f"Delete old target tabs batch {batch_number}",
+                lambda request_batch=request_batch: (
+                    sheets_service.spreadsheets().batchUpdate(
+                        spreadsheetId=spreadsheet_id,
+                        body={"requests": request_batch},
+                    ).execute()
+                ),
+            )
+
+        invalidate_spreadsheet_metadata_cache(spreadsheet_id)
+    else:
+        print("No non-output tabs found. Nothing to delete.")
+
+    # Ensure both required generated tabs exist after cleanup.
+    for sheet_name in keep_sheet_names:
+        ensure_sheet_exists(
+            sheets_service=sheets_service,
+            spreadsheet_id=spreadsheet_id,
+            sheet_name=sheet_name,
+        )
+
+    metadata = get_spreadsheet_metadata(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        force_refresh=True,
+    )
+    remaining_titles = [
+        sheet.get("properties", {}).get("title", "")
+        for sheet in metadata.get("sheets", [])
+    ]
+
+    print("Target workbook tabs after cleanup:")
+    for title in remaining_titles:
+        print(f"  - {title}")
+
+    unexpected_tabs = [
+        title for title in remaining_titles if title not in keep_set
+    ]
+    if unexpected_tabs:
+        raise RuntimeError(
+            "Target workbook cleanup did not complete as expected. "
+            f"Unexpected remaining tabs: {unexpected_tabs}"
+        )
+
+    print("TARGET WORKBOOK CLEANUP COMPLETE")
+
+
+def validate_projected_workbook_cell_usage(
+    sheets_service,
+    spreadsheet_id,
+    generated_sheet_name,
+    required_rows,
+    required_columns,
+):
+    sheet_props = get_sheet_properties_by_name(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        sheet_name=generated_sheet_name,
+        force_refresh=True,
+    )
+    metadata = sheet_props["metadata"]
+    current_total_cells, usage_rows = calculate_workbook_cell_usage(metadata)
+
+    current_generated_cells = (
+        sheet_props["row_count"] * sheet_props["column_count"]
+    )
+    planned_generated_cells = int(required_rows) * int(required_columns)
+    projected_total_cells = (
+        current_total_cells
+        - current_generated_cells
+        + planned_generated_cells
+    )
+
+    print("Google Sheets cell usage check:")
+    print(f"  Current workbook cells : {current_total_cells:,}")
+    print(
+        f"  Current {generated_sheet_name} cells: "
+        f"{current_generated_cells:,}"
+    )
+    print(
+        f"  Planned {generated_sheet_name} cells: "
+        f"{planned_generated_cells:,}"
+    )
+    print(f"  Projected workbook cells: {projected_total_cells:,}")
+    print(f"  Workbook cell limit    : {GOOGLE_SHEETS_CELL_LIMIT:,}")
+
+    if projected_total_cells > GOOGLE_SHEETS_CELL_LIMIT:
+        log_top_sheet_cell_usage(usage_rows)
+
+        raise RuntimeError(
+            "Google Sheets cell limit would still be exceeded after "
+            f"resizing generated sheet '{generated_sheet_name}' to the "
+            f"required output size. Projected cells: "
+            f"{projected_total_cells:,}; limit: "
+            f"{GOOGLE_SHEETS_CELL_LIMIT:,}. Delete unused rows/columns "
+            "from other tabs in the workbook, move archive tabs to another "
+            "file, or reduce the raw output window before rerunning."
+        )
+
+    return {
+        "current_total_cells": current_total_cells,
+        "current_generated_cells": current_generated_cells,
+        "planned_generated_cells": planned_generated_cells,
+        "projected_total_cells": projected_total_cells,
+        "usage_rows": usage_rows,
+    }
+
+
+def resize_generated_sheet_grid(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+    required_rows,
+    required_columns,
+):
+    required_rows = int(max(required_rows or 1, 1))
+    required_columns = int(max(required_columns or 1, 1))
+
+    if not RESIZE_GENERATED_SHEETS_BEFORE_WRITE:
+        return
+
+    sheet_props = get_sheet_properties_by_name(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        sheet_name=sheet_name,
+        force_refresh=True,
+    )
+
+    sheet_id = sheet_props["sheet_id"]
+    current_rows = int(sheet_props["row_count"])
+    current_columns = int(sheet_props["column_count"])
+
+    print(
+        f"Preparing generated sheet '{sheet_name}' size: "
+        f"current {current_rows:,} rows x {current_columns:,} cols; "
+        f"required {required_rows:,} rows x {required_columns:,} cols"
+    )
+
+    shrink_requests = []
+
+    # Shrink rows first. This is the key fix for workbook cell-limit errors
+    # when expanding the raw output from A:AK to A:AW.
+    if current_rows > required_rows:
+        shrink_requests.append(
+            {
+                "deleteDimension": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "dimension": "ROWS",
+                        "startIndex": required_rows,
+                        "endIndex": current_rows,
+                    }
+                }
+            }
+        )
+        current_rows = required_rows
+
+    if current_columns > required_columns:
+        shrink_requests.append(
+            {
+                "deleteDimension": {
+                    "range": {
+                        "sheetId": sheet_id,
+                        "dimension": "COLUMNS",
+                        "startIndex": required_columns,
+                        "endIndex": current_columns,
+                    }
+                }
+            }
+        )
+        current_columns = required_columns
+
+    if shrink_requests:
+        run_with_retry(
+            f"Shrink generated sheet '{sheet_name}'",
+            lambda: sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={"requests": shrink_requests},
+            ).execute(),
+        )
+        invalidate_spreadsheet_metadata_cache(spreadsheet_id)
+
+        sheet_props = get_sheet_properties_by_name(
+            sheets_service=sheets_service,
+            spreadsheet_id=spreadsheet_id,
+            sheet_name=sheet_name,
+            force_refresh=True,
+        )
+        current_rows = int(sheet_props["row_count"])
+        current_columns = int(sheet_props["column_count"])
+
+    grow_requests = []
+
+    if current_columns < required_columns:
+        grow_requests.append(
+            {
+                "appendDimension": {
+                    "sheetId": sheet_id,
+                    "dimension": "COLUMNS",
+                    "length": required_columns - current_columns,
+                }
+            }
+        )
+
+    if current_rows < required_rows:
+        grow_requests.append(
+            {
+                "appendDimension": {
+                    "sheetId": sheet_id,
+                    "dimension": "ROWS",
+                    "length": required_rows - current_rows,
+                }
+            }
+        )
+
+    if grow_requests:
+        run_with_retry(
+            f"Grow generated sheet '{sheet_name}'",
+            lambda: sheets_service.spreadsheets().batchUpdate(
+                spreadsheetId=spreadsheet_id,
+                body={"requests": grow_requests},
+            ).execute(),
+        )
+        invalidate_spreadsheet_metadata_cache(spreadsheet_id)
+
+    final_props = get_sheet_properties_by_name(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        sheet_name=sheet_name,
+        force_refresh=True,
+    )
+
+    if (
+        final_props["row_count"] < required_rows
+        or final_props["column_count"] < required_columns
+    ):
+        raise RuntimeError(
+            f"Sheet '{sheet_name}' was not resized correctly. "
+            f"Required {required_rows} rows x {required_columns} columns, "
+            f"but found {final_props['row_count']} rows x "
+            f"{final_props['column_count']} columns."
+        )
+
+    print(
+        f"Generated sheet '{sheet_name}' ready: "
+        f"{final_props['row_count']:,} rows x "
+        f"{final_props['column_count']:,} cols"
+    )
+
+
+def build_bounded_a1_range(
+    sheet_name,
+    start_column,
+    end_column,
+    start_row,
+    end_row,
+):
+    return (
+        f"{sheet_name}!"
+        f"{start_column}{int(start_row)}:"
+        f"{end_column}{int(end_row)}"
+    )
+
+
+
+def get_sheet_properties_by_gid(
+    sheets_service,
+    spreadsheet_id,
+    sheet_gid,
+):
+    metadata = get_spreadsheet_metadata(
+        sheets_service,
+        spreadsheet_id,
+    )
+
+    for sheet in metadata.get("sheets", []):
+        properties = sheet.get("properties", {})
+        if int(properties.get("sheetId", -1)) == int(sheet_gid):
+            return {
+                "spreadsheet_title": (
+                    metadata.get("properties", {}).get("title", "")
+                ),
+                "sheet_id": properties.get("sheetId"),
+                "sheet_title": properties.get("title"),
+                "row_count": (
+                    properties.get("gridProperties", {})
+                    .get("rowCount", 0)
+                ),
+                "column_count": (
+                    properties.get("gridProperties", {})
+                    .get("columnCount", 0)
+                ),
+            }
+
+    available = [
+        {
+            "sheetId": sheet.get("properties", {}).get("sheetId"),
+            "title": sheet.get("properties", {}).get("title"),
+        }
+        for sheet in metadata.get("sheets", [])
+    ]
+
+    raise ValueError(
+        f"Sheet gid {sheet_gid} was not found in spreadsheet "
+        f"{spreadsheet_id}. Available sheets: {available}"
+    )
+
+
+def quote_sheet_title_for_a1(sheet_title: str) -> str:
+    escaped = str(sheet_title).replace("'", "''")
+    return f"'{escaped}'"
+
+
+def get_sheet_values(
+    sheets_service,
+    spreadsheet_id,
+    a1_range,
+):
+    response = run_with_retry(
+        f"Read range {a1_range}",
+        lambda: sheets_service.spreadsheets().values().get(
+            spreadsheetId=spreadsheet_id,
+            range=a1_range,
+            valueRenderOption="FORMATTED_VALUE",
+            dateTimeRenderOption="FORMATTED_STRING",
+        ).execute(),
+    )
+    return response.get("values", [])
+
+
+def clear_range_with_retry(
+    sheets_service,
+    spreadsheet_id,
+    clear_range,
+):
+    run_with_retry(
+        f"Clear range {clear_range}",
+        lambda: sheets_service.spreadsheets().values().clear(
+            spreadsheetId=spreadsheet_id,
+            range=clear_range,
+            body={},
+        ).execute(),
+    )
+
+
+def write_rows_to_sheet_with_retry(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+    start_row,
+    rows,
+    start_col,
+    end_col,
+):
+    if not rows:
+        return
+
+    end_row = start_row + len(rows) - 1
+    write_range = (
+        f"{sheet_name}!{start_col}{start_row}:"
+        f"{end_col}{end_row}"
+    )
+    body = {
+        "range": write_range,
+        "majorDimension": "ROWS",
+        "values": rows,
+    }
+
+    run_with_retry(
+        f"Write range {write_range}",
+        lambda: sheets_service.spreadsheets().values().update(
+            spreadsheetId=spreadsheet_id,
+            range=write_range,
+            valueInputOption="USER_ENTERED",
+            body=body,
+        ).execute(),
+    )
+
+
+def format_raw_sheet_columns(
+    sheets_service,
+    spreadsheet_id,
+    sheet_name,
+):
+    sheet_id = get_sheet_id_by_name(
+        sheets_service,
+        spreadsheet_id,
+        sheet_name,
+    )
+
+    def build_number_format_request(
+        column_name,
+        number_format_type,
+        pattern,
+    ):
+        if column_name not in FINAL_OUTPUT_COLUMNS:
+            raise ValueError(
+                f"Cannot format missing output column: {column_name}"
+            )
+
+        column_index = FINAL_OUTPUT_COLUMNS.index(column_name)
+        return {
+            "repeatCell": {
+                "range": {
+                    "sheetId": sheet_id,
+                    "startRowIndex": 1,
+                    "startColumnIndex": column_index,
+                    "endColumnIndex": column_index + 1,
+                },
+                "cell": {
+                    "userEnteredFormat": {
+                        "numberFormat": {
+                            "type": number_format_type,
+                            "pattern": pattern,
+                        }
+                    }
+                },
+                "fields": "userEnteredFormat.numberFormat",
+            }
+        }
+
+    requests = []
+
+    for column_name in ["Smiley Registered At", "Created Date"]:
+        requests.append(
+            build_number_format_request(
+                column_name=column_name,
+                number_format_type="DATE_TIME",
+                pattern="mmm dd, yyyy hh:mm:ss",
+            )
+        )
+
+    for column_name in DATEVALUE_OUTPUT_COLUMNS:
+        requests.append(
+            build_number_format_request(
+                column_name=column_name,
+                number_format_type="DATE",
+                pattern="yyyy-mm-dd",
+            )
+        )
+
+    for column_name in NUMERIC_OUTPUT_COLUMNS:
+        requests.append(
+            build_number_format_request(
+                column_name=column_name,
+                number_format_type="NUMBER",
+                pattern="0",
+            )
+        )
+
+    for column_name in MIXED_NUMBER_OUTPUT_COLUMNS:
+        if column_name in DECIMAL_NUMBER_OUTPUT_COLUMNS:
+            pattern = "0.00"
+        else:
+            pattern = "0"
+        requests.append(
+            build_number_format_request(
+                column_name=column_name,
+                number_format_type="NUMBER",
+                pattern=pattern,
+            )
+        )
+
+    if not requests:
+        return
+
+    run_with_retry(
+        f"Format sheet {sheet_name}",
+        lambda: sheets_service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheet_id,
+            body={"requests": requests},
+        ).execute(),
+    )
+
+
+
+def write_summary_table(
+    sheets_service,
+    spreadsheet_id,
+    summary_sheet_name,
+    rows,
+):
+    ensure_sheet_exists(
+        sheets_service,
+        spreadsheet_id,
+        summary_sheet_name,
+    )
+
+    all_rows = [SUMMARY_HEADERS] + rows
+    required_summary_rows = max(
+        len(all_rows) + SUMMARY_EXTRA_BUFFER_ROWS,
+        1,
+    )
+    required_summary_columns = len(SUMMARY_HEADERS)
+    summary_end_col = column_number_to_letter(required_summary_columns)
+
+    validate_projected_workbook_cell_usage(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        generated_sheet_name=summary_sheet_name,
+        required_rows=required_summary_rows,
+        required_columns=required_summary_columns,
+    )
+
+    resize_generated_sheet_grid(
+        sheets_service=sheets_service,
+        spreadsheet_id=spreadsheet_id,
+        sheet_name=summary_sheet_name,
+        required_rows=required_summary_rows,
+        required_columns=required_summary_columns,
+    )
+
+    bounded_clear_range = build_bounded_a1_range(
+        sheet_name=summary_sheet_name,
+        start_column="A",
+        end_column=summary_end_col,
+        start_row=1,
+        end_row=required_summary_rows,
+    )
+
+    clear_range_with_retry(
+        sheets_service,
+        spreadsheet_id,
+        bounded_clear_range,
+    )
+
+    batch_size = 1_000
+    total_batches = math.ceil(len(all_rows) / batch_size)
+    PROGRESS.add_total(total_batches)
+
+    next_row = 1
+    for batch_number, start_index in enumerate(
+        range(0, len(all_rows), batch_size),
+        start=1,
+    ):
+        chunk = all_rows[
+            start_index:start_index + batch_size
+        ]
+
+        write_rows_to_sheet_with_retry(
+            sheets_service=sheets_service,
+            spreadsheet_id=spreadsheet_id,
+            sheet_name=summary_sheet_name,
+            start_row=next_row,
+            rows=chunk,
+            start_col="A",
+            end_col=summary_end_col,
+        )
+
+        next_row += len(chunk)
+        PROGRESS.update(
+            1,
+            f"Writing load summary batch "
+            f"{batch_number}/{total_batches}",
+        )
+
+
+
+# =========================
+# MERCHANT EXTRACTION
+# =========================
+def extract_merchant_data(summary_rows):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    print("======================================")
+    print("MERCHANT EXTRACTION START")
+    print("======================================")
+    PROGRESS.set_message("Listing merchant files")
+
+    all_source_files = list_all_matching_source_files(
+        drive_service=drive_service,
+        folder_id=MERCHANT_SOURCE_FOLDER_ID,
+        filename_parser=parse_merchant_filename,
+    )
+
+    if not all_source_files:
+        raise ValueError(
+            "No files matching "
+            "'MMM EOM YYYY Merchant Smileys.csv' were found."
+        )
+
+    latest_file = get_latest_file_by_filename(all_source_files)
+    latest_file_name = latest_file["name"]
+    cached_local_csv_by_file_id = {}
+
+    try:
+        PROGRESS.add_total(1)
+
+        if REUSE_DOWNLOADED_LATEST_MERCHANT_FILE:
+            print("--------------------------------------------------")
+            print(
+                "Downloading latest merchant file once for "
+                "latest-date scan and processing reuse: "
+                f"{latest_file_name}"
+            )
+            PROGRESS.set_message(
+                f"Downloading reusable merchant file: {latest_file_name}"
+            )
+            latest_local_csv = download_drive_file_with_retry(
+                drive_service=drive_service,
+                file_id=latest_file["id"],
+                file_name=latest_file_name,
+                temp_prefix="merchant_smileys_",
+            )
+            cached_local_csv_by_file_id[latest_file["id"]] = (
+                latest_local_csv
+            )
+
+            print("--------------------------------------------------")
+            print(
+                f"Scanning latest date from latest file: "
+                f"{latest_file_name}"
+            )
+            PROGRESS.set_message(
+                f"Scanning latest date: {latest_file_name}"
+            )
+            latest_registered_datetime = get_latest_date_from_local_csv(
+                local_csv=latest_local_csv,
+                file_name=latest_file_name,
+                required_columns=MERCHANT_REQUIRED_COLUMNS,
+                date_column=MERCHANT_DATE_COLUMN,
+                company_column=MERCHANT_COMPANY_COLUMN,
+                company_filter_value=MERCHANT_COMPANY_FILTER_VALUE,
+                parse_dates_func=parse_dates_general,
+            )
+        else:
+            latest_registered_datetime = get_latest_date_from_file(
+                drive_service=drive_service,
+                file_meta=latest_file,
+                required_columns=MERCHANT_REQUIRED_COLUMNS,
+                date_column=MERCHANT_DATE_COLUMN,
+                company_column=MERCHANT_COMPANY_COLUMN,
+                company_filter_value=MERCHANT_COMPANY_FILTER_VALUE,
+                parse_dates_func=parse_dates_general,
+                temp_prefix="merchant_smileys_",
+            )
+
+        PROGRESS.update(1, "Merchant latest-date scan complete")
+
+        reference_latest_date = latest_registered_datetime.date()
+        window_end_date = reference_latest_date
+        window_start_date = (
+            reference_latest_date
+            - timedelta(weeks=LOOKBACK_WEEKS)
+        )
+
+        needed_months = set(
+            month_keys_between(window_start_date, window_end_date)
+        )
+        source_files = [
+            file_meta
+            for file_meta in all_source_files
+            if file_meta["parsed_filename"]["sort_key"]
+            in needed_months
+        ]
+
+        if not source_files:
+            raise ValueError(
+                f"No monthly merchant files matched the "
+                f"{LOOKBACK_WEEKS}-week window."
+            )
+
+        print(
+            f"Merchant window: "
+            f"{window_start_date} to {window_end_date}"
+        )
+        print(f"Merchant files to process: {len(source_files)}")
+        PROGRESS.add_total(len(source_files))
+
+        frames = []
+        total_rows = 0
+        start_ts = pd.Timestamp(window_start_date)
+        end_ts_exclusive = (
+            pd.Timestamp(window_end_date)
+            + pd.Timedelta(days=1)
+        )
+        company_target = MERCHANT_COMPANY_FILTER_VALUE.casefold()
+
+        for file_meta in source_files:
+            file_name = file_meta["name"]
+            modified_time = file_meta.get("modifiedTime", "")
+            file_size_mb = get_file_size_mb(file_meta)
+            matched_rows = 0
+            file_status = "SUCCESS"
+            local_csv = None
+            using_cached_local_csv = False
+
+            print("--------------------------------------------------")
+            print(f"Processing merchant file: {file_name}")
+            PROGRESS.set_message(
+                f"Processing merchant file: {file_name}"
+            )
+
+            try:
+                cached_local_csv = cached_local_csv_by_file_id.get(
+                    file_meta["id"]
+                )
+                if cached_local_csv and os.path.exists(cached_local_csv):
+                    local_csv = cached_local_csv
+                    using_cached_local_csv = True
+                    print(
+                        "  Reusing already downloaded latest "
+                        "merchant file."
+                    )
+                else:
+                    local_csv = download_drive_file_with_retry(
+                        drive_service,
+                        file_meta["id"],
+                        file_name,
+                        "merchant_smileys_",
+                    )
+
+                header_df = pd.read_csv(
+                    local_csv,
+                    nrows=0,
+                    dtype=str,
+                    keep_default_na=False,
+                    low_memory=False,
+                )
+
+                actual_columns, rename_map, _ = (
+                    validate_and_map_headers(
+                        list(header_df.columns),
+                        MERCHANT_REQUIRED_COLUMNS,
+                        file_name,
+                    )
+                )
+
+                chunk_iter = pd.read_csv(
+                    local_csv,
+                    dtype=str,
+                    keep_default_na=False,
+                    low_memory=False,
+                    chunksize=CSV_CHUNK_SIZE,
+                    usecols=actual_columns,
+                )
+
+                for chunk_number, chunk in enumerate(
+                    chunk_iter,
+                    start=1,
+                ):
+                    chunk = chunk.rename(columns=rename_map)
+
+                    company_mask = (
+                        normalize_lookup_series(
+                            chunk[MERCHANT_COMPANY_COLUMN]
+                        )
+                        == company_target
+                    )
+                    date_series = parse_dates_general(
+                        chunk[MERCHANT_DATE_COLUMN]
+                    )
+
+                    mask = (
+                        company_mask
+                        & date_series.notna()
+                        & (date_series >= start_ts)
+                        & (date_series < end_ts_exclusive)
+                    )
+
+                    filtered_chunk = chunk.loc[
+                        mask,
+                        MERCHANT_BASE_OUTPUT_COLUMNS,
+                    ].copy()
+
+                    if not filtered_chunk.empty:
+                        filtered_chunk[MERCHANT_DATE_COLUMN] = (
+                            date_series.loc[filtered_chunk.index]
+                        )
+                        filtered_chunk["Ticket ID"] = (
+                            normalize_ticket_id_series(
+                                filtered_chunk["Ticket ID"]
+                            )
+                        )
+                        filtered_chunk = filtered_chunk[
+                            filtered_chunk["Ticket ID"] != ""
+                        ]
+
+                        if not filtered_chunk.empty:
+                            frames.append(filtered_chunk)
+                            matched_rows += len(filtered_chunk)
+                            total_rows += len(filtered_chunk)
+
+                    if chunk_number % 5 == 0:
+                        PROGRESS.set_message(
+                            f"Merchant {file_name}: "
+                            f"{matched_rows:,} matched rows"
+                        )
+
+            except Exception as exc:
+                file_status = f"FAILED: {exc}"
+                print(
+                    f"ERROR processing merchant file "
+                    f"{file_name}: {exc}"
+                )
+                raise
+
+            finally:
+                summary_rows.append(
+                    [
+                        "MERCHANT",
+                        run_timestamp,
+                        LOOKBACK_WEEKS,
+                        str(window_start_date),
+                        str(window_end_date),
+                        latest_file_name,
+                        str(reference_latest_date),
+                        file_name,
+                        modified_time,
+                        file_size_mb,
+                        matched_rows,
+                        file_status,
+                    ]
+                )
+                if not using_cached_local_csv:
+                    safe_cleanup_file(local_csv)
+                PROGRESS.update(
+                    1,
+                    f"Merchant file complete: {file_name}",
+                )
+
+        merchant_df = (
+            pd.concat(frames, ignore_index=True)
+            if frames
+            else pd.DataFrame(
+                columns=MERCHANT_BASE_OUTPUT_COLUMNS
+            )
+        )
+
+        print(f"Total merchant rows extracted: {total_rows:,}")
+
+        return {
+            "merchant_df": merchant_df,
+            "window_start_date": window_start_date,
+            "window_end_date": window_end_date,
+            "reference_latest_date": reference_latest_date,
+            "latest_file_name": latest_file_name,
+            "total_rows": total_rows,
+        }
+
+    finally:
+        for cached_path in set(cached_local_csv_by_file_id.values()):
+            safe_cleanup_file(cached_path)
+
+
+# =========================
+# LOOKUP KEY PREPARATION
+# =========================
+def prepare_needed_lookup_keys(merchant_df):
+    if merchant_df.empty:
+        return set(), set(), set()
+
+    ticket_ids = set(
+        normalize_ticket_id_series(
+            merchant_df["Ticket ID"]
+        ).tolist()
+    )
+    ticket_ids.discard("")
+
+    combined_keys = set(
+        build_combined_key_series(
+            merchant_df["Ticket ID"],
+            merchant_df["Employee Name"],
+        ).tolist()
+    )
+    combined_keys.discard("")
+
+    name_keys = set(
+        normalize_lookup_series(
+            merchant_df["Employee Name"]
+        ).tolist()
+    )
+    name_keys.discard("")
+
+    return ticket_ids, combined_keys, name_keys
+
+
+# =========================
+# TAXONOMY LOOKUPS
+# =========================
+def build_taxonomy_lookups(
+    merchant_df,
+    window_start_date,
+    window_end_date,
+    summary_rows,
+):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    (
+        needed_ticket_ids,
+        needed_combined_keys,
+        needed_name_keys,
+    ) = prepare_needed_lookup_keys(merchant_df)
+
+    print("======================================")
+    print("TAXONOMY LOOKUPS BUILD START")
+    print("======================================")
+    print(
+        f"Needed taxonomy ticket IDs: "
+        f"{len(needed_ticket_ids):,}"
+    )
+    print(
+        f"Needed taxonomy combined keys: "
+        f"{len(needed_combined_keys):,}"
+    )
+    print(
+        f"Needed taxonomy name keys: "
+        f"{len(needed_name_keys):,}"
+    )
+
+    empty_result = {
+        "enrich_df": pd.DataFrame(
+            columns=[
+                "Ticket ID",
+                "Created Date",
+                "Created Date Raw",
+                "Level One",
+                "Level Two",
+            ]
+        ),
+        "tenure_combined": {},
+        "tenure_name": {},
+        "site_name": {},
+    }
+
+    if (
+        not needed_ticket_ids
+        and not needed_combined_keys
+        and not needed_name_keys
+    ):
+        return empty_result
+
+    all_source_files = list_all_matching_source_files(
+        drive_service=drive_service,
+        folder_id=TAXONOMY_SOURCE_FOLDER_ID,
+        filename_parser=parse_taxonomy_filename,
+    )
+
+    if not all_source_files:
+        raise ValueError(
+            "No taxonomy files matching "
+            "'ROUTING_TOPICS_MMYYYY.csv' or "
+            "legacy 'YYYYMM_Taxonomy.csv' were found."
+        )
+
+    latest_file = get_latest_file_by_filename(all_source_files)
+    latest_file_name = latest_file["name"]
+    reference_latest_date = get_reference_date_from_filename(
+        latest_file
+    )
+
+    if SCAN_NON_MASTER_REFERENCE_DATES:
+        PROGRESS.add_total(1)
+        latest_create_datetime = get_latest_date_from_file(
+            drive_service=drive_service,
+            file_meta=latest_file,
+            required_columns=TAXONOMY_REQUIRED_COLUMNS,
+            date_column=TAXONOMY_DATE_COLUMN,
+            company_column=TAXONOMY_COMPANY_COLUMN,
+            company_filter_value=TAXONOMY_COMPANY_FILTER_VALUE,
+            parse_dates_func=parse_dates_taxonomy,
+            temp_prefix="taxonomy_csv_",
+            header_mapper_func=(
+                lambda headers, file_name:
+                validate_and_map_taxonomy_headers(
+                    headers,
+                    file_name,
+                    require_ticket=False,
+                )
+            ),
+        )
+        reference_latest_date = latest_create_datetime.date()
+        PROGRESS.update(1, "Taxonomy latest-date scan complete")
+    else:
+        print(
+            "Skipping taxonomy latest-date file scan for speed; "
+            "raw output uses the merchant window. "
+            f"Summary reference date is from filename: "
+            f"{reference_latest_date}"
+        )
+    needed_months = set(
+        month_keys_between(window_start_date, window_end_date)
+    )
+    source_files = [
+        file_meta
+        for file_meta in all_source_files
+        if file_meta["parsed_filename"]["sort_key"]
+        in needed_months
+    ]
+
+    if not source_files:
+        print("No taxonomy files matched the merchant window.")
+        return empty_result
+
+    print(
+        f"Taxonomy window: "
+        f"{window_start_date} to {window_end_date}"
+    )
+    print(f"Taxonomy files to process: {len(source_files)}")
+    PROGRESS.add_total(len(source_files))
+
+    enrich_best = {}
+    tenure_combined_best = {}
+    tenure_name_best = {}
+    site_name_best = {}
+
+    start_ts = pd.Timestamp(window_start_date)
+    end_ts_exclusive = (
+        pd.Timestamp(window_end_date)
+        + pd.Timedelta(days=1)
+    )
+    company_target = TAXONOMY_COMPANY_FILTER_VALUE.casefold()
+
+    for file_meta in source_files:
+        file_name = file_meta["name"]
+        modified_time = file_meta.get("modifiedTime", "")
+        file_size_mb = (
+            round(
+                int(file_meta.get("size", 0))
+                / (1024 * 1024),
+                2,
+            )
+            if file_meta.get("size")
+            else ""
+        )
+        matched_rows = 0
+        invalid_date_rows = 0
+        file_status = "SUCCESS"
+        local_csv = None
+
+        print("--------------------------------------------------")
+        print(f"Processing taxonomy file: {file_name}")
+        PROGRESS.set_message(
+            f"Processing taxonomy file: {file_name}"
+        )
+
+        try:
+            local_csv = download_drive_file_with_retry(
+                drive_service,
+                file_meta["id"],
+                file_name,
+                "taxonomy_csv_",
+            )
+
+            header_df = pd.read_csv(
+                local_csv,
+                nrows=0,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+            )
+
+            actual_columns, rename_map, _ = (
+                validate_and_map_taxonomy_headers(
+                    list(header_df.columns),
+                    file_name,
+                    require_ticket=True,
+                )
+            )
+
+            chunk_iter = pd.read_csv(
+                local_csv,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+                chunksize=CSV_CHUNK_SIZE,
+                usecols=actual_columns,
+            )
+
+            for chunk_number, chunk in enumerate(
+                chunk_iter,
+                start=1,
+            ):
+                chunk = chunk.rename(columns=rename_map)
+                chunk = ensure_taxonomy_standard_columns(chunk)
+
+                company_mask = (
+                    normalize_lookup_series(
+                        chunk[TAXONOMY_COMPANY_COLUMN]
+                    )
+                    == company_target
+                )
+                date_series = parse_dates_taxonomy(
+                    chunk[TAXONOMY_DATE_COLUMN]
+                )
+
+                invalid_date_rows += count_invalid_datetime_values(
+                    chunk.loc[
+                        company_mask,
+                        TAXONOMY_DATE_COLUMN,
+                    ],
+                    date_series.loc[company_mask],
+                )
+
+                base_mask = (
+                    company_mask
+                    & date_series.notna()
+                    & (date_series >= start_ts)
+                    & (date_series < end_ts_exclusive)
+                )
+
+                ticket_id_series = normalize_ticket_id_series(
+                    chunk["Ticket ID"]
+                )
+                employee_name_display = normalize_display_series(
+                    chunk["Employee Name"]
+                )
+                employee_name_lookup = normalize_lookup_series(
+                    chunk["Employee Name"]
+                )
+                combined_key_series = build_combined_key_series(
+                    ticket_id_series,
+                    employee_name_display,
+                )
+
+                enrich_mask = (
+                    base_mask
+                    & ticket_id_series.isin(needed_ticket_ids)
+                )
+
+                if enrich_mask.any():
+                    matched_rows += int(enrich_mask.sum())
+
+                    enrich_records = pd.DataFrame(
+                        {
+                            "Ticket ID": (
+                                ticket_id_series.loc[enrich_mask]
+                            ),
+                            "Level One": (
+                                chunk.loc[enrich_mask, "Level One"]
+                            ),
+                            "Level Two": (
+                                chunk.loc[enrich_mask, "Level Two"]
+                            ),
+                            "Create Date": (
+                                date_series.loc[enrich_mask]
+                            ),
+                        }
+                    )
+
+                    for record in enrich_records.to_dict("records"):
+                        ticket_id = record["Ticket ID"]
+                        create_date = record["Create Date"]
+
+                        if not ticket_id or pd.isna(create_date):
+                            continue
+
+                        existing = enrich_best.get(ticket_id)
+                        if (
+                            existing is None
+                            or create_date > existing["Create Date"]
+                        ):
+                            enrich_best[ticket_id] = {
+                                "Ticket ID": ticket_id,
+                                "Create Date": create_date,
+                                "Level One": normalize_display_text(
+                                    record.get("Level One", "")
+                                ),
+                                "Level Two": normalize_display_text(
+                                    record.get("Level Two", "")
+                                ),
+                            }
+
+                tenure_display = normalize_display_series(
+                    chunk["Tenure"]
+                )
+                tenure_lookup = normalize_lookup_series(
+                    chunk["Tenure"]
+                )
+                tenure_usable = (
+                    ~tenure_lookup.isin(INVALID_LOOKUP_VALUES)
+                    & tenure_display.ne("")
+                )
+                tenure_mask = base_mask & tenure_usable
+
+                if tenure_mask.any():
+                    combined_mask = (
+                        tenure_mask
+                        & combined_key_series.isin(
+                            needed_combined_keys
+                        )
+                    )
+
+                    for combined_key, value, record_date in zip(
+                        combined_key_series.loc[
+                            combined_mask
+                        ].tolist(),
+                        tenure_display.loc[
+                            combined_mask
+                        ].tolist(),
+                        date_series.loc[
+                            combined_mask
+                        ].tolist(),
+                    ):
+                        existing = tenure_combined_best.get(
+                            combined_key
+                        )
+                        if (
+                            existing is None
+                            or record_date > existing["date"]
+                        ):
+                            tenure_combined_best[combined_key] = {
+                                "value": value,
+                                "date": record_date,
+                            }
+
+                    name_mask = (
+                        tenure_mask
+                        & employee_name_lookup.isin(
+                            needed_name_keys
+                        )
+                    )
+
+                    for name_key, value, record_date in zip(
+                        employee_name_lookup.loc[
+                            name_mask
+                        ].tolist(),
+                        tenure_display.loc[name_mask].tolist(),
+                        date_series.loc[name_mask].tolist(),
+                    ):
+                        existing = tenure_name_best.get(name_key)
+                        if (
+                            existing is None
+                            or record_date > existing["date"]
+                        ):
+                            tenure_name_best[name_key] = {
+                                "value": value,
+                                "date": record_date,
+                            }
+
+                site_source_lookup = normalize_lookup_series(
+                    chunk["BPO Site"]
+                )
+                site_code_series = site_source_lookup.map(
+                    TAXONOMY_SITE_TO_CODE
+                )
+                site_mask = (
+                    base_mask
+                    & employee_name_lookup.isin(
+                        needed_name_keys
+                    )
+                    & site_code_series.notna()
+                )
+
+                for name_key, site_code, record_date in zip(
+                    employee_name_lookup.loc[site_mask].tolist(),
+                    site_code_series.loc[site_mask].tolist(),
+                    date_series.loc[site_mask].tolist(),
+                ):
+                    existing = site_name_best.get(name_key)
+                    if (
+                        existing is None
+                        or record_date > existing["date"]
+                    ):
+                        site_name_best[name_key] = {
+                            "value": site_code,
+                            "date": record_date,
+                        }
+
+                if chunk_number % 5 == 0:
+                    PROGRESS.set_message(
+                        f"Taxonomy {file_name}: "
+                        f"{matched_rows:,} matched rows"
+                    )
+
+            if invalid_date_rows:
+                file_status = (
+                    "SUCCESS; invalid "
+                    f"{TAXONOMY_DATE_COLUMN} rows skipped: "
+                    f"{invalid_date_rows:,}"
+                )
+                print(
+                    f"  Invalid {TAXONOMY_DATE_COLUMN} "
+                    f"rows skipped: {invalid_date_rows:,}"
+                )
+
+        except Exception as exc:
+            file_status = f"FAILED: {exc}"
+            print(
+                f"ERROR processing taxonomy file "
+                f"{file_name}: {exc}"
+            )
+            raise
+
+        finally:
+            summary_rows.append(
+                [
+                    "TAXONOMY_LOOKUPS",
+                    run_timestamp,
+                    LOOKBACK_WEEKS,
+                    str(window_start_date),
+                    str(window_end_date),
+                    latest_file_name,
+                    str(reference_latest_date),
+                    file_name,
+                    modified_time,
+                    file_size_mb,
+                    matched_rows,
+                    file_status,
+                ]
+            )
+            safe_cleanup_file(local_csv)
+            PROGRESS.update(
+                1,
+                f"Taxonomy file complete: {file_name}",
+            )
+
+    if enrich_best:
+        enrich_df = pd.DataFrame(enrich_best.values())
+        enrich_df = enrich_df.rename(
+            columns={"Create Date": "Created Date"}
+        )
+        enrich_df["Created Date Raw"] = (
+            enrich_df["Created Date"]
+        )
+        enrich_df["Created Date"] = (
+            format_created_date_output(
+                enrich_df["Created Date"],
+                null_text=NULL_TEXT,
+            )
+        )
+        enrich_df = enrich_df[
+            [
+                "Ticket ID",
+                "Created Date",
+                "Created Date Raw",
+                "Level One",
+                "Level Two",
+            ]
+        ]
+    else:
+        enrich_df = empty_result["enrich_df"]
+
+    return {
+        "enrich_df": enrich_df,
+        "tenure_combined": {
+            key: value["value"]
+            for key, value in tenure_combined_best.items()
+        },
+        "tenure_name": {
+            key: value["value"]
+            for key, value in tenure_name_best.items()
+        },
+        "site_name": {
+            key: value["value"]
+            for key, value in site_name_best.items()
+        },
+    }
+
+
+# =========================
+# TICKET LOOKUPS
+# =========================
+def build_ticket_lookups(
+    merchant_df,
+    window_start_date,
+    window_end_date,
+    summary_rows,
+):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    needed_ticket_ids, needed_combined_keys, needed_name_keys = (
+        prepare_needed_lookup_keys(merchant_df)
+    )
+
+    print("======================================")
+    print("TICKET LOOKUPS BUILD START")
+    print("======================================")
+    print(
+        f"Needed ticket IDs for AFTR: "
+        f"{len(needed_ticket_ids):,}"
+    )
+    print(
+        f"Needed ticket combined keys: "
+        f"{len(needed_combined_keys):,}"
+    )
+    print(
+        f"Needed ticket name keys: "
+        f"{len(needed_name_keys):,}"
+    )
+
+    empty_result = {
+        "tenure_combined": {},
+        "tenure_name": {},
+        "site_name": {},
+        "aftr_by_ticket_id": {},
+    }
+
+    if (
+        not needed_ticket_ids
+        and not needed_combined_keys
+        and not needed_name_keys
+    ):
+        return empty_result
+
+    all_source_files = list_all_matching_source_files(
+        drive_service=drive_service,
+        folder_id=TICKETS_SOURCE_FOLDER_ID,
+        filename_parser=parse_tickets_filename,
+    )
+
+    if not all_source_files:
+        raise ValueError(
+            "No files matching "
+            "'MMM EOM YYYY Tickets.csv' were found."
+        )
+
+    latest_file = get_latest_file_by_filename(all_source_files)
+    latest_file_name = latest_file["name"]
+    reference_latest_date = get_reference_date_from_filename(
+        latest_file
+    )
+
+    if SCAN_NON_MASTER_REFERENCE_DATES:
+        PROGRESS.add_total(1)
+        latest_source_datetime = get_latest_date_from_file(
+            drive_service=drive_service,
+            file_meta=latest_file,
+            required_columns=TICKETS_REQUIRED_COLUMNS,
+            date_column=TICKETS_DATE_COLUMN,
+            company_column=TICKETS_COMPANY_COLUMN,
+            company_filter_value=TICKETS_COMPANY_FILTER_VALUE,
+            parse_dates_func=parse_dates_general,
+            temp_prefix="tickets_csv_",
+        )
+        reference_latest_date = latest_source_datetime.date()
+        PROGRESS.update(1, "Ticket latest-date scan complete")
+    else:
+        print(
+            "Skipping ticket latest-date file scan for speed; "
+            "raw output uses the merchant window. "
+            f"Summary reference date is from filename: "
+            f"{reference_latest_date}"
+        )
+
+    needed_months = set(
+        month_keys_between(window_start_date, window_end_date)
+    )
+    source_files = [
+        file_meta
+        for file_meta in all_source_files
+        if file_meta["parsed_filename"]["sort_key"]
+        in needed_months
+    ]
+
+    if not source_files:
+        print("No ticket files matched the merchant window.")
+        return empty_result
+
+    print(
+        f"Ticket window: "
+        f"{window_start_date} to {window_end_date}"
+    )
+    print(f"Ticket files to process: {len(source_files)}")
+    PROGRESS.add_total(len(source_files))
+
+    tenure_combined_best = {}
+    tenure_name_best = {}
+    site_name_best = {}
+    aftr_ticket_best = {}
+
+    company_target = TICKETS_COMPANY_FILTER_VALUE.casefold()
+
+    for file_meta in source_files:
+        file_name = file_meta["name"]
+        modified_time = file_meta.get("modifiedTime", "")
+        file_size_mb = (
+            round(
+                int(file_meta.get("size", 0))
+                / (1024 * 1024),
+                2,
+            )
+            if file_meta.get("size")
+            else ""
+        )
+        matched_rows = 0
+        file_status = "SUCCESS"
+        local_csv = None
+
+        print("--------------------------------------------------")
+        print(f"Processing ticket lookup file: {file_name}")
+        PROGRESS.set_message(
+            f"Processing ticket file: {file_name}"
+        )
+
+        try:
+            local_csv = download_drive_file_with_retry(
+                drive_service,
+                file_meta["id"],
+                file_name,
+                "tickets_csv_",
+            )
+
+            header_df = pd.read_csv(
+                local_csv,
+                nrows=0,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+            )
+
+            actual_columns, rename_map, present_optional = (
+                validate_and_map_headers(
+                    list(header_df.columns),
+                    TICKETS_REQUIRED_COLUMNS,
+                    file_name,
+                    optional_columns=TICKETS_OPTIONAL_COLUMNS,
+                )
+            )
+
+            missing_aftr_columns = [
+                column
+                for column in AFTR_OUTPUT_COLUMNS
+                if column not in present_optional
+            ]
+            if missing_aftr_columns:
+                print(
+                    "  AFTR columns missing in this ticket file; "
+                    "affected output values will be No data: "
+                    f"{missing_aftr_columns}"
+                )
+
+            chunk_iter = pd.read_csv(
+                local_csv,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+                chunksize=CSV_CHUNK_SIZE,
+                usecols=actual_columns,
+            )
+
+            for chunk_number, chunk in enumerate(
+                chunk_iter,
+                start=1,
+            ):
+                chunk = chunk.rename(columns=rename_map)
+
+                for optional_column in TICKETS_OPTIONAL_COLUMNS:
+                    if optional_column not in chunk.columns:
+                        chunk[optional_column] = ""
+
+                company_mask = (
+                    normalize_lookup_series(
+                        chunk[TICKETS_COMPANY_COLUMN]
+                    )
+                    == company_target
+                )
+                date_series = parse_dates_general(
+                    chunk[TICKETS_DATE_COLUMN]
+                )
+                base_mask = company_mask & date_series.notna()
+
+                ticket_id_series = normalize_ticket_id_series(
+                    chunk["ticket_id"]
+                )
+                employee_name_display = normalize_display_series(
+                    chunk["employee_full_name"]
+                )
+                employee_name_lookup = normalize_lookup_series(
+                    chunk["employee_full_name"]
+                )
+                combined_key_series = build_combined_key_series(
+                    ticket_id_series,
+                    employee_name_display,
+                )
+
+                matched_row_mask = (
+                    base_mask
+                    & (
+                        ticket_id_series.isin(needed_ticket_ids)
+                        | combined_key_series.isin(needed_combined_keys)
+                        | employee_name_lookup.isin(needed_name_keys)
+                    )
+                )
+                matched_rows += int(matched_row_mask.sum())
+
+                aftr_mask = (
+                    base_mask
+                    & ticket_id_series.isin(needed_ticket_ids)
+                )
+
+                for ticket_id, numerator, denominator, record_date in zip(
+                    ticket_id_series.loc[aftr_mask].tolist(),
+                    chunk.loc[
+                        aftr_mask,
+                        "advisor_first_touch_resolution_rate_numerator",
+                    ].tolist(),
+                    chunk.loc[
+                        aftr_mask,
+                        "advisor_first_touch_resolution_rate_denominator",
+                    ].tolist(),
+                    date_series.loc[aftr_mask].tolist(),
+                ):
+                    existing = aftr_ticket_best.get(ticket_id)
+                    if (
+                        existing is None
+                        or record_date >= existing["date"]
+                    ):
+                        aftr_ticket_best[ticket_id] = {
+                            "advisor_first_touch_resolution_rate_numerator": (
+                                normalize_optional_numeric_output_value(
+                                    numerator
+                                )
+                            ),
+                            "advisor_first_touch_resolution_rate_denominator": (
+                                normalize_optional_numeric_output_value(
+                                    denominator
+                                )
+                            ),
+                            "date": record_date,
+                        }
+
+                tenure_display = normalize_display_series(
+                    chunk["agent_tenure"]
+                )
+                tenure_lookup = normalize_lookup_series(
+                    chunk["agent_tenure"]
+                )
+                tenure_mask = (
+                    base_mask
+                    & ~tenure_lookup.isin(
+                        INVALID_LOOKUP_VALUES
+                    )
+                    & tenure_display.ne("")
+                )
+
+                combined_mask = (
+                    tenure_mask
+                    & combined_key_series.isin(
+                        needed_combined_keys
+                    )
+                )
+
+                for combined_key, value, record_date in zip(
+                    combined_key_series.loc[
+                        combined_mask
+                    ].tolist(),
+                    tenure_display.loc[
+                        combined_mask
+                    ].tolist(),
+                    date_series.loc[
+                        combined_mask
+                    ].tolist(),
+                ):
+                    existing = tenure_combined_best.get(
+                        combined_key
+                    )
+                    if (
+                        existing is None
+                        or record_date > existing["date"]
+                    ):
+                        tenure_combined_best[combined_key] = {
+                            "value": value,
+                            "date": record_date,
+                        }
+
+                name_mask = (
+                    tenure_mask
+                    & employee_name_lookup.isin(
+                        needed_name_keys
+                    )
+                )
+
+                for name_key, value, record_date in zip(
+                    employee_name_lookup.loc[name_mask].tolist(),
+                    tenure_display.loc[name_mask].tolist(),
+                    date_series.loc[name_mask].tolist(),
+                ):
+                    existing = tenure_name_best.get(name_key)
+                    if (
+                        existing is None
+                        or record_date > existing["date"]
+                    ):
+                        tenure_name_best[name_key] = {
+                            "value": value,
+                            "date": record_date,
+                        }
+
+                site_source_lookup = normalize_lookup_series(
+                    chunk["bpo_location"]
+                )
+                site_code_series = site_source_lookup.map(
+                    TICKETS_SITE_TO_CODE
+                )
+                site_mask = (
+                    base_mask
+                    & employee_name_lookup.isin(
+                        needed_name_keys
+                    )
+                    & site_code_series.notna()
+                )
+
+                for name_key, site_code, record_date in zip(
+                    employee_name_lookup.loc[site_mask].tolist(),
+                    site_code_series.loc[site_mask].tolist(),
+                    date_series.loc[site_mask].tolist(),
+                ):
+                    existing = site_name_best.get(name_key)
+                    if (
+                        existing is None
+                        or record_date > existing["date"]
+                    ):
+                        site_name_best[name_key] = {
+                            "value": site_code,
+                            "date": record_date,
+                        }
+
+                if chunk_number % 5 == 0:
+                    PROGRESS.set_message(
+                        f"Ticket {file_name}: "
+                        f"{matched_rows:,} matched rows"
+                    )
+
+        except Exception as exc:
+            file_status = f"FAILED: {exc}"
+            print(
+                f"ERROR processing ticket lookup file "
+                f"{file_name}: {exc}"
+            )
+            raise
+
+        finally:
+            summary_rows.append(
+                [
+                    "TICKET_LOOKUPS",
+                    run_timestamp,
+                    LOOKBACK_WEEKS,
+                    str(window_start_date),
+                    str(window_end_date),
+                    latest_file_name,
+                    str(reference_latest_date),
+                    file_name,
+                    modified_time,
+                    file_size_mb,
+                    matched_rows,
+                    file_status,
+                ]
+            )
+            safe_cleanup_file(local_csv)
+            PROGRESS.update(
+                1,
+                f"Ticket file complete: {file_name}",
+            )
+
+    aftr_by_ticket_id = {}
+    for ticket_id, value in aftr_ticket_best.items():
+        aftr_by_ticket_id[ticket_id] = {
+            column: value.get(column, NO_DATA_TEXT)
+            for column in AFTR_OUTPUT_COLUMNS
+        }
+
+    print(
+        f"AFTR unique matched Ticket IDs: "
+        f"{len(aftr_by_ticket_id):,}"
+    )
+
+    return {
+        "tenure_combined": {
+            key: value["value"]
+            for key, value in tenure_combined_best.items()
+        },
+        "tenure_name": {
+            key: value["value"]
+            for key, value in tenure_name_best.items()
+        },
+        "site_name": {
+            key: value["value"]
+            for key, value in site_name_best.items()
+        },
+        "aftr_by_ticket_id": aftr_by_ticket_id,
+    }
+
+
+# =========================
+# INTERACTION LOOKUPS
+# =========================
+def build_interaction_lookups(
+    merchant_df,
+    window_start_date,
+    window_end_date,
+    summary_rows,
+):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    needed_ticket_ids, _, _ = prepare_needed_lookup_keys(merchant_df)
+
+    print("======================================")
+    print("INTERACTION LOOKUPS BUILD START")
+    print("======================================")
+    print(
+        f"Needed interaction Ticket IDs: "
+        f"{len(needed_ticket_ids):,}"
+    )
+
+    empty_result = {
+        "interaction_by_ticket_id": {},
+    }
+
+    if not needed_ticket_ids:
+        return empty_result
+
+    all_source_files = list_all_matching_source_files(
+        drive_service=drive_service,
+        folder_id=INTERACTIONS_SOURCE_FOLDER_ID,
+        filename_parser=parse_interactions_filename,
+    )
+
+    if not all_source_files:
+        raise ValueError(
+            "No files matching "
+            "'MMM DD - DD YYYY Interactions.csv' were found."
+        )
+
+    latest_file = get_latest_file_by_filename(all_source_files)
+    latest_file_name = latest_file["name"]
+    reference_latest_date = get_reference_date_from_filename(
+        latest_file
+    )
+
+    source_files = [
+        file_meta
+        for file_meta in all_source_files
+        if date_ranges_overlap(
+            file_meta["parsed_filename"]["start_date"],
+            file_meta["parsed_filename"]["end_date"],
+            window_start_date,
+            window_end_date,
+        )
+    ]
+
+    if not source_files:
+        print("No interaction files overlapped the merchant window.")
+        return empty_result
+
+    print(
+        f"Interaction window: "
+        f"{window_start_date} to {window_end_date}"
+    )
+    print(f"Interaction files to process: {len(source_files)}")
+    PROGRESS.add_total(len(source_files))
+
+    interaction_best = {}
+
+    for file_meta in source_files:
+        file_name = file_meta["name"]
+        modified_time = file_meta.get("modifiedTime", "")
+        file_size_mb = (
+            round(
+                int(file_meta.get("size", 0))
+                / (1024 * 1024),
+                2,
+            )
+            if file_meta.get("size")
+            else ""
+        )
+        matched_rows = 0
+        file_status = "SUCCESS"
+        local_csv = None
+        record_date = file_meta["parsed_filename"]["end_date"]
+
+        print("--------------------------------------------------")
+        print(f"Processing interaction lookup file: {file_name}")
+        PROGRESS.set_message(
+            f"Processing interaction file: {file_name}"
+        )
+
+        try:
+            local_csv = download_drive_file_with_retry(
+                drive_service,
+                file_meta["id"],
+                file_name,
+                "interactions_csv_",
+            )
+
+            header_df = pd.read_csv(
+                local_csv,
+                nrows=0,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+            )
+
+            actual_columns, rename_map, present_columns = (
+                validate_and_map_interaction_headers(
+                    list(header_df.columns),
+                    file_name,
+                )
+            )
+
+            missing_metric_columns = [
+                column
+                for column in INTERACTION_SOURCE_TO_OUTPUT_COLUMN
+                if column not in present_columns
+            ]
+            if missing_metric_columns:
+                print(
+                    "  Interaction metric columns missing in this file; "
+                    "affected output values will be No data: "
+                    f"{missing_metric_columns}"
+                )
+                if file_status == "SUCCESS":
+                    file_status = (
+                        "SUCCESS_WITH_MISSING_METRIC_COLUMNS"
+                    )
+
+            chunk_iter = pd.read_csv(
+                local_csv,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+                chunksize=CSV_CHUNK_SIZE,
+                usecols=actual_columns,
+            )
+
+            for chunk_number, chunk in enumerate(
+                chunk_iter,
+                start=1,
+            ):
+                chunk = chunk.rename(columns=rename_map)
+
+                for source_column in INTERACTION_SOURCE_TO_OUTPUT_COLUMN:
+                    if source_column not in chunk.columns:
+                        chunk[source_column] = ""
+
+                ticket_id_series = normalize_ticket_id_series(
+                    chunk["Ticket ID"]
+                )
+                match_mask = ticket_id_series.isin(needed_ticket_ids)
+                matched_rows += int(match_mask.sum())
+
+                for idx in chunk.index[match_mask]:
+                    ticket_id = ticket_id_series.loc[idx]
+                    existing = interaction_best.get(ticket_id)
+                    if (
+                        existing is None
+                        or record_date >= existing["date"]
+                    ):
+                        interaction_best[ticket_id] = {
+                            "Async_follow_up_count": (
+                                normalize_optional_numeric_output_value(
+                                    chunk.at[idx, "Async_follow_up_count"]
+                                )
+                            ),
+                            "chat__answered_count": (
+                                normalize_optional_numeric_output_value(
+                                    chunk.at[idx, "chat__answered_count"]
+                                )
+                            ),
+                            "chat__queue_duration_min": (
+                                convert_seconds_to_minutes_output(
+                                    chunk.at[idx, "chat__queue_duration_sec"]
+                                )
+                            ),
+                            "Chat Average Handle Time": (
+                                normalize_no_data_output_value(
+                                    chunk.at[idx, "Chat Average Handle Time"]
+                                )
+                            ),
+                            "date": record_date,
+                        }
+
+                if chunk_number % 5 == 0:
+                    PROGRESS.set_message(
+                        f"Interaction {file_name}: "
+                        f"{matched_rows:,} matched rows"
+                    )
+
+        except Exception as exc:
+            file_status = f"FAILED: {exc}"
+            print(
+                f"ERROR processing interaction lookup file "
+                f"{file_name}: {exc}"
+            )
+            raise
+
+        finally:
+            summary_rows.append(
+                [
+                    "INTERACTION_LOOKUPS",
+                    run_timestamp,
+                    LOOKBACK_WEEKS,
+                    str(window_start_date),
+                    str(window_end_date),
+                    latest_file_name,
+                    str(reference_latest_date),
+                    file_name,
+                    modified_time,
+                    file_size_mb,
+                    matched_rows,
+                    file_status,
+                ]
+            )
+            safe_cleanup_file(local_csv)
+            PROGRESS.update(
+                1,
+                f"Interaction file complete: {file_name}",
+            )
+
+    interaction_by_ticket_id = {}
+    for ticket_id, value in interaction_best.items():
+        interaction_by_ticket_id[ticket_id] = {
+            column: value.get(column, NO_DATA_TEXT)
+            for column in INTERACTION_OUTPUT_COLUMNS
+        }
+
+    print(
+        f"Interaction unique matched Ticket IDs: "
+        f"{len(interaction_by_ticket_id):,}"
+    )
+
+    return {
+        "interaction_by_ticket_id": interaction_by_ticket_id,
+    }
+
+
+
+# =========================
+# DEEP DIVE GOOGLE SHEET LOOKUPS
+# =========================
+def build_deep_dive_lookups(
+    merchant_df,
+    window_start_date,
+    window_end_date,
+    summary_rows,
+):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    needed_ticket_ids, _, _ = prepare_needed_lookup_keys(merchant_df)
+
+    print("======================================")
+    print("DEEP DIVE LOOKUPS BUILD START")
+    print("======================================")
+    print(
+        f"Needed Deep Dive Ticket IDs: "
+        f"{len(needed_ticket_ids):,}"
+    )
+
+    empty_result = {
+        "deep_dive_by_ticket_id": {},
+    }
+
+    if not needed_ticket_ids:
+        return empty_result
+
+    matched_rows = 0
+    file_status = "SUCCESS"
+    latest_timestamp_date = ""
+    source_name = DEEP_DIVE_SOURCE_SHEET_NAME
+    modified_time = ""
+    file_size_mb = ""
+
+    try:
+        PROGRESS.add_total(1)
+        PROGRESS.set_message("Reading Deep Dive Google Sheet")
+
+        try:
+            source_metadata = get_drive_file_metadata_by_id(
+                drive_service=drive_service,
+                file_id=DEEP_DIVE_SOURCE_SPREADSHEET_ID,
+            )
+            source_name = source_metadata.get(
+                "name",
+                DEEP_DIVE_SOURCE_SHEET_NAME,
+            )
+            modified_time = source_metadata.get("modifiedTime", "")
+            file_size_mb = get_file_size_mb(source_metadata)
+        except Exception as meta_exc:
+            print(
+                "  Could not read Deep Dive file metadata; "
+                f"continuing with sheet read. Details: {meta_exc}"
+            )
+
+        # Header-based read:
+        # Read a wide source range, then resolve the needed fields by header
+        # name. This protects the output if Form Responses 2 columns shift.
+        read_range_suffix = str(DEEP_DIVE_SOURCE_READ_RANGE).strip()
+        a1_range = (
+            f"{quote_sheet_title_for_a1(DEEP_DIVE_SOURCE_SHEET_NAME)}!"
+            f"{read_range_suffix}"
+        )
+
+        values = get_sheet_values(
+            sheets_service=sheets_service,
+            spreadsheet_id=DEEP_DIVE_SOURCE_SPREADSHEET_ID,
+            a1_range=a1_range,
+        )
+
+        if not values:
+            file_status = "SUCCESS_EMPTY_SOURCE"
+            print("Deep Dive source sheet has no values.")
+            return empty_result
+
+        headers = [
+            normalize_header(header)
+            for header in values[0]
+        ]
+
+        if not headers:
+            raise ValueError(
+                "Deep Dive source has no header row. "
+                f"Range read: {a1_range}"
+            )
+
+        ticket_index = find_header_index_by_alias(
+            headers,
+            DEEP_DIVE_TICKET_HEADER_ALIASES,
+        )
+        if ticket_index is None:
+            raise ValueError(
+                "Deep Dive source missing required ticket column. "
+                f"Expected one of: {DEEP_DIVE_TICKET_HEADER_ALIASES}. "
+                f"Found headers: {headers}"
+            )
+
+        timestamp_index = find_header_index_by_alias(
+            headers,
+            DEEP_DIVE_TIMESTAMP_HEADER_ALIASES,
+        )
+        if timestamp_index is None:
+            print(
+                "  WARNING: Deep Dive timestamp column was not found. "
+                "Duplicate Ticket Numbers will use the last matching row "
+                "from the source sheet."
+            )
+
+        response_indexes = {}
+        missing_response_headers = []
+
+        for output_column in DEEP_DIVE_OUTPUT_COLUMNS:
+            aliases = DEEP_DIVE_SOURCE_HEADER_ALIASES.get(
+                output_column,
+                [output_column],
+            )
+            index = find_header_index_by_alias(headers, aliases)
+            if index is None:
+                missing_response_headers.append(output_column)
+            else:
+                response_indexes[output_column] = index
+
+        if missing_response_headers:
+            raise ValueError(
+                "Deep Dive source missing required response columns: "
+                f"{missing_response_headers}. "
+                f"Found headers: {headers}"
+            )
+
+        required_width_indexes = [
+            ticket_index,
+            *response_indexes.values(),
+        ]
+        if timestamp_index is not None:
+            required_width_indexes.append(timestamp_index)
+
+        required_width = max(required_width_indexes) + 1
+
+        data_rows = values[1:]
+        if not data_rows:
+            file_status = "SUCCESS_HEADER_ONLY"
+            print("Deep Dive source sheet only has headers.")
+            return empty_result
+
+        padded_rows = [
+            row + [""] * max(required_width - len(row), 0)
+            for row in data_rows
+        ]
+
+        deep_dive_df = pd.DataFrame(padded_rows)
+
+        ticket_id_series = normalize_ticket_id_series(
+            deep_dive_df.iloc[:, ticket_index]
+        )
+
+        if timestamp_index is not None:
+            timestamp_series = parse_dates_general(
+                deep_dive_df.iloc[:, timestamp_index]
+            )
+        else:
+            timestamp_series = pd.Series(
+                pd.NaT,
+                index=deep_dive_df.index,
+                dtype="datetime64[ns]",
+            )
+
+        valid_timestamps = timestamp_series[timestamp_series.notna()]
+        if not valid_timestamps.empty:
+            latest_timestamp_date = str(valid_timestamps.max().date())
+
+        response_df = pd.DataFrame(
+            {
+                output_column: deep_dive_df.iloc[:, source_index]
+                for output_column, source_index in response_indexes.items()
+            },
+            index=deep_dive_df.index,
+        )
+
+        # Force stable output order even if source columns moved.
+        response_df = response_df[DEEP_DIVE_OUTPUT_COLUMNS]
+
+        lookup_df = response_df.copy()
+        lookup_df["_ticket_id"] = ticket_id_series
+        lookup_df["_timestamp"] = timestamp_series
+        lookup_df["_source_row_number"] = list(
+            range(2, 2 + len(lookup_df))
+        )
+
+        match_mask = (
+            lookup_df["_ticket_id"].ne("")
+            & lookup_df["_ticket_id"].isin(needed_ticket_ids)
+        )
+        lookup_df = lookup_df.loc[match_mask].copy()
+        matched_rows = len(lookup_df)
+
+        if lookup_df.empty:
+            print("No Deep Dive rows matched Merchant Ticket IDs.")
+            return empty_result
+
+        # Latest response wins. Timestamp is the primary recency field.
+        # If Timestamp is blank or invalid, source row number keeps the last
+        # matching row as fallback.
+        lookup_df["_timestamp_sort"] = lookup_df["_timestamp"].fillna(
+            pd.Timestamp.min
+        )
+        lookup_df = lookup_df.sort_values(
+            by=[
+                "_ticket_id",
+                "_timestamp_sort",
+                "_source_row_number",
+            ],
+            ascending=[True, True, True],
+        )
+        latest_df = lookup_df.drop_duplicates(
+            subset=["_ticket_id"],
+            keep="last",
+        )
+
+        deep_dive_by_ticket_id = {}
+        for _, row in latest_df.iterrows():
+            ticket_id = row["_ticket_id"]
+            row_output = {}
+            for column in DEEP_DIVE_OUTPUT_COLUMNS:
+                if column == "Contact Category":
+                    row_output[column] = normalize_contact_category_output_value(
+                        row[column]
+                    )
+                else:
+                    row_output[column] = normalize_no_data_output_value(
+                        row[column]
+                    )
+
+            deep_dive_by_ticket_id[ticket_id] = row_output
+
+        print("Deep Dive header-based mapping used:")
+        print(f"  Ticket column: {headers[ticket_index]}")
+        if timestamp_index is not None:
+            print(f"  Timestamp column: {headers[timestamp_index]}")
+        else:
+            print("  Timestamp column: not found; using source row order")
+        for output_column in DEEP_DIVE_OUTPUT_COLUMNS:
+            source_index = response_indexes[output_column]
+            print(
+                f"  {output_column}: source column "
+                f"{column_number_to_letter(source_index + 1)} "
+                f"({headers[source_index]})"
+            )
+
+        print(
+            f"Deep Dive matched source rows: "
+            f"{matched_rows:,}"
+        )
+        print(
+            f"Deep Dive unique matched Ticket IDs: "
+            f"{len(deep_dive_by_ticket_id):,}"
+        )
+
+        return {
+            "deep_dive_by_ticket_id": deep_dive_by_ticket_id,
+        }
+
+    except Exception as exc:
+        file_status = f"FAILED: {exc}"
+        print(f"ERROR processing Deep Dive source sheet: {exc}")
+        raise
+
+    finally:
+        summary_rows.append(
+            [
+                "DEEP_DIVE_LOOKUPS",
+                run_timestamp,
+                LOOKBACK_WEEKS,
+                str(window_start_date),
+                str(window_end_date),
+                source_name,
+                latest_timestamp_date,
+                f"{DEEP_DIVE_SOURCE_SHEET_NAME} "
+                f"(gid={DEEP_DIVE_SOURCE_GID})",
+                modified_time,
+                file_size_mb,
+                matched_rows,
+                file_status,
+            ]
+        )
+        PROGRESS.update(1, "Deep Dive lookup complete")
+
+
+
+# =========================
+# ELEVATE QA LOOKUP
+# =========================
+def normalize_elevate_qa_key(value) -> str:
+    """
+    Normalize Elevate QA text keys for safe mapping.
+
+    Handles:
+      - leading/trailing spaces
+      - repeated whitespace
+      - underscores and hyphens
+      - case differences
+      - blank/null/n/a/none/nan/unknown values
+    """
+    if pd.isna(value):
+        return ""
+
+    text = str(value).strip()
+    text = re.sub(r"[_\-]+", " ", text)
+    text = re.sub(r"\s+", " ", text).strip().casefold()
+
+    if text in INVALID_LOOKUP_VALUES or text == "unknown":
+        return ""
+
+    return text
+
+
+def normalize_elevate_opportunity_key(value) -> str:
+    text = normalize_elevate_qa_key(value)
+    if not text:
+        return ""
+    return text.replace(" ", "_")
+
+
+def normalize_elevate_opportunity_binary_value(value):
+    """
+    Convert Elevate Opportunity level to final raw binary values.
+
+    No Opportunity    -> 1
+    Minor Opportunity -> 1
+    Major Opportunity -> 0
+    Blank/unknown     -> NULL_TEXT
+
+    The source score 2 is intentionally never written to raw output.
+    """
+    key = normalize_elevate_opportunity_key(value)
+    if not key:
+        return NULL_TEXT
+    return ELEVATE_OPPORTUNITY_BINARY_MAP.get(key, NULL_TEXT)
+
+
+def map_elevate_qa_attribute_to_output(value) -> str:
+    key = normalize_elevate_qa_key(value)
+    if not key:
+        return ""
+    return ELEVATE_QA_ATTRIBUTE_TO_OUTPUT_COLUMN.get(key, "")
+
+
+def build_elevate_qa_file_status(
+    base_status,
+    blank_ticket_ids,
+    unmapped_attributes,
+    unknown_opportunities,
+):
+    warnings_list = []
+
+    if blank_ticket_ids:
+        warnings_list.append(
+            f"blank ticket IDs skipped: {blank_ticket_ids:,}"
+        )
+
+    if unmapped_attributes:
+        warnings_list.append(
+            f"unmapped attributes skipped: {unmapped_attributes:,}"
+        )
+
+    if unknown_opportunities:
+        warnings_list.append(
+            "unknown opportunity levels skipped: "
+            f"{unknown_opportunities:,}"
+        )
+
+    if not warnings_list:
+        return base_status
+
+    return f"{base_status} with warnings: " + "; ".join(warnings_list)
+
+
+def build_elevate_qa_wide_lookup(records):
+    empty_df = pd.DataFrame(
+        columns=["Ticket ID"] + AUDIT_OUTPUT_COLUMNS
+    )
+
+    if not records:
+        return empty_df
+
+    long_df = pd.DataFrame(records)
+
+    if long_df.empty:
+        return empty_df
+
+    long_df["Ticket ID"] = normalize_ticket_id_series(
+        long_df["Ticket ID"]
+    )
+    long_df = long_df[
+        long_df["Ticket ID"].ne("")
+        & long_df["QA Output Column"].isin(AUDIT_OUTPUT_COLUMNS)
+    ].copy()
+
+    if long_df.empty:
+        return empty_df
+
+    long_df["binary_value"] = pd.to_numeric(
+        long_df["binary_value"],
+        errors="coerce",
+    )
+    long_df = long_df[long_df["binary_value"].isin([0, 1])].copy()
+
+    if long_df.empty:
+        return empty_df
+
+    # Same Ticket ID + attribute + same latest file date:
+    # conservative score wins, so 0 overrides 1.
+    same_date_df = (
+        long_df.groupby(
+            ["Ticket ID", "QA Output Column", "file_date"],
+            as_index=False,
+        )["binary_value"]
+        .min()
+    )
+
+    latest_date_per_attr = same_date_df.groupby(
+        ["Ticket ID", "QA Output Column"]
+    )["file_date"].transform("max")
+
+    latest_df = same_date_df[
+        same_date_df["file_date"].eq(latest_date_per_attr)
+    ].copy()
+
+    wide_df = latest_df.pivot(
+        index="Ticket ID",
+        columns="QA Output Column",
+        values="binary_value",
+    ).reset_index()
+
+    wide_df.columns.name = None
+
+    for column in AUDIT_OUTPUT_COLUMNS:
+        if column not in wide_df.columns:
+            wide_df[column] = NULL_TEXT
+        else:
+            wide_df[column] = wide_df[column].map(
+                normalize_audit_binary_value
+            )
+
+    wide_df = wide_df[["Ticket ID"] + AUDIT_OUTPUT_COLUMNS].copy()
+
+    if wide_df["Ticket ID"].duplicated().any():
+        duplicates = wide_df.loc[
+            wide_df["Ticket ID"].duplicated(keep=False),
+            "Ticket ID",
+        ].unique().tolist()
+        raise ValueError(
+            "Elevate QA lookup contains duplicate Ticket IDs "
+            f"after resolution: {duplicates[:20]}"
+        )
+
+    return wide_df
+
+
+def build_audit_lookup(
+    merchant_df,
+    window_start_date,
+    window_end_date,
+    summary_rows,
+):
+    run_timestamp = datetime.now(
+        ZoneInfo(TIMEZONE_NAME)
+    ).strftime("%Y-%m-%d %H:%M:%S")
+
+    needed_ticket_ids, _, _ = prepare_needed_lookup_keys(
+        merchant_df
+    )
+
+    print("======================================")
+    print("ELEVATE QA LOOKUP BUILD START")
+    print("======================================")
+    print(
+        f"Needed Elevate QA Ticket IDs: "
+        f"{len(needed_ticket_ids):,}"
+    )
+    PROGRESS.set_message("Preparing Elevate QA lookup")
+
+    empty_df = pd.DataFrame(
+        columns=["Ticket ID"] + AUDIT_OUTPUT_COLUMNS
+    )
+
+    if not needed_ticket_ids:
+        return empty_df
+
+    all_source_files = []
+
+    for folder_number, folder_id in enumerate(
+        ELEVATE_QA_SOURCE_FOLDER_IDS,
+        start=1,
+    ):
+        PROGRESS.set_message(
+            f"Listing Elevate QA folder {folder_number}"
+        )
+        folder_files = list_all_matching_source_files(
+            drive_service=drive_service,
+            folder_id=folder_id,
+            filename_parser=parse_elevate_qa_filename,
+        )
+
+        for file_meta in folder_files:
+            file_meta = dict(file_meta)
+            file_meta["source_folder_id"] = folder_id
+            file_meta["source_folder_number"] = folder_number
+            all_source_files.append(file_meta)
+
+    if not all_source_files:
+        print(
+            "No Elevate QA files matching "
+            "'Elevate_QA_Trends_YYYY_MM-DD.csv' were found."
+        )
+        summary_rows.append(
+            [
+                "ELEVATE_QA_LOOKUP",
+                run_timestamp,
+                LOOKBACK_WEEKS,
+                str(window_start_date),
+                str(window_end_date),
+                "",
+                "",
+                "",
+                "",
+                "",
+                0,
+                "SUCCESS: no matching Elevate QA files found",
+            ]
+        )
+        return empty_df
+
+    source_files = [
+        file_meta
+        for file_meta in all_source_files
+        if (
+            window_start_date
+            <= file_meta["parsed_filename"]["file_date"]
+            <= window_end_date
+        )
+    ]
+
+    source_files.sort(
+        key=lambda item: (
+            item["parsed_filename"]["sort_key"],
+            item.get("name", ""),
+            item.get("id", ""),
+        )
+    )
+
+    if not source_files:
+        latest_any_file = get_latest_file_by_filename(
+            all_source_files
+        )
+        latest_any_date = (
+            latest_any_file["parsed_filename"]["file_date"]
+        )
+
+        print(
+            "No Elevate QA files matched the merchant window "
+            f"{window_start_date} to {window_end_date}."
+        )
+        summary_rows.append(
+            [
+                "ELEVATE_QA_LOOKUP",
+                run_timestamp,
+                LOOKBACK_WEEKS,
+                str(window_start_date),
+                str(window_end_date),
+                latest_any_file.get("name", ""),
+                str(latest_any_date),
+                "",
+                "",
+                "",
+                0,
+                "SUCCESS: no Elevate QA files matched merchant window",
+            ]
+        )
+        return empty_df
+
+    latest_file = get_latest_file_by_filename(source_files)
+    latest_file_name = latest_file["name"]
+    reference_latest_date = latest_file["parsed_filename"][
+        "file_date"
+    ]
+
+    print(
+        f"Elevate QA window: "
+        f"{window_start_date} to {window_end_date}"
+    )
+    print(f"Elevate QA files to process: {len(source_files)}")
+    print(f"Elevate QA reference latest file: {latest_file_name}")
+    print(f"Elevate QA reference latest date: {reference_latest_date}")
+
+    PROGRESS.add_total(len(source_files))
+
+    records = []
+    successful_files = 0
+    failed_files = 0
+
+    for file_meta in source_files:
+        file_name = file_meta["name"]
+        file_date = file_meta["parsed_filename"]["file_date"]
+        modified_time = file_meta.get("modifiedTime", "")
+        file_size_mb = (
+            round(
+                int(file_meta.get("size", 0))
+                / (1024 * 1024),
+                2,
+            )
+            if file_meta.get("size")
+            else ""
+        )
+        matched_rows = 0
+        blank_ticket_ids = 0
+        unmapped_attributes = 0
+        unknown_opportunities = 0
+        file_status = "SUCCESS"
+        local_csv = None
+
+        print("--------------------------------------------------")
+        print(f"Processing Elevate QA file: {file_name}")
+        print(f"  File date: {file_date}")
+        PROGRESS.set_message(
+            f"Processing Elevate QA file: {file_name}"
+        )
+
+        try:
+            local_csv = download_drive_file_with_retry(
+                drive_service,
+                file_meta["id"],
+                file_name,
+                "elevate_qa_",
+            )
+
+            header_df = pd.read_csv(
+                local_csv,
+                nrows=0,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+            )
+
+            actual_columns, rename_map, _ = (
+                validate_and_map_headers(
+                    list(header_df.columns),
+                    ELEVATE_QA_REQUIRED_COLUMNS,
+                    file_name,
+                )
+            )
+
+            chunk_iter = pd.read_csv(
+                local_csv,
+                dtype=str,
+                keep_default_na=False,
+                low_memory=False,
+                chunksize=CSV_CHUNK_SIZE,
+                usecols=actual_columns,
+            )
+
+            for chunk_number, chunk in enumerate(
+                chunk_iter,
+                start=1,
+            ):
+                chunk = chunk.rename(columns=rename_map)
+
+                ticket_id_series = normalize_ticket_id_series(
+                    chunk["Ticket link"]
+                )
+                blank_ticket_ids += int(ticket_id_series.eq("").sum())
+
+                needed_mask = ticket_id_series.isin(
+                    needed_ticket_ids
+                )
+
+                if not needed_mask.any():
+                    if chunk_number % 5 == 0:
+                        PROGRESS.set_message(
+                            f"Elevate QA {file_name}: "
+                            f"{matched_rows:,} matched rows"
+                        )
+                    continue
+
+                candidates = pd.DataFrame(
+                    {
+                        "Ticket ID": ticket_id_series.loc[
+                            needed_mask
+                        ].values,
+                        "QA Attribute": chunk.loc[
+                            needed_mask,
+                            "QA Attribute",
+                        ].values,
+                        "Opportunity level": chunk.loc[
+                            needed_mask,
+                            "Opportunity level",
+                        ].values,
+                    }
+                )
+
+                candidates["QA Output Column"] = candidates[
+                    "QA Attribute"
+                ].map(map_elevate_qa_attribute_to_output)
+
+                unmapped_mask = candidates[
+                    "QA Output Column"
+                ].eq("")
+                unmapped_attributes += int(unmapped_mask.sum())
+
+                candidates["binary_value"] = candidates[
+                    "Opportunity level"
+                ].map(normalize_elevate_opportunity_binary_value)
+
+                unknown_mask = (
+                    candidates["QA Output Column"].ne("")
+                    & candidates["binary_value"].eq(NULL_TEXT)
+                )
+                unknown_opportunities += int(unknown_mask.sum())
+
+                valid_mask = (
+                    candidates["QA Output Column"].ne("")
+                    & candidates["binary_value"].isin([0, 1])
+                )
+
+                valid_records = candidates.loc[
+                    valid_mask,
+                    [
+                        "Ticket ID",
+                        "QA Output Column",
+                        "binary_value",
+                    ],
+                ].copy()
+
+                if not valid_records.empty:
+                    valid_records["file_date"] = file_date
+                    records.extend(
+                        valid_records.to_dict("records")
+                    )
+                    matched_rows += len(valid_records)
+
+                if chunk_number % 5 == 0:
+                    PROGRESS.set_message(
+                        f"Elevate QA {file_name}: "
+                        f"{matched_rows:,} matched rows"
+                    )
+
+            file_status = build_elevate_qa_file_status(
+                base_status="SUCCESS",
+                blank_ticket_ids=blank_ticket_ids,
+                unmapped_attributes=unmapped_attributes,
+                unknown_opportunities=unknown_opportunities,
+            )
+            successful_files += 1
+
+            print(
+                f"  Matched valid Elevate QA rows: "
+                f"{matched_rows:,}"
+            )
+            if blank_ticket_ids:
+                print(
+                    f"  Blank Ticket IDs skipped: "
+                    f"{blank_ticket_ids:,}"
+                )
+            if unmapped_attributes:
+                print(
+                    f"  Unmapped attributes skipped: "
+                    f"{unmapped_attributes:,}"
+                )
+            if unknown_opportunities:
+                print(
+                    f"  Unknown opportunity levels skipped: "
+                    f"{unknown_opportunities:,}"
+                )
+
+        except Exception as exc:
+            failed_files += 1
+            file_status = f"FAILED: {exc}"
+            print(
+                f"ERROR processing Elevate QA file "
+                f"{file_name}: {exc}"
+            )
+
+        finally:
+            summary_rows.append(
+                [
+                    "ELEVATE_QA_LOOKUP",
+                    run_timestamp,
+                    LOOKBACK_WEEKS,
+                    str(window_start_date),
+                    str(window_end_date),
+                    latest_file_name,
+                    str(reference_latest_date),
+                    file_name,
+                    modified_time,
+                    file_size_mb,
+                    matched_rows,
+                    file_status,
+                ]
+            )
+            safe_cleanup_file(local_csv)
+            PROGRESS.update(
+                1,
+                f"Elevate QA file complete: {file_name}",
+            )
+
+    if successful_files == 0 and failed_files:
+        raise ValueError(
+            "All Elevate QA files in the merchant window failed "
+            "validation or processing. Check required columns: "
+            f"{ELEVATE_QA_REQUIRED_COLUMNS}."
+        )
+
+    audit_df = build_elevate_qa_wide_lookup(records)
+
+    if audit_df.empty:
+        print("No Elevate QA records matched merchant Ticket IDs.")
+        return empty_df
+
+    if audit_df["Ticket ID"].duplicated().any():
+        duplicates = audit_df.loc[
+            audit_df["Ticket ID"].duplicated(keep=False),
+            "Ticket ID",
+        ].unique().tolist()
+        raise ValueError(
+            "Elevate QA lookup contains duplicate Ticket IDs "
+            f"after final validation: {duplicates[:20]}"
+        )
+
+    print(
+        f"Elevate QA matched valid source rows: "
+        f"{len(records):,}"
+    )
+    print(
+        f"Elevate QA unique matched Ticket IDs: "
+        f"{len(audit_df):,}"
+    )
+
+    return audit_df
+
+
+# =========================
+# ENRICHMENT AND CALCULATIONS
+# =========================
+def enrich_and_calculate(
+    merchant_df,
+    taxonomy_lookups,
+    ticket_lookups,
+    interaction_lookups,
+    deep_dive_lookups,
+    audit_lookup_df,
+):
+    print("======================================")
+    print("ENRICH + CALCULATE START")
+    print("======================================")
+    PROGRESS.set_message(
+        "Enriching and calculating final raw data"
+    )
+
+    if merchant_df.empty:
+        return pd.DataFrame(columns=FINAL_OUTPUT_COLUMNS)
+
+    working_df = merchant_df.copy()
+    working_df["Ticket ID"] = normalize_ticket_id_series(
+        working_df["Ticket ID"]
+    )
+
+    taxonomy_lookup_df = taxonomy_lookups["enrich_df"]
+
+    if taxonomy_lookup_df.empty:
+        working_df["Created Date"] = NULL_TEXT
+        working_df["Created Date Raw"] = pd.NaT
+        working_df["Level One"] = NULL_TEXT
+        working_df["Level Two"] = NULL_TEXT
+    else:
+        taxonomy_lookup_df = taxonomy_lookup_df.copy()
+        taxonomy_lookup_df["Ticket ID"] = (
+            normalize_ticket_id_series(
+                taxonomy_lookup_df["Ticket ID"]
+            )
+        )
+        working_df = working_df.merge(
+            taxonomy_lookup_df,
+            on="Ticket ID",
+            how="left",
+            validate="many_to_one",
+        )
+
+    if audit_lookup_df.empty:
+        for column in AUDIT_OUTPUT_COLUMNS:
+            working_df[column] = NULL_TEXT
+    else:
+        audit_lookup_df = audit_lookup_df.copy()
+        audit_lookup_df["Ticket ID"] = (
+            normalize_ticket_id_series(
+                audit_lookup_df["Ticket ID"]
+            )
+        )
+
+        if audit_lookup_df["Ticket ID"].duplicated().any():
+            duplicates = audit_lookup_df.loc[
+                audit_lookup_df["Ticket ID"].duplicated(
+                    keep=False
+                ),
+                "Ticket ID",
+            ].unique().tolist()
+            raise ValueError(
+                "Elevate QA lookup contains duplicate Ticket IDs "
+                f"after resolution: {duplicates[:20]}"
+            )
+
+        working_df = working_df.merge(
+            audit_lookup_df,
+            on="Ticket ID",
+            how="left",
+            validate="many_to_one",
+        )
+
+    ticket_id_key_series = normalize_ticket_id_series(
+        working_df["Ticket ID"]
+    )
+
+    aftr_lookup = ticket_lookups.get("aftr_by_ticket_id", {})
+    for column in AFTR_OUTPUT_COLUMNS:
+        working_df[column] = ticket_id_key_series.map(
+            lambda ticket_id, col=column: get_nested_lookup_value(
+                aftr_lookup,
+                ticket_id,
+                col,
+            )
+        )
+        working_df[column] = working_df[column].map(
+            normalize_optional_numeric_output_value
+        )
+
+    interaction_lookup = interaction_lookups.get(
+        "interaction_by_ticket_id",
+        {},
+    )
+    for column in INTERACTION_OUTPUT_COLUMNS:
+        working_df[column] = ticket_id_key_series.map(
+            lambda ticket_id, col=column: get_nested_lookup_value(
+                interaction_lookup,
+                ticket_id,
+                col,
+            )
+        )
+
+        if column in MIXED_NUMBER_OUTPUT_COLUMNS:
+            working_df[column] = working_df[column].map(
+                normalize_optional_numeric_output_value
+            )
+        else:
+            working_df[column] = working_df[column].map(
+                normalize_no_data_output_value
+            )
+
+    deep_dive_lookup = deep_dive_lookups.get(
+        "deep_dive_by_ticket_id",
+        {},
+    )
+    for column in DEEP_DIVE_OUTPUT_COLUMNS:
+        working_df[column] = ticket_id_key_series.map(
+            lambda ticket_id, col=column: get_nested_lookup_value(
+                deep_dive_lookup,
+                ticket_id,
+                col,
+            )
+        )
+        working_df[column] = working_df[column].map(
+            normalize_no_data_output_value
+        )
+
+    working_df["Smiley Registered At"] = parse_dates_general(
+        working_df["Smiley Registered At"]
+    )
+    smiley_dt = working_df["Smiley Registered At"]
+
+    for column in [
+        "Level One",
+        "Level Two",
+        "Created Date",
+    ]:
+        working_df[column] = (
+            working_df[column]
+            .replace("", pd.NA)
+            .fillna(NULL_TEXT)
+            .astype(str)
+        )
+
+    for column in AUDIT_TEXT_OUTPUT_COLUMNS:
+        working_df[column] = (
+            working_df[column]
+            .replace("", pd.NA)
+            .fillna(NULL_TEXT)
+            .astype(str)
+        )
+
+    for column in AUDIT_BINARY_OUTPUT_COLUMNS:
+        working_df[column] = working_df[column].map(
+            normalize_audit_binary_value
+        )
+
+    created_dt = pd.to_datetime(
+        working_df["Created Date Raw"],
+        errors="coerce",
+    )
+
+    working_df["Date"] = format_datevalue_output(smiley_dt)
+    working_df["Week"] = compute_week_label(smiley_dt)
+    working_df["Month"] = format_month_output(smiley_dt)
+
+    rating_series = (
+        working_df["Smiley Rating"]
+        .astype(str)
+        .str.strip()
+    )
+    working_df["Smiley Rate"] = (
+        rating_series.eq("Smiley").astype("int64")
+    )
+    working_df["Non-Smiley Survey"] = (
+        ~rating_series.eq("Smiley")
+    ).astype("int64")
+    working_df["Responses"] = (
+        working_df["Smiley Rate"]
+        + working_df["Non-Smiley Survey"]
+    ).astype("int64")
+
+    working_df["Ticket Age"] = compute_ticket_age(
+        smiley_dt,
+        created_dt,
+        null_text=NULL_TEXT,
+    )
+    working_df["Smiley Registered At"] = (
+        format_created_date_output(
+            smiley_dt,
+            null_text=NULL_TEXT,
+        )
+    )
+
+    combined_key_series = build_combined_key_series(
+        working_df["Ticket ID"],
+        working_df["Employee Name"],
+    )
+    name_key_series = normalize_lookup_series(
+        working_df["Employee Name"]
+    )
+
+    ticket_combined_series = combined_key_series.map(
+        ticket_lookups.get("tenure_combined", {})
+    )
+    taxonomy_combined_series = combined_key_series.map(
+        taxonomy_lookups.get("tenure_combined", {})
+    )
+    ticket_name_series = name_key_series.map(
+        ticket_lookups.get("tenure_name", {})
+    )
+    taxonomy_name_series = name_key_series.map(
+        taxonomy_lookups.get("tenure_name", {})
+    )
+
+    tenure_group = pd.Series(
+        [NULL_TEXT] * len(working_df),
+        index=working_df.index,
+        dtype="object",
+    )
+
+    for candidate_series in [
+        ticket_combined_series,
+        taxonomy_combined_series,
+        ticket_name_series,
+        taxonomy_name_series,
+    ]:
+        candidate_display = candidate_series.map(
+            normalize_display_text
+        )
+        usable_mask = candidate_display.map(
+            is_usable_lookup_value
+        )
+        fill_mask = (
+            tenure_group.eq(NULL_TEXT)
+            & usable_mask
+        )
+        tenure_group.loc[fill_mask] = (
+            candidate_display.loc[fill_mask]
+        )
+
+    working_df["Tenure Group"] = (
+        tenure_group
+        .replace("", pd.NA)
+        .fillna(NULL_TEXT)
+        .astype(str)
+    )
+
+    ticket_site_series = name_key_series.map(
+        ticket_lookups.get("site_name", {})
+    )
+    taxonomy_site_series = name_key_series.map(
+        taxonomy_lookups.get("site_name", {})
+    )
+
+    site_series = pd.Series(
+        [NULL_TEXT] * len(working_df),
+        index=working_df.index,
+        dtype="object",
+    )
+
+    for candidate_series in [
+        ticket_site_series,
+        taxonomy_site_series,
+    ]:
+        candidate_display = candidate_series.map(
+            normalize_display_text
+        )
+        usable_mask = candidate_display.map(
+            is_usable_lookup_value
+        )
+        fill_mask = (
+            site_series.eq(NULL_TEXT)
+            & usable_mask
+        )
+        site_series.loc[fill_mask] = (
+            candidate_display.loc[fill_mask]
+        )
+
+    working_df["Site"] = (
+        site_series
+        .replace("", pd.NA)
+        .fillna(NULL_TEXT)
+        .astype(str)
+    )
+
+    working_df["Ramp"] = compute_ramp_from_tenure_group(
+        working_df["Tenure Group"],
+        null_text=NULL_TEXT,
+    )
+
+    working_df = working_df.drop(
+        columns=["Created Date Raw"],
+        errors="ignore",
+    )
+
+    null_default_columns = {
+        "Level One",
+        "Level Two",
+        "Created Date",
+        "Ticket Age",
+        "Tenure Group",
+        "Site",
+        "Ramp",
+        *AUDIT_TEXT_OUTPUT_COLUMNS,
+    }
+
+    no_data_default_columns = set(NO_DATA_OUTPUT_COLUMNS)
+
+    for column in FINAL_OUTPUT_COLUMNS:
+        if column not in working_df.columns:
+            if column in no_data_default_columns:
+                working_df[column] = NO_DATA_TEXT
+            elif (
+                column in null_default_columns
+                or column in AUDIT_BINARY_OUTPUT_COLUMNS
+            ):
+                working_df[column] = NULL_TEXT
+            else:
+                working_df[column] = ""
+
+    final_df = working_df[FINAL_OUTPUT_COLUMNS].copy()
+
+    for column in null_default_columns:
+        final_df[column] = (
+            final_df[column]
+            .replace("", pd.NA)
+            .fillna(NULL_TEXT)
+            .astype(str)
+        )
+
+    for column in no_data_default_columns:
+        final_df[column] = final_df[column].map(
+            normalize_no_data_output_value
+        )
+
+    for column in AUDIT_BINARY_OUTPUT_COLUMNS:
+        final_df[column] = final_df[column].map(
+            normalize_audit_binary_value
+        )
+
+    for column in NUMERIC_OUTPUT_COLUMNS:
+        final_df[column] = (
+            pd.to_numeric(
+                final_df[column],
+                errors="coerce",
+            )
+            .fillna(0)
+            .astype("int64")
+        )
+
+    for column in final_df.columns:
+        if (
+            column not in NUMERIC_OUTPUT_COLUMNS
+            and column not in DATEVALUE_OUTPUT_COLUMNS
+            and column not in AUDIT_BINARY_OUTPUT_COLUMNS
+            and column not in NO_DATA_OUTPUT_COLUMNS
+        ):
+            final_df[column] = (
+                final_df[column]
+                .fillna("")
+                .astype(str)
+            )
+
+    print(f"Final enriched row count: {len(final_df):,}")
+    return final_df
+
+
+# =========================
+# FINAL DEDUPLICATION
+# =========================
+def deduplicate_final_raw_by_ticket_id(
+    final_df: pd.DataFrame,
+) -> pd.DataFrame:
+    PROGRESS.set_message(
+        "Deduplicating final raw data by Ticket ID"
+    )
+
+    if final_df.empty or "Ticket ID" not in final_df.columns:
+        return final_df.copy()
+
+    work = final_df.copy()
+    before_count = len(work)
+
+    work["_original_row_order"] = range(len(work))
+    work["_ticket_id_key"] = normalize_ticket_id_series(
+        work["Ticket ID"]
+    )
+
+    blank_ticket_df = work[
+        work["_ticket_id_key"].eq("")
+    ].copy()
+    keyed_df = work[
+        work["_ticket_id_key"].ne("")
+    ].copy()
+
+    if keyed_df.empty:
+        return (
+            work.drop(
+                columns=[
+                    "_original_row_order",
+                    "_ticket_id_key",
+                ],
+                errors="ignore",
+            )
+            .reset_index(drop=True)
+        )
+
+    keyed_df["_smiley_registered_at_dt"] = (
+        parse_dates_general(
+            keyed_df["Smiley Registered At"]
+        )
+    )
+    keyed_df["_created_date_dt"] = parse_dates_general(
+        keyed_df["Created Date"]
+    )
+
+    keyed_df = keyed_df.sort_values(
+        by=[
+            "_ticket_id_key",
+            "_smiley_registered_at_dt",
+            "_created_date_dt",
+            "_original_row_order",
+        ],
+        ascending=[True, False, False, False],
+        na_position="last",
+        kind="mergesort",
+    )
+
+    deduped_keyed_df = keyed_df.drop_duplicates(
+        subset=["_ticket_id_key"],
+        keep="first",
+    )
+
+    final_deduped_df = pd.concat(
+        [deduped_keyed_df, blank_ticket_df],
+        ignore_index=True,
+    )
+    final_deduped_df = final_deduped_df.sort_values(
+        by="_original_row_order",
+        ascending=True,
+        kind="mergesort",
+    )
+
+    final_deduped_df = final_deduped_df.drop(
+        columns=[
+            "_original_row_order",
+            "_ticket_id_key",
+            "_smiley_registered_at_dt",
+            "_created_date_dt",
+        ],
+        errors="ignore",
+    )
+
+    for column in FINAL_OUTPUT_COLUMNS:
+        if column not in final_deduped_df.columns:
+            final_deduped_df[column] = ""
+
+    final_deduped_df = final_deduped_df[
+        FINAL_OUTPUT_COLUMNS
+    ].reset_index(drop=True)
+
+    after_count = len(final_deduped_df)
+    removed_count = before_count - after_count
+
+    duplicate_row_candidates = int(
+        work.loc[
+            work["_ticket_id_key"].ne(""),
+            "_ticket_id_key",
+        ].duplicated(keep=False).sum()
+    )
+    duplicate_ticket_ids_removed = int(
+        work.loc[
+            work["_ticket_id_key"].ne(""),
+            "_ticket_id_key",
+        ].duplicated(keep="first").sum()
+    )
+
+    print("======================================")
+    print("FINAL TICKET ID DEDUPLICATION COMPLETE")
+    print("======================================")
+    print(f"Rows before dedupe: {before_count:,}")
+    print(f"Rows after dedupe : {after_count:,}")
+    print(f"Rows removed      : {removed_count:,}")
+    print(
+        "Duplicate-row candidates found: "
+        f"{duplicate_row_candidates:,}"
+    )
+    print(
+        "Duplicate Ticket IDs removed: "
+        f"{duplicate_ticket_ids_removed:,}"
+    )
+
+    return final_deduped_df
+
+
+# =========================
+# WRITE RAW OUTPUT
+# =========================
+def dataframe_to_sheet_rows(
+    final_df: pd.DataFrame,
+) -> list:
+    if final_df.empty:
+        return []
+
+    missing_columns = [
+        column
+        for column in FINAL_OUTPUT_COLUMNS
+        if column not in final_df.columns
+    ]
+    if missing_columns:
+        raise ValueError(
+            "Final dataframe is missing required output columns: "
+            f"{missing_columns}"
+        )
+
+    write_df = final_df.loc[:, FINAL_OUTPUT_COLUMNS].copy()
+
+    if LIGHTWEIGHT_SHEET_WRITE_PREP:
+        write_df = write_df.where(pd.notna(write_df), "")
+        return write_df.values.tolist()
+
+    for column in NUMERIC_OUTPUT_COLUMNS:
+        write_df[column] = (
+            pd.to_numeric(
+                write_df[column],
+                errors="coerce",
+            )
+            .fillna(0)
+            .astype("int64")
+        )
+
+    for column in AUDIT_BINARY_OUTPUT_COLUMNS:
+        write_df[column] = write_df[column].map(
+            normalize_audit_binary_value
+        )
+
+    for column in write_df.columns:
+        if (
+            column not in NUMERIC_OUTPUT_COLUMNS
+            and column not in AUDIT_BINARY_OUTPUT_COLUMNS
+            and column not in NO_DATA_OUTPUT_COLUMNS
+        ):
+            write_df[column] = (
+                write_df[column]
+                .fillna("")
+                .astype(str)
+            )
+
+    return write_df.values.tolist()
+
+
+def write_raw_output(final_df):
+    print("======================================")
+    print("WRITE RAW START")
+    print("======================================")
+    print(
+        f"Destination columns: "
+        f"{RAW_DEST_START_COLUMN}:{RAW_DEST_END_COLUMN}"
+    )
+
+    output_column_count = len(FINAL_OUTPUT_COLUMNS)
+    required_sheet_rows = max(
+        len(final_df) + 1 + RAW_EXTRA_BUFFER_ROWS,
+        1,
+    )
+    required_sheet_columns = output_column_count
+
+    PROGRESS.add_total(5)
+    PROGRESS.set_message("Preparing target workbook output tabs")
+
+    prepare_target_workbook_output_tabs(
+        sheets_service=sheets_service,
+        spreadsheet_id=TARGET_SPREADSHEET_ID,
+        keep_sheet_names=TARGET_OUTPUT_SHEETS_TO_KEEP,
+    )
+    PROGRESS.update(1, "Target workbook output tabs prepared")
+
+    PROGRESS.set_message("Ensuring raw sheet exists")
+
+    ensure_sheet_exists(
+        sheets_service,
+        TARGET_SPREADSHEET_ID,
+        RAW_SHEET_NAME,
+    )
+
+    validate_projected_workbook_cell_usage(
+        sheets_service=sheets_service,
+        spreadsheet_id=TARGET_SPREADSHEET_ID,
+        generated_sheet_name=RAW_SHEET_NAME,
+        required_rows=required_sheet_rows,
+        required_columns=required_sheet_columns,
+    )
+
+    resize_generated_sheet_grid(
+        sheets_service=sheets_service,
+        spreadsheet_id=TARGET_SPREADSHEET_ID,
+        sheet_name=RAW_SHEET_NAME,
+        required_rows=required_sheet_rows,
+        required_columns=required_sheet_columns,
+    )
+    PROGRESS.update(1, "Raw sheet grid prepared")
+
+    bounded_clear_range = build_bounded_a1_range(
+        sheet_name=RAW_SHEET_NAME,
+        start_column=RAW_DEST_START_COLUMN,
+        end_column=RAW_DEST_END_COLUMN,
+        start_row=1,
+        end_row=required_sheet_rows,
+    )
+
+    print(f"Clearing raw destination range: {bounded_clear_range}")
+    clear_range_with_retry(
+        sheets_service,
+        TARGET_SPREADSHEET_ID,
+        bounded_clear_range,
+    )
+    PROGRESS.update(1, "Raw destination range cleared")
+
+    print("Writing raw headers...")
+    write_rows_to_sheet_with_retry(
+        sheets_service=sheets_service,
+        spreadsheet_id=TARGET_SPREADSHEET_ID,
+        sheet_name=RAW_SHEET_NAME,
+        start_row=1,
+        rows=[FINAL_OUTPUT_COLUMNS],
+        start_col=RAW_DEST_START_COLUMN,
+        end_col=RAW_DEST_END_COLUMN,
+    )
+    PROGRESS.update(1, "Raw headers written")
+
+    if final_df.empty:
+        print("No rows to write.")
+        format_raw_sheet_columns(
+            sheets_service=sheets_service,
+            spreadsheet_id=TARGET_SPREADSHEET_ID,
+            sheet_name=RAW_SHEET_NAME,
+        )
+        PROGRESS.update(1, "Raw sheet formatted")
+        return 0
+
+    rows = dataframe_to_sheet_rows(final_df)
+    total_batches = math.ceil(
+        len(rows) / SHEETS_WRITE_BATCH_ROWS
+    )
+    PROGRESS.add_total(total_batches)
+
+    total_rows_written = 0
+    next_sheet_row = 2
+
+    for batch_number, start_index in enumerate(
+        range(0, len(rows), SHEETS_WRITE_BATCH_ROWS),
+        start=1,
+    ):
+        chunk = rows[
+            start_index:start_index + SHEETS_WRITE_BATCH_ROWS
+        ]
+
+        write_rows_to_sheet_with_retry(
+            sheets_service=sheets_service,
+            spreadsheet_id=TARGET_SPREADSHEET_ID,
+            sheet_name=RAW_SHEET_NAME,
+            start_row=next_sheet_row,
+            rows=chunk,
+            start_col=RAW_DEST_START_COLUMN,
+            end_col=RAW_DEST_END_COLUMN,
+        )
+
+        next_sheet_row += len(chunk)
+        total_rows_written += len(chunk)
+
+        print(
+            f"  Batch {batch_number}/{total_batches}: "
+            f"wrote {len(chunk):,} rows"
+        )
+        PROGRESS.update(
+            1,
+            f"Writing raw rows: "
+            f"{total_rows_written:,}/{len(rows):,}",
+        )
+
+    format_raw_sheet_columns(
+        sheets_service=sheets_service,
+        spreadsheet_id=TARGET_SPREADSHEET_ID,
+        sheet_name=RAW_SHEET_NAME,
+    )
+    PROGRESS.update(1, "Raw sheet formatted")
+
+    print(
+        f"Total rows written to raw: "
+        f"{total_rows_written:,}"
+    )
+    return total_rows_written
+
+
+
+
+# =========================
+# MAIN
+# =========================
+def main():
+    PROGRESS.start()
+    PROGRESS.add_total(9)
+
+    summary_rows = []
+    merchant_result = None
+    final_df = pd.DataFrame(columns=FINAL_OUTPUT_COLUMNS)
+    total_rows_written = 0
+    original_error = None
+
+    try:
+        merchant_result = extract_merchant_data(
+            summary_rows=summary_rows
+        )
+        PROGRESS.update(1, "Merchant extraction complete")
+
+        merchant_df = merchant_result["merchant_df"]
+        window_start_date = merchant_result[
+            "window_start_date"
+        ]
+        window_end_date = merchant_result[
+            "window_end_date"
+        ]
+
+        taxonomy_lookups = build_taxonomy_lookups(
+            merchant_df=merchant_df,
+            window_start_date=window_start_date,
+            window_end_date=window_end_date,
+            summary_rows=summary_rows,
+        )
+        PROGRESS.update(1, "Taxonomy lookups complete")
+
+        ticket_lookups = build_ticket_lookups(
+            merchant_df=merchant_df,
+            window_start_date=window_start_date,
+            window_end_date=window_end_date,
+            summary_rows=summary_rows,
+        )
+        PROGRESS.update(1, "Ticket lookups complete")
+
+        interaction_lookups = build_interaction_lookups(
+            merchant_df=merchant_df,
+            window_start_date=window_start_date,
+            window_end_date=window_end_date,
+            summary_rows=summary_rows,
+        )
+        PROGRESS.update(1, "Interaction lookups complete")
+
+        deep_dive_lookups = build_deep_dive_lookups(
+            merchant_df=merchant_df,
+            window_start_date=window_start_date,
+            window_end_date=window_end_date,
+            summary_rows=summary_rows,
+        )
+        PROGRESS.update(1, "Deep Dive lookups complete")
+
+        audit_lookup_df = build_audit_lookup(
+            merchant_df=merchant_df,
+            window_start_date=window_start_date,
+            window_end_date=window_end_date,
+            summary_rows=summary_rows,
+        )
+        PROGRESS.update(1, "Elevate QA lookup complete")
+
+        final_df = enrich_and_calculate(
+            merchant_df=merchant_df,
+            taxonomy_lookups=taxonomy_lookups,
+            ticket_lookups=ticket_lookups,
+            interaction_lookups=interaction_lookups,
+            deep_dive_lookups=deep_dive_lookups,
+            audit_lookup_df=audit_lookup_df,
+        )
+
+        if ENABLE_FINAL_TICKET_ID_DEDUPE:
+            raise RuntimeError(
+                "ENABLE_FINAL_TICKET_ID_DEDUPE is intentionally "
+                "disabled for this accuracy-preserving optimized "
+                "loader. Set it back to False to preserve all "
+                "Merchant source rows."
+            )
+
+        PROGRESS.update(
+            1,
+            "Enrichment and calculations complete",
+        )
+
+        merchant_row_count = len(merchant_df)
+        final_row_count = len(final_df)
+
+        if final_row_count != merchant_row_count:
+            raise RuntimeError(
+                "Row preservation validation failed. "
+                f"Merchant master has {merchant_row_count:,} rows, "
+                f"but enrichment produced {final_row_count:,} rows. "
+                "The raw destination was NOT updated."
+            )
+
+        print("======================================")
+        print("ROW PRESERVATION VALIDATION COMPLETE")
+        print("======================================")
+        print(f"Merchant master rows: {merchant_row_count:,}")
+        print(f"Final enriched rows : {final_row_count:,}")
+        print("Rows removed         : 0")
+
+        PROGRESS.update(
+            1,
+            "Row preservation validation complete",
+        )
+
+        total_rows_written = write_raw_output(final_df)
+        PROGRESS.update(1, "Raw sheet write complete")
+
+    except Exception as exc:
+        original_error = exc
+        print("======================================")
+        print("MASTER LOAD FAILED")
+        print("======================================")
+        print(f"Failure reason: {exc}")
+        raise
+
+    finally:
+        try:
+            write_summary_table(
+                sheets_service=sheets_service,
+                spreadsheet_id=TARGET_SPREADSHEET_ID,
+                summary_sheet_name=SUMMARY_SHEET_NAME,
+                rows=summary_rows,
+            )
+        except Exception as summary_exc:
+            print("======================================")
+            print("LOAD SUMMARY WRITE FAILED")
+            print("======================================")
+            print(f"Summary write failure: {summary_exc}")
+            if original_error is None:
+                raise
+        finally:
+            PROGRESS.close()
+
+    print("======================================")
+    print("MASTER LOAD COMPLETE")
+    print("======================================")
+
+    if merchant_result is not None:
+        print(
+            f"Window used: "
+            f"{merchant_result['window_start_date']} "
+            f"to {merchant_result['window_end_date']}"
+        )
+        print(
+            "Merchant reference latest date: "
+            f"{merchant_result['reference_latest_date']}"
+        )
+
+    print(f"Final enriched rows: {len(final_df):,}")
+    print(f"Rows written to raw: {total_rows_written:,}")
+    print(
+        f"Final raw width: "
+        f"{len(FINAL_OUTPUT_COLUMNS)} columns "
+        f"({RAW_DEST_START_COLUMN}:{RAW_DEST_END_COLUMN})"
+    )
+    print(f"Summary written to: {SUMMARY_SHEET_NAME}")
+    print("Done.")
+
+
+main()
