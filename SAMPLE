@@ -1,1 +1,992 @@
-TEST
+
+PACE Scorecard - 2027
+Shopify Global Accounts PACE Performance Scoring & Relative Ranking
+
+A BIDS and Operations guide to balanced scorecard
+
+1. Purpose
+
+Definition: PACE is a standardized performance scoring framework designed to measure both:
+1. Absolute Performance — how well a teammate performs against the required account target.
+2. Relative Performance — how the teammate performs compared with other teammates doing comparable work.
+Problem Addressed: PACE prevents traditional population-based quartiling from creating misleading results.
+Under traditional quartiling, teammates can be placed into higher quartiles simply because they perform better than their peers, even when the entire population is below target.
+Solution: PACE solves this by applying a Target Gate before relative ranking is used to differentiate performance.
+Core principle: First, meet the standard. Then, show how far above the standard you perform
+2. PACE Philosophy
+
+PACE is not intended to identify a winner simply by ranking teammates against one another.
+It is intended to answer two questions:
+1. Are you meeting the account standard measured through absolute performance?
+2. How strong is your performance compared with your qualified peers measured through relative performance?
+Standard Scoring Model:
+
+
+70% Absolute Performance + 30% Relative Performance
+Rationale:
+
+
+Absolute performance has greater weight because the account target represents the minimum required standard.
+Relative performance adds differentiation among teammates without allowing population ranking to replace the account standard.
+3. PACE Definitions
+
+PACE
+NAME
+DEFINITION
+P
+Peak
+Performance clearly exceeds the required standard
+A
+Achieving
+Performance meets the required standard
+C
+Concerning
+Performance is below the required standard and requires improvement
+E
+Escalate
+Performance has a significant or sustained gap requiring intervention
+
+
+PACE should be interpreted as a performance condition, not simply as a ranking.
+4. KPI Framework
+
+PACE evaluates four core KPIs.
+KPI
+WHAT IT MEASURES
+DIRECTION
+Smiley
+Merchant Satisfaction
+Higher is better
+AHT
+Handling Efficiency
+Lower is better
+AFTR
+Advisor First Touch Resolution
+Higher is better
+Quality
+Compliance, accuracy, and interaction quality
+Higher is better
+
+
+The approved target for each KPI must be maintained in the official PACE Target Configuration.
+5. Target Gate
+
+The Target Gate is the most important control in PACE.
+Rule: Relative ranking cannot compensate for failure to meet the required KPI target.
+Example:
+
+
+Smiley Target = 81%
+A teammate with 79% Smiley may rank better than many peers.
+They are still below the required Smiley target.
+Therefore, relative ranking cannot automatically classify that teammate as an upper-band performer.
+Key Takeaway: Being better than someone who is also below target does not mean you are meeting the standard.
+6. Target Configuration
+
+BIDS must maintain an approved target table per LOB in the view below.
+KPI
+0-3 Months
+3-6 Months
+6-9 Months
+9-12 Months
+12+ Months
+Smiley
+
+
+
+
+
+
+
+
+
+
+AFTR
+
+
+
+
+
+
+
+
+
+
+Quality
+
+
+
+
+
+
+
+
+
+
+AHT
+
+
+
+
+
+
+
+
+
+
+
+
+Targets may vary by:
+
+
+Line of business
+Tenure
+Channel & channel mix
+Reporting period
+The most specific approved target must always be used.
+Target changes:
+
+
+Record the effective date.
+Do not overwrite historical targets.
+Apply the new target only from its effective period onward.
+Preserve historical scores using the target that was active at that time.
+Targets change quarterly. Targets for the new quarter are published every 3rd Monday of the outgoing quarter’s last month.
+7. Step 1 — Calculate Attainment
+
+Target Factor measures how actual performance compares with the target.
+Higher-is-better KPIs:
+
+
+Smiley
+AFTR
+Quality
+Formula: Attainment = Actual ÷ Target
+
+
+Example:
+
+
+Smiley Actual = 85%
+Smiley Target = 81%
+85 ÷ 81 = 1.049
+The teammate is performing at approximately 104.9% of target.
+Lower-is-better KPIs:
+
+
+AHT
+Formula: Attainment = Target ÷ Actual
+
+
+Example:
+
+
+AHT Target = 500 seconds
+AHT Actual = 480 seconds
+500 ÷ 480 = 1.042
+The teammate is performing at approximately 104.2% of target.
+8. Direction Standardization
+
+BIDS must always ensure: A higher attainment means better performance.
+Standardization Rules:
+
+
+Smiley: Higher actual = better attainment.
+AFTR: Higher actual = better attainment.
+Quality: Higher actual = better attainment.
+AHT: Lower actual = better attainment.
+This standardization is required before relative ranking is calculated.
+9. Step 2 — Calculate Absolute Performance Score
+
+The Attainment is converted into an Absolute Performance. The Absolute Performance measures how well the teammate performs against the account standard.
+Important: The exact scoring curve must be approved by Operations and Reporting after historical back-testing.
+General Model Principle:
+
+
+Performance Against Target
+Absolute Performance Behavior
+Significantly below target
+Low
+Below target
+Below midpoint
+At target
+Meets standard
+Above target
+Above standard
+Significantly above target
+High, subject to score cap
+
+
+The Absolute Score should normally use a 0–100 scale.
+Example (Illustrative only):
+
+
+Attainment
+Absolute Performance
+0.90
+70
+0.95
+80
+1.00
+90
+1.05
+95
+1.10+
+100
+
+
+These values are examples and must not be implemented until formally approved. BIDS to work on a proposal for the absolute performance values.
+10. Step 3 — Define the Peer Group
+
+Relative performance must be calculated against teammates doing comparable work.
+Recommended Peer-Group Hierarchy:
+
+
+LOB → Tenure → Channel → Reporting Period
+Example: A Premium Chat teammate within 6-90 months should be compared with other comparable Premium Chat teammates within the same tenure band rather than with the rest of Core or Premium.
+11. Minimum Peer Population
+
+Relative ranking becomes less reliable when the population is too small.
+Recommended Minimum: 20 eligible teammates.
+If fewer than 20 teammates exist in the defined peer group:
+
+
+Do not create an unreliable percentile.
+Use the approved fallback peer group.
+If no valid fallback exists, mark Relative Performance as N/A.
+Apply the approved alternative scoring treatment.
+The fallback hierarchy must be documented and approved before implementation.
+12. Step 4 — Calculate Reverse Percentile
+
+PACE uses a reverse percentile convention.
+PACE Ranking Direction:
+
+
+0 = Best
+100 = Worst
+This is intentionally the reverse of conventional percentile interpretation.
+It makes the ranking easier to read: Lower number = better performance.
+Higher-is-better KPIs (Smiley, AFTR, Quality):
+
+
+Rank teammates from: Highest actual → Lowest actual
+The highest performer receives the best reverse percentile.
+Lower-is-better KPIs (AHT):
+
+
+Rank teammates from: Lowest actual → Highest actual
+Best performer = lowest percentile number.
+The logic: Doing this primes us to compute percentiles in reverse similar to how traditional rankings are done.
+13. Example of Reverse Percentile
+
+Suppose 10 teammates have the following Smiley:
+Rank
+Smiley
+Reverse Percentile
+1
+94%
+0
+2
+92%
+10
+3
+89%
+20
+4
+87%
+30
+5
+85%
+40
+6
+83%
+50
+7
+81%
+60
+8
+79%
+70
+9
+75%
+80
+10
+70%
+90
+
+
+Direction: Always Lower = better
+14. Relative Performance Bands
+
+For reporting and communication, reverse percentiles can be grouped into four relative performance bands.
+Reverse Percentile
+Relative Band
+Interpretation
+0-24
+Top
+Highest performing peer group
+25-49
+Strong
+Above middle of the peer group
+50-74
+Middle
+Middle/lower-middle of peer group
+75-100
+Lower
+Lower-performing peer group
+
+
+These are relative bands, not traditional statistical quartiles. This distinction is important because PACE is target-gated.
+15. Step 5 — Convert Reverse Percentile to Relative Score
+
+Formula: Relative Score = 100 − Reverse Percentile
+
+
+Examples:
+
+
+Reverse Percentile = 0 → 100 − 0 = 100
+
+
+Reverse Percentile = 20 → 100 − 20 = 80
+
+
+Reverse Percentile = 60 → 100 − 60 = 40
+
+
+Reverse Percentile = 90 → 100 − 90 = 10
+
+
+Reverse Percentile
+Relative Score
+0
+100
+20
+80
+40
+60
+60
+40
+80
+20
+100
+0
+
+
+Simple explanation: "The closer your percentile is to zero, the higher your Relative Score."
+16. Important: Relative Performance Is Not Calculated Against Target
+
+Target and relative performance answer different questions.
+Target asks: "Did you meet the required standard?"
+Relative ranking asks: "How do you compare with your peers?"
+Therefore:
+
+
+Relative Percentile is calculated from peer performance.
+Target Gate is calculated from the approved KPI target.
+The two are then used together.
+This prevents double-counting the target.
+17. Step 6 — Apply the Target Gate
+
+After calculating relative performance, apply the Target Gate.
+Example:
+
+
+Smiley target = 81%
+Teammate
+Smiley
+Reverse Percentile
+Target Met?
+A
+94%
+0
+Yes
+B
+88%
+20
+Yes
+C
+81%
+60
+Yes
+D
+79%
+70
+No
+E
+75%
+80
+No
+
+
+Teammate D may have a better relative position than many teammates, but D has not met target.
+Therefore: "Relative ranking cannot promote D into a target-qualified performance classification."
+18. Step 7 — Calculate Final KPI Score
+
+Standard Formula: Final KPI Score = (Absolute Score × 70%) + (Relative Score × 30%)
+
+
+Example:
+
+
+Absolute Score = 95
+Relative Score = 80
+Calculation:
+
+
+95 × 70% = 66.5
+80 × 30% = 24
+Final KPI Score: 66.5 + 24 = 90.5
+Therefore: "Final KPI Score = 90.5"
+19. Step 8 — Apply KPI Weights
+
+The recommended starting KPI weighting is:
+KPI
+Weight
+Smiley
+30%
+Quality
+30%
+AFTR
+25%
+AHT
+15%
+Total
+100%
+
+
+The weighting reflects the principle that customer outcomes and quality should carry more influence than speed alone.
+These weights may be adjusted by the account if formally approved.
+20. Step 9 — Calculate Overall PACE Score
+
+Overall Score Formula:
+
+
+Smiley Final Score × 30%
+
+
+Quality Final Score × 30%
+
+
+AFTR Final Score × 25%
+
+
+AHT Final Score × 15%
+Example:
+
+
+KPI
+Final KPI Score
+Weight
+Weighted Score
+Smiley
+88.4
+30%
+26.52
+Quality
+92.8
+30%
+27.84
+AFTR
+89.0
+25%
+22.25
+AHT
+79.0
+15%
+11.85
+Overall
+
+
+100%
+88.46
+
+
+Overall PACE Score: "88.46"
+21. Step 10 — Apply PACE Classification
+
+Recommended starting thresholds:
+
+
+Overall Score
+PACE
+90–100
+P — Peak
+80–89.99
+A — Achieving
+70–79.99
+C — Concerning
+Below 70
+E — Escalate
+
+
+These thresholds must be back-tested against historical data before final implementation.
+22. PACE Guardrails
+
+A mathematical score must not hide a serious KPI problem.
+Peak:
+
+
+To receive P — Peak:
+Overall Score ≥90
+No KPI below A
+No critical Quality failure
+All applicable target gates satisfied
+Achieving:
+
+
+To receive A — Achieving:
+Overall Score ≥80
+No KPI classified as E
+Required target gates satisfied
+Concerning:
+
+
+C applies when:
+Overall Score is 70–79.99, or
+A material KPI gap exists
+Escalate:
+
+
+E applies when:
+Overall Score <70, or
+Multiple material KPI gaps exist, or
+A critical Quality failure occurs
+23. PACE Profile
+
+In addition to the overall PACE classification, Reporting should retain each KPI's individual classification.
+Example:
+
+
+KPI
+PACE
+Smiley
+P
+AHT
+A
+AFTR
+P
+Quality
+P
+
+
+The teammate's profile becomes: "P-A-P-P"
+This provides diagnostic information that a single overall score cannot provide.
+24. AHT Protection Rule
+
+AHT must never be interpreted in isolation.
+A lower AHT is only beneficial when it does not cause deterioration in:
+Smiley
+AFTR
+Quality
+Therefore: "Excellent AHT cannot compensate for poor customer outcomes or poor Quality."
+This is enforced through:
+
+
+
+
+KPI weighting
+
+
+Target gates
+
+
+PACE guardrails
+
+
+Quality protection
+25. Reporting Team — Required Data
+
+Reporting must maintain the following fields:
+Field
+Required
+teammate ID
+Yes
+teammate Name
+Yes
+Account
+Yes
+Program
+Yes
+Channel
+Yes
+Role
+Yes
+Team
+Yes
+Reporting Period
+Yes
+Smiley Actual
+Yes
+AHT Actual
+Yes
+AFTR Actual
+Yes
+Quality Actual
+Yes
+KPI Target
+Yes
+KPI Direction
+Yes
+Peer Group
+Yes
+
+
+26. Required Calculation Fields
+
+Reporting should produce:
+For each KPI:
+
+
+Actual
+Target
+Target Factor
+Absolute Score
+Reverse Percentile
+Relative Score
+Target Gate
+Final KPI Score
+KPI PACE
+Overall:
+
+
+Smiley Weighted Score
+Quality Weighted Score
+AFTR Weighted Score
+AHT Weighted Score
+Overall Score
+Overall PACE
+PACE Profile
+Guardrail Flag
+27. Reporting Calculation Sequence
+
+Reporting must execute calculations in this order:
+Load KPI target
+Load actual performance
+Determine KPI direction (Higher or lower is better)
+Calculate Target Factor
+Calculate Absolute Score
+Define valid peer group
+Calculate Reverse Percentile (0 = best, 100 = worst)
+Calculate Relative Score (100 − Reverse Percentile)
+Apply Target Gate
+Calculate Final KPI Score (70% Absolute + 30% Relative)
+Apply KPI weights
+Calculate Overall Score
+Apply PACE Guardrails
+Assign PACE Classification
+Generate PACE Profile
+
+28. Tie Handling
+
+Reporting must define a consistent approach when teammates have identical KPI results.
+Recommended approach: "teammates with identical performance values should receive the same rank/percentile treatment."
+The system must not arbitrarily assign different rankings to identical KPI results.
+The selected percentile methodology must be documented in the reporting logic.
+29. Missing Data
+
+teammates should not receive an artificial score when a KPI does not have sufficient valid data.
+Examples:
+
+
+Insufficient survey responses
+Insufficient contact volume
+No Quality evaluations
+Invalid or missing production data
+Reporting should:
+
+
+Identify the missing KPI.
+Apply the approved minimum-data rule.
+Exclude the teammate from relative ranking for that KPI when appropriate.
+Flag the record.
+Prevent an invalid score from influencing the overall PACE.
+30. Data Quality Checks
+
+Before publishing PACE results, Reporting must validate:
+Target checks:
+
+
+Correct target loaded
+Correct effective date
+Correct account/program target
+Data checks:
+
+
+No duplicate teammates
+No impossible KPI values
+No missing required fields
+Correct reporting period
+Direction checks:
+
+
+Smiley: higher = better
+AFTR: higher = better
+Quality: higher = better
+AHT: lower = better
+Ranking checks:
+
+
+Correct peer group
+Correct ranking direction
+0 = best
+100 = worst
+Appropriate minimum population
+Score checks:
+
+
+Absolute Score within approved range
+Relative Score within 0–100
+Final KPI Score within approved range
+Overall Score calculated correctly
+Guardrails applied correctly
+31. Historical Back-Testing
+
+Before PACE is implemented operationally, Reporting must back-test the model using historical data.
+Recommended period: "6–12 months"
+Purpose: Determine whether the model produces sensible results.
+Reporting should compare:
+
+
+Existing performance classifications
+New PACE classifications
+KPI distributions
+PACE distribution
+Target attainment
+Relative ranking
+Outliers
+Unexpected classifications
+Review criteria: The team should specifically look for cases where: "A person who is below target receives a high PACE classification." Any such case must be reviewed.
+32. PACE Distribution Review
+
+PACE should not be designed to force: "25% P / 25% A / 25% C / 25% E"
+That would recreate the problem PACE is designed to solve.
+PACE distribution should reflect actual account performance.
+If 40% of the population meets Peak criteria, the model may legitimately produce 40% Peak.
+If only 5% meet Peak criteria, it should produce approximately 5%.
+33. Reporting Dashboard
+
+The PACE dashboard should provide three views.
+Executive View — Show:
+
+
+Overall P/A/C/E distribution
+Average PACE score
+KPI performance
+Target attainment
+Site/account comparison
+Trend over time
+Manager View — Show:
+
+
+teammate
+Overall Score
+Overall PACE
+PACE Profile
+Four KPI scores
+Target status
+Primary opportunity
+teammate View:
+
+
+Keep the presentation simple.
+Example:
+
+
+Your PACE: A — Achieving
+KPI
+Actual
+Target
+Status
+Smiley
+84%
+81%
+Above
+AHT
+490 sec
+500 sec
+Above
+AFTR
+73%
+75%
+Below
+Quality
+93%
+90%
+Above
+
+
+Primary Opportunity: AFTR
+The teammate should not need to understand percentile formulas to understand what they need to improve.
+34. Roles and Responsibilities
+
+Operations:
+
+
+Own performance philosophy
+Approve KPI targets
+Approve scoring weights
+Approve PACE thresholds
+Approve guardrails
+Interpret account implications
+Reporting / BI:
+
+
+Maintain calculation logic
+Maintain target configuration
+Maintain peer groups
+Calculate scores
+Validate data
+Produce reporting
+Maintain historical methodology
+Team Leaders:
+
+
+Explain PACE results
+Discuss individual opportunities
+Create appropriate action plans
+Monitor improvement
+teammates:
+
+
+Understand their PACE profile
+Understand KPI expectations
+Own identified improvement areas
+35. Change Control
+
+Approval required for changes to:
+
+
+KPI targets
+KPI weights
+Absolute scoring curve
+Relative scoring methodology
+Peer-group methodology
+PACE thresholds
+Guardrails
+Requirements for all changes:
+
+
+Effective date
+Approver
+Reason for change
+Version number
+Historical treatment
+Historical results should not be silently recalculated using new rules.
+36. Worked Example
+
+Assumptions:
+
+
+KPI
+Target
+Actual
+Smiley
+81%
+88%
+AHT
+500 sec
+480 sec
+AFTR
+75%
+82%
+Quality
+90%
+94%
+
+
+Suppose Reporting calculates:
+
+
+KPI
+Absolute
+Relative
+Final
+Smiley
+95
+80
+90.5
+AHT
+92
+70
+85.4
+AFTR
+94
+75
+88.3
+Quality
+96
+90
+94.2
+
+
+Overall Calculation:
+
+
+Smiley: 90.5 × 30% = 27.15
+Quality: 94.2 × 30% = 28.26
+AFTR: 88.3 × 25% = 22.08
+AHT: 85.4 × 15% = 12.81
+Overall: "90.30"
+The teammate therefore meets the numerical threshold for: "P — Peak" (Assuming all PACE guardrails are satisfied).
+Their KPI profile might be: "P-A-A-P"
+37. Simple Explanation for a Frontline Agent
+
+PACE can be explained in five sentences:
+"PACE looks at four things: Smiley, AHT, AFTR and Quality.
+First, we check whether you meet the target for each KPI.
+Then we compare your performance with people doing similar work.
+Your final score is 70% based on performance against target and 30% based on your position among your peers.
+You cannot become a Peak performer simply because you rank well if you are still below the required target."
+38. PACE Formula Summary
+
+Target Factor:
+
+
+Higher is better: "Actual ÷ Target"
+Lower is better: "Target ÷ Actual"
+Relative Score:
+
+
+"100 − Reverse Percentile"
+Final KPI Score:
+
+
+"Absolute Score × 70% + Relative Score × 30%"
+Overall Score:
+
+
+"Smiley × 30% + Quality × 30% + AFTR × 25% + AHT × 15%"
+Final Classification:
+
+
+"Overall Score + Target Gates + PACE Guardrails"
+39. Implementation Checklist
+
+Before launch, confirm:
+[ ] KPI targets approved
+[ ] Target effective dates established
+[ ] Absolute scoring curve approved
+[ ] 70/30 weighting approved
+[ ] KPI weights approved
+[ ] Peer-group hierarchy approved
+[ ] Minimum population approved
+[ ] Reverse percentile methodology approved
+[ ] Tie methodology approved
+[ ] Missing-data rules approved
+[ ] PACE thresholds approved
+[ ] Guardrails approved
+[ ] Historical back-test completed
+[ ] Reporting dashboard built
+[ ] Manager view validated
+[ ] teammate view validated
+[ ] SOP published
+[ ] Reporting logic version-controlled
+[ ] Pilot completed
+40. Governing Principle
+
+PACE should always follow this sequence: "STANDARD → PERFORMANCE → RELATIVE POSITION → PACE"
+Not: "RANK → QUARTILE → LABEL"
+The objective is to create a performance system where meeting the account standard matters first, while relative ranking provides an additional layer of differentiation among comparable performers.
+First, meet the standard. Then, demonstrate excellence.
+
