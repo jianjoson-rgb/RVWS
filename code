@@ -574,7 +574,12 @@ function registryAuditOperation_(operation, requestedRecordId, work, logSuccess,
     }
     registryOperationMaintenanceGuard_(operation);
     const result = work();
-    if (logSuccess) registryWriteSecurityEvent_(operation, requestedRecordId, 'SUCCESS', 'OPERATION_COMPLETED', scheduled);
+    if (logSuccess) {
+      const needsReview = !!result && result.operationReconciliationRequired === true;
+      registryWriteSecurityEvent_(operation, requestedRecordId,
+        needsReview ? 'REVIEW_REQUIRED' : 'SUCCESS',
+        needsReview ? 'OPERATION_RECONCILIATION_REQUIRED' : 'OPERATION_COMPLETED', scheduled);
+    }
     return scheduled ? result : registrySanitizePublicResult_(result, actor, operation, requestedRecordId);
   } catch (error) {
     const safe = registryRecordFailure_(operation, requestedRecordId, error, scheduled);
@@ -1026,6 +1031,9 @@ function registryRequireNumericKpiConfig_(setting) {
   if(!setting||!/^(higher|lower)( is better)?$/i.test(String(setting.direction||'').trim())||!String(setting.unit||'').trim()) {
     throw registryInputError_('This KPI is not ready for numeric entry. Ask the maintainer to verify its direction and unit.');
   }
+  if(!registryAhtUnitValidServer_(setting.name,setting.unit)) {
+    throw registryInputError_('AHT requires the approved unit minutes. Ask the maintainer to review the KPI unit and any existing values before continuing.');
+  }
   return setting;
 }
 
@@ -1107,6 +1115,28 @@ function setLiteralCellValue_(range, value) {
   range.setValue(protectLiteralText_(value));
 }
 
+// Compare stored cells conservatively; do not overwrite concurrent changes.
+function registryRollbackCellEqual_(a, b) {
+  if ((a === '' || a == null) && (b === '' || b == null)) return true;
+  if (Object.prototype.toString.call(a) === '[object Date]' || Object.prototype.toString.call(b) === '[object Date]') {
+    return Object.prototype.toString.call(a) === '[object Date]' && Object.prototype.toString.call(b) === '[object Date]' && a.getTime() === b.getTime();
+  }
+  return a === b;
+}
+function registryRestoreOwnedCell_(item) {
+  if (!item || !item.range || !item.attempted) return;
+  if (item.range.getFormula()) throw new Error('Concurrent formula requires review.');
+  const actual = item.range.getValue(), old = item.oldValue, intended = item.intendedValue;
+  if (registryRollbackCellEqual_(actual, old)) return;
+  const protectedValue = item.literalText && typeof intended === 'string' ? protectLiteralText_(intended) : intended;
+  if (!registryRollbackCellEqual_(actual, protectedValue) && !registryRollbackCellEqual_(actual, intended)) {
+    throw new Error('Concurrent cell change requires review.');
+  }
+  if (old === '' || old == null) item.range.clearContent();
+  else if (item.literalText && typeof old === 'string') setLiteralCellValue_(item.range, old);
+  else item.range.setValue(old);
+}
+
 function isAhtKpiServer_(kpiName) {
   const text = String(kpiName || '').trim().toLowerCase();
   return (
@@ -1114,6 +1144,10 @@ function isAhtKpiServer_(kpiName) {
     text.indexOf('average handle time') !== -1 ||
     text.indexOf('average handling time') !== -1
   );
+}
+
+function registryAhtUnitValidServer_(kpiName,unit) {
+  return !isAhtKpiServer_(kpiName) || /^(minute|minutes)$/i.test(String(unit||'').trim());
 }
 
 function parseKpiMetricServer_(value, kpiName, kpiSetting, label) {
@@ -1131,6 +1165,11 @@ function parseKpiMetricServer_(value, kpiName, kpiSetting, label) {
   let numericValue;
 
   if (isAhtKpiServer_(kpiName)) {
+    // Both the web form and the server convert clock time to decimal minutes.
+    // Reject incompatible units even when the client already sent a number.
+    if (!registryAhtUnitValidServer_(kpiName,unit)) {
+      throw registryInputError_('AHT requires the approved unit minutes. Ask the maintainer to review the KPI unit and any existing values before continuing.');
+    }
     if (rawText.indexOf(':') !== -1) {
       const match = rawText.match(/^(\d+):(\d{2}):(\d{2})$/);
       if (!match) {
@@ -1309,6 +1348,9 @@ function readTable_(sheetName, requiredHeaders) {
   const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
   const map = requireHeaders_(headers, requiredHeaders, sheetName);
   const count = Math.max(0, sheet.getLastRow() - 1);
+  if (sheetName === ACCESS_SHEET_NAME && count > 20000) {
+    throw registryConfigurationError_('Access table physical capacity requires governed maintenance.');
+  }
   return { sheet: sheet, headers: headers, map: map,
     rows: count ? sheet.getRange(2, 1, count, headers.length).getValues() : [] };
 }
@@ -1346,6 +1388,16 @@ function boundedText_(value, label, maxLength, required) {
   const text = String(value == null ? '' : value).trim();
   if (required && !text) throw registryInputError_(label + ' is required.');
   if (text.length > maxLength) throw registryInputError_(label + ' must be at most ' + maxLength + ' characters.');
+  return text;
+}
+
+// Optional milestone names are supplied by users; existing blank plans are not
+// assigned to any group. Keep the authoritative schema hash unchanged.
+function registryMilestoneValue_(value) {
+  if(value!==null&&value!==undefined&&typeof value!=='string')
+    throw registryInputError_('Milestone name must be text.');
+  const text=boundedText_(value,'Milestone name',120,false).normalize('NFKC').replace(/\s+/g,' ').trim();
+  if(text.length>120)throw registryInputError_('Milestone name must be at most 120 characters.');
   return text;
 }
 
@@ -1636,6 +1688,7 @@ function createActionPlan_(payload, context) {
   );
   const actionPlanName = boundedText_(payload.actionPlanName, 'Action Plan Name', 200, true);
   const actionDescription = boundedText_(payload.actionDescription, 'Action Steps', 5000, true);
+  const milestoneName = registryMilestoneValue_(payload.milestoneName);
   const measurement=registryMeasurementFields_(payload),governance=measurement.Measurement_Method==='Governance outcome';
   const kpi = governance?'':requireNonBlankText_(payload.kpi, 'Target KPI / Behavior');
   const owner = validateTaskUsOwnerEmail_(payload.owner);
@@ -1733,10 +1786,13 @@ function createActionPlan_(payload, context) {
     registryRequireParticipantRead_(owner, site, 'Action owner');
     if(!governance){const latestSetting=registryRequireNumericKpiConfig_(resolveRegistryKpiSetting_(getKpiSettings_(),kpi));
       if(latestSetting.direction!==kpiSetting.direction||latestSetting.unit!==kpiSetting.unit)throw registryInputError_('KPI configuration changed. Refresh the form before submitting.');}
-    operation = beginIdempotentOperation_('CREATE', requestToken, digest_(JSON.stringify([
+    const createFingerprint = [
       site, actionPlanName, actionDescription, kpi, owner, category, actionType,
       activity, department, baseline, goal, startDate.toISOString(), endDate.toISOString(), actionStatus, scope, measurement
-    ])), lock);
+    ];
+    // Blank/absent names retain the prior fingerprint for in-flight retries.
+    if(milestoneName)createFingerprint.push({milestoneName:milestoneName});
+    operation = beginIdempotentOperation_('CREATE', requestToken, digest_(JSON.stringify(createFingerprint)), lock);
 
     if (operation.duplicate) {
       return operation.result;
@@ -1767,6 +1823,9 @@ function createActionPlan_(payload, context) {
       SUBMISSION_LOG_SHEET_NAME
     );
 
+    if(milestoneName&&(masterMap.milestone_name===undefined||submissionMap.milestone_name===undefined))
+      throw registryInputError_('Milestone grouping is not configured. Contact the registry maintainer before saving a milestone.');
+
     const actionPlanId = generateActionPlanId_(
       masterSheet,
       site,
@@ -1780,6 +1839,37 @@ function createActionPlan_(payload, context) {
 
     const idColumn = masterMap[normalizeHeaderKey_('Action Plan ID')] + 1;
     const newRow = getLastDataRowByColumn_(masterSheet, idColumn) + 1;
+
+    // A sheet does not grow automatically when a range extends past its grid.
+    // Reserve capacity only after the idempotent operation has been accepted,
+    // and before writing any part of the action or its submission audit.
+    if (newRow > masterSheet.getMaxRows()) {
+      masterSheet.insertRowsAfter(masterSheet.getMaxRows(), Math.max(100, newRow - masterSheet.getMaxRows()));
+    }
+    // ID-column placement must never overwrite a partial, custom, or formula
+    // row. Ignore calculated spill columns and only a verified empty checkbox.
+    const candidateRange = masterSheet.getRange(newRow, 1, 1, masterSheet.getLastColumn());
+    const candidateValues = candidateRange.getValues()[0], candidateFormulas = candidateRange.getFormulas()[0];
+    const checkboxIndex = masterMap[normalizeHeaderKey_('Approval_Required')];
+    let checkboxRule = null;
+    if (checkboxIndex !== undefined && candidateValues[checkboxIndex] === false) {
+      const checkboxCell = masterSheet.getRange(newRow, checkboxIndex + 1);
+      if (typeof checkboxCell.getDataValidation === 'function') checkboxRule = checkboxCell.getDataValidation();
+    }
+    const hasUnexpectedRowData = candidateValues.some(function(value, index) {
+      if (index >= 15 && index <= 19) return false;
+      if (candidateFormulas[index]) return true;
+      if (value === '' || value === null || value === undefined) return false;
+      if (index === checkboxIndex && value === false && checkboxRule && SpreadsheetApp.DataValidationCriteria &&
+          checkboxRule.getCriteriaType() === SpreadsheetApp.DataValidationCriteria.CHECKBOX &&
+          checkboxRule.getAllowInvalid() === false && Array.isArray(checkboxRule.getCriteriaValues()) && checkboxRule.getCriteriaValues().length === 0) return false;
+      return true;
+    });
+    if (hasUnexpectedRowData) throw registryConfigurationError_('The next action row contains unowned data or formulas. Review the sheet before submitting.');
+    const plannedSubmissionRow = submissionSheet.getLastRow() + 1;
+    if (plannedSubmissionRow > submissionSheet.getMaxRows()) {
+      submissionSheet.insertRowsAfter(submissionSheet.getMaxRows(), Math.max(100, plannedSubmissionRow - submissionSheet.getMaxRows()));
+    }
 
     function masterColumn(headerName) {
       return masterMap[normalizeHeaderKey_(headerName)] + 1;
@@ -1796,11 +1886,14 @@ function createActionPlan_(payload, context) {
       }
 
       const range = masterSheet.getRange(newRow, column);
-      masterRollback.push({
+      const rollbackItem = {
         range: range,
         oldValue: range.getValue(),
-        literalText: literalText
-      });
+        literalText: literalText,
+        intendedValue: value,
+        attempted: true
+      };
+      masterRollback.push(rollbackItem);
 
       if (literalText) {
         setLiteralCellValue_(range, value);
@@ -1815,6 +1908,7 @@ function createActionPlan_(payload, context) {
     writeMasterField('Site', site, true);
     writeMasterField('Action Plan Name', actionPlanName, true);
     writeMasterField('Action Description', actionDescription, true);
+    if(milestoneName)writeMasterField('Milestone_Name', milestoneName, true);
     writeMasterField('Target KPI / Behavior', kpi, true);
     writeMasterField('Action Owner', owner, true);
 
@@ -1864,6 +1958,7 @@ function createActionPlan_(payload, context) {
     setSubmissionField('Site', protectLiteralText_(site));
     setSubmissionField('Action Plan Name', protectLiteralText_(actionPlanName));
     setSubmissionField('Action Description', protectLiteralText_(actionDescription));
+    if(milestoneName)setSubmissionField('Milestone_Name', protectLiteralText_(milestoneName));
     setSubmissionField('Target KPI / Behavior', protectLiteralText_(kpi));
     setSubmissionField('Action Owner', protectLiteralText_(owner));
     setSubmissionField('Action Category', protectLiteralText_(category));
@@ -1880,10 +1975,13 @@ function createActionPlan_(payload, context) {
     const createdSnapshot = masterSheet.getRange(newRow, 1, 1, masterHeaders.length).getValues()[0];
     setSubmissionField('Plan_Snapshot', JSON.stringify(snapshotNamedRow_(masterHeaders, createdSnapshot)));
 
-    submissionLogRow = submissionSheet.getLastRow() + 1;
-    submissionSheet
-      .getRange(submissionLogRow, 1, 1, logOutput.length)
-      .setValues([logOutput]);
+    const nextSubmissionRow = submissionSheet.getLastRow() + 1;
+    if (nextSubmissionRow > submissionSheet.getMaxRows()) {
+      submissionSheet.insertRowsAfter(submissionSheet.getMaxRows(), Math.max(100, nextSubmissionRow - submissionSheet.getMaxRows()));
+    }
+    const submissionRange = submissionSheet.getRange(nextSubmissionRow, 1, 1, logOutput.length);
+    submissionLogRow = nextSubmissionRow;
+    submissionRange.setValues([logOutput]);
 
     SpreadsheetApp.flush();
 
@@ -1904,31 +2002,23 @@ function createActionPlan_(payload, context) {
   } catch (error) {
     let rollbackError = null;
 
-    try {
-      if (submissionLogRow) {
-        submissionSheet
-          .getRange(submissionLogRow, 1, 1, submissionSheet.getLastColumn())
-          .clearContent();
-      }
-
-      masterRollback.slice().reverse().forEach(function(item) {
-        if (item.literalText && typeof item.oldValue === 'string') {
-          setLiteralCellValue_(item.range, item.oldValue);
-        } else if (
-          item.oldValue === '' ||
-          item.oldValue === null ||
-          item.oldValue === undefined
-        ) {
-          item.range.clearContent();
-        } else {
-          item.range.setValue(item.oldValue);
+    if (submissionLogRow) {
+      try {
+        const auditRange = submissionSheet.getRange(submissionLogRow, 1, 1, submissionSheet.getLastColumn());
+        const values = auditRange.getValues()[0], formulas = auditRange.getFormulas()[0];
+        // Preserve any non-empty/partial audit row: ownership is not proven
+        // after an interrupted append or an external edit.
+        if (values.some(function(v){return v !== '' && v !== null && v !== undefined;}) || formulas.some(Boolean)) {
+          throw new Error('Submission audit row requires review.');
         }
-      });
-
-      SpreadsheetApp.flush();
-    } catch (restoreError) {
-      rollbackError = restoreError;
+      } catch (restoreError) { rollbackError = restoreError; }
     }
+    masterRollback.slice().reverse().forEach(function(item) {
+      try {
+        registryRestoreOwnedCell_(item);
+      } catch (restoreError) { if (!rollbackError) rollbackError = restoreError; }
+    });
+    try { SpreadsheetApp.flush(); } catch (restoreError) { if (!rollbackError) rollbackError = restoreError; }
 
     if (operation && operation.key) {
       if (rollbackError) {
@@ -2379,6 +2469,7 @@ function getDashboardDataCore_(options) {
         site: normalizeActionTrackerSite_(displayValue(row, 'Site')),
         name: displayValue(row, 'Action Plan Name'),
         description: displayValue(row, 'Action Description'),
+        milestoneName: displayValue(row, 'Milestone_Name'),
         kpi: kpi,
         unit: setting.unit,
         direction: setting.direction,
@@ -2412,7 +2503,7 @@ function getDashboardDataCore_(options) {
         baseline: parseStoredMetricNumber_(rawValue(rawRow, 'Baseline Performance'), setting.unit),
         current: parseStoredMetricNumber_(rawValue(rawRow, 'Current Performance'), setting.unit),
         goal: parseStoredMetricNumber_(rawValue(rawRow, 'End Goal / Target'), setting.unit),
-        outcome: deriveOutcomeStatus_(
+        outcome: !registryAhtUnitValidServer_(kpi,setting.unit) ? 'Insufficient Data' : deriveOutcomeStatus_(
           rawValue(rawRow, 'Baseline Performance'),
           rawValue(rawRow, 'Current Performance'),
           rawValue(rawRow, 'End Goal / Target'),
@@ -2565,6 +2656,7 @@ function getActionPlanDetailsCore_(actionPlanId) {
     site: normalizeActionTrackerSite_(value('Site')),
     actionPlanName: value('Action Plan Name'),
     actionDescription: value('Action Description'),
+    milestoneName: value('Milestone_Name'),
     kpi: kpi,
     kpiUnit: setting.unit,
     kpiDirection: setting.direction,
@@ -2599,7 +2691,7 @@ function getActionPlanDetailsCore_(actionPlanId) {
     baseline: parseStoredMetricNumber_(rawValue('Baseline Performance'), setting.unit),
     current: parseStoredMetricNumber_(rawValue('Current Performance'), setting.unit),
     goal: parseStoredMetricNumber_(rawValue('End Goal / Target'), setting.unit),
-    outcome: deriveOutcomeStatus_(
+    outcome: !registryAhtUnitValidServer_(kpi,setting.unit) ? 'Insufficient Data' : deriveOutcomeStatus_(
       rawValue('Baseline Performance'),
       rawValue('Current Performance'),
       rawValue('End Goal / Target'),
@@ -2767,6 +2859,13 @@ function submitActionUpdateCore_(
       kpiSetting
     );
 
+    // Reserve the audit row after authorization and validation, before any
+    // business cells are updated. Recheck immediately before appending.
+    const plannedUpdateRow = logSheet.getLastRow() + 1;
+    if (plannedUpdateRow > logSheet.getMaxRows()) {
+      logSheet.insertRowsAfter(logSheet.getMaxRows(), Math.max(100, plannedUpdateRow - logSheet.getMaxRows()));
+    }
+
     const trackedFields = [
       { header: 'Current Performance', literal: false },
       { header: 'Action Status', literal: true },
@@ -2785,15 +2884,24 @@ function submitActionUpdateCore_(
       return {
         range: range,
         oldValue: range.getValue(),
-        literal: item.literal
+        literal: item.literal,
+        header: item.header,
+        attempted: false,
+        intendedValue: undefined
       };
     });
+
+    if (rollbackState.some(function(item){return !!item.range.getFormula();})) {
+      throw registryConfigurationError_('An editable action field contains a formula; review before updating.');
+    }
 
     function setMasterValue(headerName, value, literalText) {
       const range = masterSheet.getRange(
         masterRow,
         masterColumn(headerName)
       );
+      const rollbackItem = rollbackState.find(function(item){return item.header === headerName;});
+      if (rollbackItem) { rollbackItem.attempted = true; rollbackItem.intendedValue = value; }
       if (literalText) {
         setLiteralCellValue_(range, value);
       } else {
@@ -2815,9 +2923,11 @@ function submitActionUpdateCore_(
 
     if (actionStatus === 'Completed') {
       if (!completionCell.getValue()) {
-        completionCell.setValue(now);
+        setMasterValue('Completion Date', now, false);
       }
     } else {
+      const completionRollback = rollbackState.find(function(item){return item.header === 'Completion Date';});
+      if (completionRollback) { completionRollback.attempted = true; completionRollback.intendedValue = ''; }
       completionCell.clearContent();
     }
 
@@ -2840,10 +2950,13 @@ function submitActionUpdateCore_(
     setLogField('Measurement_Method',protectLiteralText_(governance?'Governance outcome':'Numeric KPI'));
     setLogField('Plan_Version',action.planVersion);
 
-    logRow = logSheet.getLastRow() + 1;
-    logSheet
-      .getRange(logRow, 1, 1, logOutput.length)
-      .setValues([logOutput]);
+    const nextUpdateRow = logSheet.getLastRow() + 1;
+    if (nextUpdateRow > logSheet.getMaxRows()) {
+      logSheet.insertRowsAfter(logSheet.getMaxRows(), Math.max(100, nextUpdateRow - logSheet.getMaxRows()));
+    }
+    const updateRange = logSheet.getRange(nextUpdateRow, 1, 1, logOutput.length);
+    logRow = nextUpdateRow;
+    updateRange.setValues([logOutput]);
 
     SpreadsheetApp.flush();
 
@@ -2863,31 +2976,22 @@ function submitActionUpdateCore_(
   } catch (error) {
     let rollbackError = null;
 
-    try {
-      if (logRow) {
-        logSheet
-          .getRange(logRow, 1, 1, logSheet.getLastColumn())
-          .clearContent();
-      }
-
-      rollbackState.slice().reverse().forEach(function(item) {
-        if (
-          item.oldValue === '' ||
-          item.oldValue === null ||
-          item.oldValue === undefined
-        ) {
-          item.range.clearContent();
-        } else if (item.literal && typeof item.oldValue === 'string') {
-          setLiteralCellValue_(item.range, item.oldValue);
-        } else {
-          item.range.setValue(item.oldValue);
+    if (logRow) {
+      try {
+        const auditRange = logSheet.getRange(logRow, 1, 1, logSheet.getLastColumn());
+        const values = auditRange.getValues()[0], formulas = auditRange.getFormulas()[0];
+        if (values.some(function(v){return v !== '' && v !== null && v !== undefined;}) || formulas.some(Boolean)) {
+          throw new Error('Update audit row requires review.');
         }
-      });
-
-      SpreadsheetApp.flush();
-    } catch (restoreError) {
-      rollbackError = restoreError;
+      } catch (restoreError) { rollbackError = restoreError; }
     }
+    rollbackState.slice().reverse().forEach(function(item) {
+      try {
+        registryRestoreOwnedCell_({range:item.range,oldValue:item.oldValue,intendedValue:item.intendedValue,
+          literalText:item.literal,attempted:item.attempted});
+      } catch (restoreError) { if (!rollbackError) rollbackError = restoreError; }
+    });
+    try { SpreadsheetApp.flush(); } catch (restoreError) { if (!rollbackError) rollbackError = restoreError; }
 
     if (operation && operation.key) {
       if (rollbackError) {
@@ -3602,23 +3706,40 @@ function registryMasterChanges_(action, fields) {
 }
 
 function applyRegistryChanges_(changes) {
+  // These fields store values, not formulas. Check every target before the
+  // first write, so rollback never has to reconstruct an overwritten formula.
   changes.forEach(function(item) {
+    if (item.range.getFormula()) throw registryConfigurationError_('An editable field contains a formula; review it before saving.');
+  });
+  changes.forEach(function(item) {
+    // Check again to reduce (but not eliminate) a race with direct editors.
+    if (item.range.getFormula()) throw registryConfigurationError_('An editable field changed to a formula; review it before saving.');
+    // Roll back only cells this request actually attempted to write.
+    item.attempted = true;
     if (typeof item.value === 'string') setLiteralCellValue_(item.range, item.value);
     else item.range.setValue(item.value);
   });
 }
 
 function rollbackRegistryWrite_(changes, table, row, operation, error) {
-  try {
-    if (row && table) table.sheet.getRange(row, 1, 1, table.headers.length).clearContent();
-    changes.slice().reverse().forEach(function(item) {
-      if (item.oldValue === '' || item.oldValue == null) item.range.clearContent();
-      else if (typeof item.oldValue === 'string') setLiteralCellValue_(item.range, item.oldValue);
-      else item.range.setValue(item.oldValue);
-    });
-    SpreadsheetApp.flush();
-    if (operation && !operation.duplicate) abandonIdempotentOperation_(operation.key);
-  } catch (restoreError) {
+  let restoreError = null;
+  if (row && table) {
+    // The append helper may recompute its actual row after this caller planned
+    // one. A concurrent sheet editor may also have used the planned row. Do
+    // not clear either unproven row or permit automatic retry; preserve both.
+    restoreError = new Error('Audit append outcome requires review.');
+  }
+  changes.slice().reverse().forEach(function(item) {
+    try {
+      registryRestoreOwnedCell_({range:item.range,oldValue:item.oldValue,intendedValue:item.value,
+        literalText:typeof item.value === 'string',attempted:item.attempted === true});
+    } catch (e) { if (!restoreError) restoreError = e; }
+  });
+  try { SpreadsheetApp.flush(); } catch (e) { if (!restoreError) restoreError = e; }
+  if (!restoreError && operation && !operation.duplicate) {
+    try { abandonIdempotentOperation_(operation.key); } catch (e) { restoreError = e; }
+  }
+  if (restoreError) {
     if (operation) markOperationNeedsReview_(operation.key, { error: error.message, rollbackError: restoreError.message });
     throw new Error('Save and rollback could not be confirmed. Do not retry until the master and audit log are checked.');
   }
@@ -3727,6 +3848,15 @@ function submitPlanRevisionCore_(actionPlanId, payload, revisionComment, expecte
       throw registryInputError_("Only the owner may revise an open plan enrolled in approval.");
     }
     const fields = validateRegistryRevision_(payload);
+    // Old clients omit this field, so their revisions preserve any milestone.
+    const milestoneColumn=action.map.milestone_name;
+    const milestoneBefore=milestoneColumn===undefined?'':String(action.row[milestoneColumn]||'');
+    if(Object.prototype.hasOwnProperty.call(payload,'milestoneName')){
+      const requestedMilestone=registryMilestoneValue_(payload.milestoneName);
+      if(milestoneColumn===undefined&&requestedMilestone)
+        throw registryInputError_('Milestone grouping is not configured. Contact the registry maintainer before saving a milestone.');
+      if(milestoneColumn!==undefined&&requestedMilestone!==milestoneBefore)fields.Milestone_Name=requestedMilestone;
+    }
     ensureRegistryGovernanceHeaders_();
     ensureRegistryGlideHeaders_();
     action = findActionRecord_(actionPlanId);
@@ -3752,11 +3882,14 @@ function submitPlanRevisionCore_(actionPlanId, payload, revisionComment, expecte
     if (!sheet) throw new Error('Submission_Log sheet not found.');
     ensureSubmissionAuditHeaders_(sheet);
     table = readTable_(SUBMISSION_LOG_SHEET_NAME, getRequiredSubmissionLogHeaders_());
+    if(Object.prototype.hasOwnProperty.call(fields,'Milestone_Name')&&table.map.milestone_name===undefined)
+      throw registryInputError_('Milestone grouping is not configured. Contact the registry maintainer before saving a milestone.');
     const submissionId = generateSubmissionId_(sheet, table.headers);
     const log = { 'Submission ID': submissionId, 'Action Plan ID': actionPlanId, 'Submission Date': now,
       'Submission Source': 'Registry Plan Revision', 'Submitted By': actor.email, 'Action Status': 'Not Started',
       Plan_Version: nextPlan, Request_ID: requestToken, Revision_Comment: revisionComment, Plan_Snapshot: snapshot,
       'Action Category': fields.Framework_Category };
+    if(table.map.milestone_name!==undefined)log.Milestone_Name=Object.prototype.hasOwnProperty.call(fields,'Milestone_Name')?fields.Milestone_Name:milestoneBefore;
     ['Site', 'Action Plan Name', 'Action Description', 'Target KPI / Behavior', 'Action Owner', 'Baseline Performance',
       'End Goal / Target', 'Start Date', 'Target End Date', 'Channel', 'LOB', 'Cohort', 'Cohort_Details', 'Glide_Path_Available', 'Glide_Path_URL'].forEach(function(header) { log[header] = fields[header]; });
     logRow = table.sheet.getLastRow() + 1; appendNamedLog_(table, log);
@@ -3987,9 +4120,18 @@ function submitEffectivenessAssessmentCore_(actionPlanId, payload, expectedPlanV
     completeIdempotentOperation_(operation.key, result); changes = []; logRow = null; followRow = null;
     return result;
   } catch (error) {
+    let followRollbackError = null;
     if (followRow) {
-      try { followTable.sheet.getRange(followRow, 1, followCount, followTable.headers.length).clearContent(); }
-      catch (restoreError) { if (operation) markOperationNeedsReview_(operation.key, { error: error.message, followUpRollbackError: restoreError.message }); throw new Error('Assessment/follow-up rollback needs maintainer review. Do not retry.'); }
+      // The append helper can choose a different row if an external writer
+      // changes the sheet. Preserve uncertain follow-up audit entries.
+      followRollbackError = new Error('Follow-up append outcome requires review.');
+    }
+    if (followRollbackError) {
+      // Still attempt independent master and assessment cleanup, but never
+      // report a complete rollback when follow-up cleanup was uncertain.
+      try { rollbackRegistryWrite_(changes, table, logRow, null, error); } catch (ignored) {}
+      if (operation && !operation.duplicate) markOperationNeedsReview_(operation.key, { error: error.message, followUpRollbackError: followRollbackError.message });
+      throw new Error('Assessment/follow-up rollback needs maintainer review. Do not retry.');
     }
     rollbackRegistryWrite_(changes, table, logRow, operation, error); throw error;
   }
@@ -5519,7 +5661,7 @@ function registryRequirePlanRead_(actionPlanId, context) {
 function registryAuthorizeOperation_(operation, requestedRecordId, actor) {
   // This endpoint returns only the authenticated caller's own access metadata.
   if (operation === 'getAccessContext') return;
-  if (['getRegistryUsers','previewRegistryUserChange','saveRegistryUser','getRegistryUserHistory'].includes(operation)) {
+  if (['getRegistryUsers','previewRegistryUserChange','saveRegistryUser','getRegistryUserHistory','previewRegistryEvidenceSetup','createRegistryEvidenceSetup'].includes(operation)) {
     if(!actor.canAdmin)throw registrySecurityError_('Administrator permission is required.','PERMISSION_REQUIRED');return;
   }
   if(operation==='doGet'&&actor.canAdmin)return;
@@ -5726,6 +5868,108 @@ function inspectRegistryEvidenceAccess_(offset) {
 }
 
 
+// Evidence setup creates only a new folder, under the existing file-scoped Drive grant.
+// An uncertain Drive result remains held for review; this cannot adopt or replace a folder.
+function registryEvidenceSetupContext_() {
+  const actor=requireActiveActor_('canAdmin'),p=PropertiesService.getScriptProperties();
+  const owner=String(p.getProperty('REGISTRY_MAINTENANCE_OWNER')||'').trim().toLowerCase();
+  const effective=String(Session.getEffectiveUser().getEmail()||'').trim().toLowerCase();
+  const id=String(p.getProperty('REGISTRY_SPREADSHEET_ID')||'').trim();
+  if(!actor.permanentCapabilities||actor.permanentCapabilities.canAdmin!==true||actor.accountExpiresAt||actor.email!==owner||effective!==owner)
+    throw registrySecurityError_('The permanent maintenance administrator must use the deployment account.','PERMISSION_REQUIRED');
+  if(!/^[A-Za-z0-9_-]{20,200}$/.test(id)||p.getProperty('REGISTRY_MAINTENANCE_TARGET_CONFIRMED')!==id)
+    throw registryConfigurationError_('The configured workbook target is not confirmed.');
+  const ss=getTrackerSpreadsheet_();
+  if(typeof ss.getId!=='function'||ss.getId()!==id)throw registryConfigurationError_('Workbook target mismatch.');
+  const state={targetId:id,owner:owner,folder:String(p.getProperty('EVIDENCE_FOLDER_ID')||''),
+    marker:String(p.getProperty('REGISTRY_EVIDENCE_PROVISION_STATE')||''),operationKey:String(p.getProperty('REGISTRY_EVIDENCE_PROVISION_OPERATION_KEY')||''),ready:String(p.getProperty('REGISTRY_EVIDENCE_READY')||''),
+    maintenance:String(p.getProperty('REGISTRY_OPERATION_MAINTENANCE')||''),ledger:String(p.getProperty('REGISTRY_OPERATION_LEDGER_READY')||''),
+    retired:String(p.getProperty('REGISTRY_OPERATION_LEGACY_WRITERS_RETIRED')||'')};
+  return {properties:p,state:state};
+}
+function registryEvidenceSetupPreview_(context) {
+  const s=context.state;
+  const allowed=!s.folder&&!s.marker&&!s.operationKey&&(s.ready===''||s.ready==='FALSE')&&s.maintenance==='FALSE'&&s.ledger==='TRUE'&&s.retired==='TRUE';
+  let completed=false;
+  if(s.marker&&s.folder&&registryOperationKeyValid_(s.operationKey)){
+    try{
+      const m=JSON.parse(s.marker),stored=registryOperationRead_(registryOperationTable_(),s.operationKey),r=stored&&stored.record;
+      completed=m.schemaVersion===1&&m.state==='CREATED'&&m.folderId===s.folder&&m.targetId===s.targetId&&m.owner===s.owner&&
+        !!r&&r.kind==='EVIDENCE_SETUP'&&r.status==='COMPLETE'&&!!r.result&&r.result.provisionId===m.provisionId;
+    }catch(ignored){}
+  }
+  return {readyToCreate:allowed,hasConfiguredFolder:!!s.folder,needsReview:!!(s.marker||s.operationKey)&&!completed,
+    normalWritesReady:s.maintenance==='FALSE'&&s.ledger==='TRUE'&&s.retired==='TRUE',
+    evidenceReady:s.ready==='TRUE',previewHash:digest_(JSON.stringify(s))};
+}
+function previewRegistryEvidenceSetup() {
+  return registryAuditOperation_('previewRegistryEvidenceSetup','',function(){
+    const lock=LockService.getScriptLock();lock.waitLock(30000);
+    try{registryOperationUseLock_(lock);return registryEvidenceSetupPreview_(registryEvidenceSetupContext_());}finally{lock.releaseLock();}
+  },false,false);
+}
+function createRegistryEvidenceSetup(previewHash,requestToken) {
+  return registryAuditOperation_('createRegistryEvidenceSetup','',function(){
+    const lock=LockService.getScriptLock();lock.waitLock(30000);
+    let op=null,marker=null,markerRaw='',folderId='',began=false,markerWriteStarted=false;
+    try {
+      registryOperationUseLock_(lock);
+      let context=registryEvidenceSetupContext_(),p=context.properties,preview=registryEvidenceSetupPreview_(context);
+      if(!/^[a-f0-9]{64}$/.test(String(previewHash||'')))throw registryInputError_('Run evidence setup preview first.');
+      const fingerprint=digest_('EVIDENCE_SETUP:'+previewHash);
+      op=beginIdempotentOperation_('EVIDENCE_SETUP',requestToken,fingerprint,lock);
+      if(op.duplicate){
+        let saved=null;try{saved=JSON.parse(context.state.marker);}catch(ignored){}
+        if(!saved||saved.state!=='CREATED'||saved.targetId!==context.state.targetId||saved.owner!==context.state.owner||
+            saved.folderId!==context.state.folder||context.state.operationKey!==op.key||!op.result||saved.provisionId!==op.result.provisionId)
+          throw registryInputError_('The saved setup receipt needs review. No folder was created.');
+        return op.result;
+      }
+      began=true;
+      if(!preview.readyToCreate||preview.previewHash!==previewHash)throw registryInputError_('Evidence setup is not ready or the preview has changed. Run preview again.');
+      // The intent is durable before making the external call, and its exact value
+      // is revalidated with identity, target, normal write gates and configuration.
+      p.setProperty('REGISTRY_EVIDENCE_READY','FALSE');
+      if(p.getProperty('REGISTRY_EVIDENCE_READY')!=='FALSE')throw new Error('Could not confirm evidence readiness is disabled.');
+      marker={schemaVersion:1,targetId:context.state.targetId,owner:context.state.owner,provisionId:'EVP-'+Utilities.getUuid(),startedAt:new Date().toISOString(),state:'IN_PROGRESS'};
+      markerRaw=JSON.stringify(marker);markerWriteStarted=true;
+      p.setProperty('REGISTRY_EVIDENCE_PROVISION_OPERATION_KEY',op.key);
+      if(p.getProperty('REGISTRY_EVIDENCE_PROVISION_OPERATION_KEY')!==op.key)throw new Error('Evidence setup operation binding could not be confirmed.');
+      p.setProperty('REGISTRY_EVIDENCE_PROVISION_STATE',markerRaw);
+      function check(expectedFolder) {
+        const current=registryEvidenceSetupContext_(),s=current.state;
+        if(s.targetId!==marker.targetId||s.owner!==marker.owner||s.marker!==markerRaw||s.operationKey!==op.key||s.folder!==(expectedFolder||'')||s.ready!=='FALSE'||s.maintenance!=='FALSE'||s.ledger!=='TRUE'||s.retired!=='TRUE')
+          throw new Error('Evidence setup context changed; preserve the operation for review.');
+      }
+      check('');
+      const created=Drive.Files.create({name:'Action Registry Evidence '+marker.provisionId,mimeType:'application/vnd.google-apps.folder',appProperties:{registryProvisionId:marker.provisionId,registryWorkbookId:marker.targetId}},null,{fields:'id'});
+      folderId=registryDriveId_(created&&created.id);check('');
+      const folder=Drive.Files.get(folderId,{fields:'id,mimeType,trashed,capabilities(canAddChildren)',supportsAllDrives:true});
+      if(!folder||folder.id!==folderId||folder.mimeType!=='application/vnd.google-apps.folder'||folder.trashed!==false||!folder.capabilities||folder.capabilities.canAddChildren!==true)
+        throw new Error('Folder verification failed; preserve the operation for review.');
+      check('');marker=Object.assign({},marker,{state:'CREATED',folderId:folderId});markerRaw=JSON.stringify(marker);
+      p.setProperty('REGISTRY_EVIDENCE_PROVISION_STATE',markerRaw);check('');
+      p.setProperty('EVIDENCE_FOLDER_ID',folderId);check(folderId);
+      const result={success:true,evidenceReady:false,sharingChanged:false,provisionId:marker.provisionId};
+      completeIdempotentOperation_(op.key,result);return result;
+    } catch(error) {
+      if(began){
+        if(!markerWriteStarted){
+          // No external create was attempted and no marker write was initiated.
+          try{abandonIdempotentOperation_(op.key);}catch(ignored){try{markOperationNeedsReview_(op.key,{operation:'EVIDENCE_SETUP'});}catch(ignoredAgain){}}
+        }else{
+          try{const p=PropertiesService.getScriptProperties();if(marker&&p.getProperty('REGISTRY_EVIDENCE_PROVISION_STATE')===markerRaw){
+            const held=Object.assign({},marker,{state:'FAILED_NEEDS_REVIEW'});if(folderId)held.folderId=folderId;
+            p.setProperty('REGISTRY_EVIDENCE_PROVISION_STATE',JSON.stringify(held));
+          }}catch(ignored){}
+          try{markOperationNeedsReview_(op.key,{operation:'EVIDENCE_SETUP'});}catch(ignored){}
+        }
+      }
+      throw error;
+    } finally {lock.releaseLock();}
+  },true,false);
+}
+
 // ===== INCLUDED MODULE: OperationLedger.gs =====
 /** Durable save/retry records. Requires Code.gs and an existing ledger tab. */
 const REGISTRY_OPERATION_LEDGER_NAME = 'Registry_Operation_Ledger';
@@ -5733,7 +5977,7 @@ const REGISTRY_OPERATION_HEADERS = Object.freeze(registrySchema_().headers.REGIS
 const REGISTRY_OPERATION_MAX_JSON = 24000;
 const REGISTRY_OPERATION_KINDS = Object.freeze(['CREATE','UPDATE','COMMENT','EVIDENCE','REVIEW','REVISION',
   'ASSESSMENT','FOLLOWUP','CHAT_CLEAR_FAILURES','CHAT_MODE','SEND_CHAT','CHAT_EVENT_RETRY',
-  'ACCESS_CHANGE','DRAFT_SAVE','DRAFT_DELETE','SNAPSHOT_SAVE','HANDOVER','SCALING_DECISION']);
+  'ACCESS_CHANGE','EVIDENCE_SETUP','DRAFT_SAVE','DRAFT_DELETE','SNAPSHOT_SAVE','HANDOVER','SCALING_DECISION']);
 let registryOperationHeldLock_ = null;
 
 function registryOperationMaintenanceGuard_(operation) {
@@ -5741,7 +5985,7 @@ function registryOperationMaintenanceGuard_(operation) {
   const reads=['doGet','getAccessContext','getCreationOptions','getDashboardData','getActionPlans','getActionPlanDetails',
     'getActionUpdateHistory','validateRegistrySetup','getRegistryFollowUpPortfolio','getRegistryStabilityConfig',
     'previewRegistryFollowUpReminders','previewRegistryAssignmentEmails','previewRegistryPlanEvents',
-    'getRegistryUsers','previewRegistryUserChange','getRegistryUserHistory','getRegistryDrafts','getRegistryDraft',
+    'getRegistryUsers','previewRegistryUserChange','getRegistryUserHistory','previewRegistryEvidenceSetup','getRegistryDrafts','getRegistryDraft',
     'getRegistrySnapshotHistory','getHandoverPortfolio','getRegistryScalingContext'];
   if(reads.indexOf(operation)<0)throw registryInputError_('Registry writes and notification delivery are paused for maintenance. Try again after the maintenance window.');
 }
@@ -6030,7 +6274,14 @@ function registryRequireCapabilityAtSite_(actor,capability,site) {
   if(!registryActorCanAtSite_(actor,capability,site))throw registrySecurityError_('This permission is not available for this plan scope.','PERMISSION_REQUIRED');
 }
 function registryAccessAdmin_(){return requireActiveActor_('canAdmin');}
-function registryAccessTable_(){return readTable_('Access_Control',['Email','Name','Role','Active','Can_Submit','Can_Comment','Can_Audit','Can_Approve','Approval_Sites','Can_Admin'].concat(REGISTRY_ACCESS_EXTRA_HEADERS));}
+function registryAccessTable_(){
+  // Checkbox validation may fill otherwise empty physical rows with FALSE.
+  // Bound the physical scan separately from the number of actual identities.
+  const table=readTable_('Access_Control',['Email','Name','Role','Active','Can_Submit','Can_Comment','Can_Audit','Can_Approve','Approval_Sites','Can_Admin'].concat(REGISTRY_ACCESS_EXTRA_HEADERS));
+  table.identityCount=table.rows.reduce(function(count,row){return count+(String(row[table.map.email]||'').trim()?1:0);},0);
+  if(table.identityCount>1000)throw registryConfigurationError_('Identity list exceeds 1000 identities; use governed maintenance.');
+  return table;
+}
 function registryAccessRecord_(table,email) {
   const matches=[];table.rows.forEach(function(r,i){if(String(r[table.map.email]||'').trim().toLowerCase()===email)matches.push({row:r,rowNumber:i+2});});
   if(matches.length>1)throw registryConfigurationError_('Duplicate access identities require reconciliation.');return matches[0]||null;
@@ -6058,6 +6309,8 @@ function registryAccessPayload_(payload,restoreLegacyDisplay) {
 function registryAccessSecurityState_(value){const out={};['active','canSubmit','canComment','canAudit','canApprove','canAdmin','approvalSites','accountExpiresAt','temporaryGrants'].forEach(function(k){out[k]=value[k];});out.approvalSites=registryAccessScopes_(out.approvalSites);out.temporaryGrants=registryAccessGrants_(out.temporaryGrants,out.accountExpiresAt);return out;}
 function registryAccessPlan_(actor,email,payload,expectedVersion,table) {
   const record=registryAccessRecord_(table,email),actual=record?record.row[table.map.access_version]:0;
+  if(!record&&table.rows.length>=20000)throw registryInputError_('Access table physical capacity has been reached. Contact the registry maintainer.');
+  if(!record&&table.identityCount>=1000)throw registryInputError_('Identity capacity has been reached. Contact the registry maintainer.');
   if(typeof expectedVersion!=='number'||!Number.isSafeInteger(expectedVersion)||expectedVersion<0||actual!==expectedVersion||(record&&actual<1))throw registryInputError_('User access changed or needs version migration. Reload users before saving.');
   const before=record?registryAccessSnapshot_(record.row,table.map):null,after=Object.assign({},payload);delete after.reason;
   if(record&&registryAccessPending_(email))throw registryConfigurationError_('This user has an unresolved access change.');
@@ -6081,7 +6334,6 @@ function registryAccessPlan_(actor,email,payload,expectedVersion,table) {
     expiresAtIso:new Date((bucket+1)*600000).toISOString(),warnings:[],accessVersion:version,record:record,proposedRow:proposedRow};
 }
 function getRegistryUsers(){return registryPublicOperation_('getRegistryUsers','',function(){const actor=registryAccessAdmin_(),table=registryAccessTable_();
-  if(table.rows.length>1000)throw registryConfigurationError_('Identity list exceeds 1000 rows; use governed maintenance.');
   const seen=new Set(),users=[],pending=registryAccessPendingMap_();table.rows.forEach(function(r){const email=String(r[table.map.email]||'').trim().toLowerCase();if(!email)return;
     if(seen.has(email))throw registryConfigurationError_('Duplicate access identities require reconciliation.');seen.add(email);users.push(registryAccessDto_(email,r,table.map,pending));});
   return {users:users,generatedAtIso:new Date().toISOString(),scopeOptions:getConfiguredRegistrySites_(),capabilities:REGISTRY_ACCESS_CAPABILITIES.slice(),selfEmail:actor.email,readPolicy:PropertiesService.getScriptProperties().getProperty('REGISTRY_READ_POLICY')};});}
@@ -6134,7 +6386,7 @@ const REGISTRY_SNAPSHOT_HEADERS = Object.freeze(['Snapshot_ID','Owner_Email','Re
   'Selection_JSON','Generated_At_UTC','App_Version','Counts_JSON','Retained','Request_ID']);
 const REGISTRY_DRAFT_FIELDS = Object.freeze(['site','actionPlanName','actionDescription','kpi','owner','category','actionType',
   'activity','department','baseline','goal','startDate','endDate','actionStatus','channel','lob','cohort','cohortDetails',
-  'glideAvailable','glideUrl','measurementMethod','governanceCurrentProblem','governanceExpectedOutcome',
+  'glideAvailable','glideUrl','milestoneName','measurementMethod','governanceCurrentProblem','governanceExpectedOutcome',
   'governanceAcceptanceCriteria','governanceVerificationMethod']);
 const REGISTRY_SNAPSHOT_COUNT_KEYS = Object.freeze(['total','active','completed','cancelled','pendingReview',
   'awaitingAssessment','validated','overdue','atRisk','goalMet']);
@@ -6182,7 +6434,8 @@ function registryDraftPayload_(payload) {
     const value=payload[key];
     if(typeof value!=='string'&&(typeof value!=='number'||!Number.isFinite(value)))
       throw registryInputError_('Draft fields must contain text or finite numbers.');
-    clean[key]=value;
+    if(key==='milestoneName'){const normalized=registryMilestoneValue_(value);if(normalized)clean[key]=normalized;}
+    else clean[key]=value;
   });
   const json=JSON.stringify(clean);
   if(Utilities.newBlob(json).getBytes().length>8192)throw registryInputError_('A draft can contain at most 8 KB. Shorten its details.');
@@ -6318,7 +6571,7 @@ function registrySnapshotCounts_(rows,selection) {
     // because the existing schedule counts include every selected status.
     if(['On Track','At Risk','Overdue'].indexOf(row.health)<0)
       throw registryInputError_('Schedule Health is pending or unavailable for one or more selected plans. A historical snapshot cannot be saved yet.');
-    if(row.measurementMethod!=='Governance outcome'&&(!/^(Higher|Lower)( is better)?$/i.test(String(row.direction||'').trim())||
+    if(row.measurementMethod!=='Governance outcome'&&(!registryAhtUnitValidServer_(row.kpi,row.unit)||!/^(Higher|Lower)( is better)?$/i.test(String(row.direction||'').trim())||
       !String(row.unit||'').trim()||['Goal Met','Improving','Unchanged','Worsening'].indexOf(row.outcome)<0))
       throw registryInputError_('KPI outcome is pending or unavailable for one or more selected numeric plans. A historical snapshot cannot be saved yet.');
     counts.total++;if(['Not Started','Ongoing','On Hold'].indexOf(row.status)>=0)counts.active++;
