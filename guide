@@ -53,7 +53,7 @@ Storage Methods
 1.  Secrets in Plain Text
 Pros: Pros: Quick and simple.
 Cons: Cons: No security. Anyone with read permissions to the script or the document it is attached to can access the secret.
-WARNING:  Never use plain text secrets in any script that will be shared, run by others, or connected to production systems. This method is prohibited under TaskUs AppSec policy.
+WARNING:  Never use plain text secrets in any script that will be shared, run by others, or connected to production systems. This method is prohibited under AppSec policy.
 2.  Encrypted Secrets in Code
 You can encrypt secrets using a library like crypto-js, then prompt the user for a password to decrypt them.
 Pros: Pros: More secure than plain text storage.
@@ -363,7 +363,7 @@ Avoid implicit scopes — they are often broader than needed.
 Manually declare scopes in appsscript.json to maintain full control.
 Use the most restrictive scope that works — default to .currentonly or .readonly.
 Use @OnlyCurrentDoc when working with bound scripts.
-Never store secrets in plain text. Prohibited under TaskUs AppSec policy.
+Never store secrets in plain text. Prohibited under  AppSec policy.
 Use Google Cloud Secret Manager for production scripts — especially trigger-based scripts. [NEW]
 Script Properties are acceptable only for low-sensitivity scripts with restricted edit access.
 Scopes and Permissions
