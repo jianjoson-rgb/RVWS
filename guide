@@ -1,1 +1,403 @@
-**
+1.  Purpose
+The purpose of this document is to establish a set of practical, actionable guidelines for secure development using Google Apps Script. It is intended to help development teams — including non-technical users leveraging AI tools to generate scripts — design, build, and maintain Apps Script projects that uphold best practices in security, especially when handling sensitive data, integrating with external APIs, or deploying scripts in shared environments.
+By aligning teams on secure development standards, this guide aims to minimize the risk of data breaches, unauthorized access, privilege escalation, and other common security pitfalls in Google Workspace automation and extensions.
+NEW IN v2.0:  Version 2.0 adds six new sections covering: Script Execution Model, Trigger Security, Third-Party Libraries, AI-Assisted Development Security, Logging Best Practices, and Input Validation — reflecting the evolving threat landscape and the increasing use of AI tools to generate Apps Script code.
+2.  Scope
+This document applies to all engineers, developers, and technical stakeholders involved in the development, deployment, or maintenance of Google Apps Script solutions across the organization.
+It also applies to non-technical employees who use AI tools (such as Google Gemini, Claude, or GitHub Copilot) to generate Apps Script code for deployment — even partially. The use of an AI tool to write code does not transfer security responsibility away from the person deploying it.
+These guidelines apply to both standalone scripts and scripts bound to Google Workspace documents (Sheets, Docs, Forms, Slides, etc.).
+3.  Why Google Apps Script Security Matters
+NEW IN v2.0:  This section has been updated in v2.0 to include execution identity risks and AI-generated code risks — two attack vectors not present in v1.4.
+Google Apps Script projects often deal with sensitive data (e.g., emails, financial records, employee information) and privileged APIs (e.g., Gmail metadata, Drive files, user profiles). Without proper security controls, these scripts can:
+Expose internal data to unauthorized users
+Be exploited for lateral movement within a compromised Workspace environment
+Silently run with elevated credentials via 'Execute as Me' — giving any triggering user the deployer's full permissions without their knowledge
+Transmit internal data to external services via unreviewed UrlFetchApp calls
+Accumulate OAuth permissions that are never audited or revoked
+
+The AI-Generated Code Risk
+As AI tools become commonly used for generating Apps Script code, a new category of risk has emerged. AI models optimize for code that works — not for code that is secure. Common issues observed in AI-generated Apps Script include:
+Overly broad OAuth scopes: Overly broad OAuth scopes: AI tools routinely request full Drive, Gmail, or Spreadsheets access when only a narrow scope is needed.
+Hard-coded credentials: Hard-coded credentials: AI-generated code frequently contains placeholder API keys, example tokens, or sample credentials that resemble real values.
+Insecure logging: Insecure logging: AI models often log full API request and response objects for debugging — which may contain secrets or PII.
+Default 'Execute as Me': Default 'Execute as Me': AI-suggested deployment configurations almost always choose the deployer's credentials and broad access levels to avoid runtime errors.
+Unvetted library suggestions: Unvetted library suggestions: AI tools may suggest third-party libraries by Script ID without any security vetting.
+
+WARNING:  Deploying AI-generated Apps Script code without a human security review is a policy violation, regardless of whether the code 'works' in testing. Functional code is not the same as secure code.
+4.  How to Store Secrets in Google Apps Script?
+Securing secrets such as API keys, tokens, and passwords is critical in any software system. If these secrets are leaked, they can expose your systems to data breaches, financial loss, and unauthorized access.
+This is particularly important in Google Apps Script, where scripts often access external services and are linked to shared documents. A poorly protected secret can be exposed to anyone with access to the script or document.
+The following methods are ranked from least secure to most robust:
+Secrets in Plain Text
+Encrypted Secrets in Code
+Script Properties
+User Properties
+Detached Script
+Do Not Store Secrets (Prompt Every Time)
+Google Cloud Secret Manager  [RECOMMENDED — NEW in v2.0]
+
+AI-SPECIFIC:  If an AI tool generated any part of your script, search every string literal in the generated code for placeholder credentials, sample tokens, and hard-coded values. AI models frequently insert example API keys that resemble real values. Strings matching patterns like 'AIza', 'sk-', 'Bearer', 'token=', or base64 blobs longer than 20 characters should be treated as suspect until verified.
+5.  PropertiesService
+Allows scripts to store simple data in key-value pairs scoped to one script, one user of a script, or one document in which an add-on is used. Properties cannot be shared between scripts.
+This class has three methods:
+getScriptProperties() getScriptProperties() — Gets a property store that all users can access, but only within this script.
+getUserProperties() getUserProperties() — Gets a property store that only the current user can access, and only within this script.
+getDocumentProperties() getDocumentProperties() — Gets a property store that all users can access within the open document, spreadsheet, or form.
+
+WARNING:  Anyone with edit access to a script can read and modify its Script Properties. This means Script Properties are only as secure as your edit access list. Treat everyone with edit access as someone who can read every stored secret.
+For detailed implementation guidance, refer to the official Google documentation:
+PropertiesService reference: https://developers.google.com/apps-script/reference/properties/properties-service
+Saving, reading, modifying, and deleting data: https://developers.google.com/apps-script/guides/properties#saving_data
+Managing properties manually: https://developers.google.com/apps-script/guides/properties#manage_script_properties_manually
+Storage Methods
+1.  Secrets in Plain Text
+Pros: Pros: Quick and simple.
+Cons: Cons: No security. Anyone with read permissions to the script or the document it is attached to can access the secret.
+WARNING:  Never use plain text secrets in any script that will be shared, run by others, or connected to production systems. This method is prohibited under TaskUs AppSec policy.
+2.  Encrypted Secrets in Code
+You can encrypt secrets using a library like crypto-js, then prompt the user for a password to decrypt them.
+Pros: Pros: More secure than plain text storage.
+Cons: Cons: The script must decrypt the secret at runtime where it can be logged or otherwise compromised by anyone with edit permissions. Encrypted secrets are accessible to anyone with read permissions; an attacker could save the encrypted value and brute-force the password offline. Cannot schedule the script to run automatically. Prompting users for passwords encourages insecure password reuse.
+Overall, this method is complex but rarely worth the complexity given better alternatives.
+3.  Script Properties
+Google Apps Script's PropertiesService allows you to store values attached to a script. Script Properties are visible and manageable in the project settings.
+Pros: Pros: Only script editors can access the stored secrets.
+Cons: Cons: All script editors can access the secrets. If the script is bound to a document, all document editors are also script editors.
+This is a reasonable option if edit access is tightly controlled and all editors are trusted.
+4.  User Properties
+Similar to Script Properties, but accessible only to the user who created them.
+Important exception: Important exception: User properties of the owner of a Google Sheets document are accessible to any user via a custom function. This is an obscurely documented edge case that can be exploited.
+Pros: Pros: Only you can access the secret unless the script logs it at runtime.
+Cons: Cons: If other users can edit the script, they can log the secret when you run the script. If other people need to run the script independently, you must share the secrets with them.
+5.  Detached Script
+A completely separate script project, not attached to any document, with limited edit access.
+Pros: Pros: One of the most secure options — only people with edit access to the detached script can compromise the secrets.
+Cons: Cons: Requires broad permission scopes (e.g., full spreadsheets access) to update a document from outside. Cannot manipulate the document's UI (alerts, menus, etc.). Relies mostly on time-scheduled triggers; triggering from a document requires a more complex setup.
+6.  Do Not Store Secrets (Prompt Every Time)
+The safest way to handle secrets is to not store them at all — prompt users to enter them at runtime.
+Pros: Pros: Secrets are never stored anywhere.
+Cons: Cons: Cannot use time-based triggers. Vulnerable to script edits. Repetitive and error-prone. May encourage insecure secret reuse.
+Best suited to sensitive workflows where storing secrets is explicitly prohibited by policy.
+7.  Google Cloud Secret Manager  [RECOMMENDED]
+NEW IN v2.0:  Google Cloud Secret Manager is the recommended approach for production scripts in v2.0. It provides centralized secret management, access audit logs, version control, and automatic rotation — none of which are available with PropertiesService.
+Google Cloud Secret Manager stores secrets as versioned, encrypted objects in GCP, accessible to Apps Script via the Secret Manager API.
+Pros: Pros: Secrets are stored outside the script entirely. Access is controlled via GCP IAM roles (not script edit access). Every access is logged in Cloud Audit Logs. Supports secret versioning and rotation without code changes.
+Cons: Cons: Requires a GCP project and Secret Manager API enablement. More setup than Script Properties. Requires the script.external_request scope to call the API.
+To access a secret from Apps Script:
+function getSecret(secretName) {
+  const projectId = 'your-gcp-project-id';
+  const url = `https://secretmanager.googleapis.com/v1/projects/${projectId}/secrets/${secretName}/versions/latest:access`;
+  const token = ScriptApp.getOAuthToken();
+  const response = UrlFetchApp.fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  const data = JSON.parse(response.getContentText());
+  return Utilities.newBlob(Utilities.base64Decode(data.payload.data)).getDataAsString();
+}
+BEST PRACTICE:  For production scripts handling API keys, OAuth tokens, or any credentials used in automated/trigger-based execution, Secret Manager is the required approach. Script Properties are acceptable for low-sensitivity, manually-run scripts with tightly controlled edit access.
+6.  Choosing the Right Storage Method
+When choosing how to store secrets in Apps Script, evaluate the following factors:
+Access and Trust: Access and Trust — Who has access to this script? Avoid Script Properties if the script is attached to a broadly shared document. Edit access = secret access.
+Script Execution Type: Script Execution Type — Does it run on a schedule or manually? Scheduled (trigger-based) scripts cannot use 'prompt every time.' Prefer Secret Manager or Script Properties with restricted edit access.
+User Interaction: User Interaction — Does the script run for multiple users or just you? Per-user secrets require User Properties. Shared secrets require Script Properties or Secret Manager.
+Risk Level: Risk Level — What does the secret grant access to? The more damaging a leaked secret, the stronger the storage method required. Production API keys with write access require Secret Manager.
+AI-Generated Scripts: AI-Generated Scripts — Was this script generated by an AI tool? Inspect all string literals for placeholder credentials before choosing a storage method.
+
+Storage Method
+When to Use
+Secret Manager
+Production scripts, trigger-based, any script with API keys or tokens granting write/admin access
+Script Properties
+Low-sensitivity secrets, manually-run scripts, tightly controlled edit access (3 or fewer trusted editors)
+User Properties
+Secrets that belong to a single user; not appropriate when multiple users run the script independently
+Detached Script
+Advanced use cases where secret isolation from a shared document is required
+Runtime Prompt
+Sensitive workflows where storing secrets is prohibited; not compatible with trigger-based automation
+Plain Text
+NEVER — prohibited in all production and shared scripts
+
+7.  Understanding and Managing Authorization Scopes in Google Apps Script
+Authorization scopes define what your script can access or do on your behalf. The first time you run a script, Google prompts you to grant it the necessary permissions. Sometimes these prompts include warnings about unverified apps or potential security risks — do not ignore these warnings.
+8.  Why Authorization Scopes Matter
+Authorization scopes define the boundaries of what your script is allowed to do with your Google account and data. Understanding and managing these scopes is critical for maintaining security.
+Consider the difference between two similar-sounding scopes:
+Broad Scope: https://www.googleapis.com/auth/spreadsheets — This allows the script full access to all spreadsheets you can access — read, write, delete — essentially acting as you.
+Restricted Scope: https://www.googleapis.com/auth/spreadsheets.currentonly — This restricts access to only the spreadsheet the script is bound to, significantly reducing potential damage in case of misuse.
+A shared script with elevated scopes can be silently altered by another user and executed under your account — potentially exfiltrating data or altering documents without your knowledge. Once permissions are granted, reviewing or revoking them is not always straightforward.
+9.  How Apps Script Determines Scopes
+There are three main ways scopes are defined in an Apps Script project:
+1.  Automatic (Implicit) Scopes
+Apps Script infers required scopes based on the services your code uses (e.g., SpreadsheetApp, DriveApp, UrlFetchApp). This is convenient but often overly permissive — using SpreadsheetApp without scope annotation can trigger a request for full access to all spreadsheets, even if the script only needs access to the current one.
+2.  Manual (Explicit) Scopes via appsscript.json
+To take control over which scopes are requested, define them manually in the appsscript.json manifest file:
+Enable manifest editing: go to Project Settings and enable 'Show appsscript.json manifest file in editor.'
+Add the oauthScopes field with the specific scopes required. Example:
+{
+  "timeZone": "America/New_York",
+  "dependencies": {},
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "oauthScopes": [
+    "https://www.googleapis.com/auth/spreadsheets.currentonly",
+    "https://www.googleapis.com/auth/script.external_request"
+  ]
+}
+WARNING:  When setting scopes manually, you must include all required scopes — missing any will cause runtime errors. However, it is better to encounter a runtime error from a missing scope than to silently over-permission the script.
+3.  JSDoc Annotations (@OnlyCurrentDoc)
+Placing the @OnlyCurrentDoc annotation at the top of your script forces Apps Script to request only 'current document' access scopes for bound services. This is a middle ground between convenience and security — appropriate for most common use cases.
+/**
+ * @OnlyCurrentDoc
+ */
+function myFunction() {
+  // Script can only access the current document
+}
+10.  Choosing the Right Scopes
+Scope Type
+Description
+Regular
+Basic access (e.g., edit documents)
+Sensitive
+Involves personal data (e.g., user email address)
+Restricted
+Grants high-level or broad access (e.g., Drive or Gmail APIs); may require app verification
+
+
+Most commonly used scopes — ordered from most restrictive (preferred) to broadest (use with caution):
+Current document only (preferred): Current document only (preferred): spreadsheets.currentonly, documents.currentonly, presentations.currentonly, forms.currentonly — these do not trigger security warnings.
+Read-only (next best): Read-only (next best): spreadsheets.readonly, documents.readonly, presentations.readonly, drive.readonly
+External requests: External requests: https://www.googleapis.com/auth/script.external_request — required for any UrlFetchApp call.
+Current user email: Current user email: https://www.googleapis.com/auth/userinfo.email
+UI interactions: UI interactions: https://www.googleapis.com/auth/script.container.ui — for complex sidebars/dialogs only. Simple alerts and menus do not require this scope.
+Trigger management: Trigger management: https://www.googleapis.com/auth/script.scriptapp — use with caution; allows creation of triggers that run the script without user interaction.
+Full access (avoid unless required): Full access (avoid unless required): auth/spreadsheets, auth/documents, auth/drive, auth/gmail.modify — these are the most dangerous scopes. Document justification before use.
+11.  Auditing and Revoking Scopes
+Over time, scripts accumulate permissions — often more than necessary. Regular reviews help limit exposure and identify risky scripts.
+Google Account Security Checkup: Google Account Security Checkup: Go to https://myaccount.google.com/security-checkup to see all authorized apps and scripts, the exact permissions granted, and warnings for risky or unverified apps.
+Third-Party Apps and Services: Third-Party Apps and Services: In the same security section, you can filter by scope or app, revoke unnecessary access, and review granted scopes per app.
+Script Triggers Review: Script Triggers Review: Go to Apps Script Editor > Triggers to review and remove unnecessary or suspicious triggers.
+Review Scripts Manually: Review Scripts Manually: Visit script.google.com to inspect or delete old/untrusted projects and check appsscript.json for declared scopes.
+Execution Logs: Execution Logs: Under Executions in the Apps Script dashboard, you can view recent executions, errors, and who initiated each run. Use this to trace suspicious activity.
+12.  Script Execution Model  [NEW IN v2.0]
+NEW IN v2.0:  This section is entirely new in v2.0. The execution identity setting is the most commonly misconfigured security control in Google Apps Script and was not covered in v1.4.
+When deploying a Google Apps Script as a Web App or API Executable, you must choose an execution identity. This setting determines whose Google account credentials the script uses at runtime — and it has significant security implications.
+Execute as Me (Deployer)
+The script always runs with the deployer's credentials, regardless of who triggers it. Every user who runs the script — by clicking a button, opening a web app, or triggering an automation — is effectively acting as you.
+When this is appropriate: When this is appropriate: The script needs to access resources the user does not have permission to access directly (e.g., a protected Sheet or external API), and this is an intentional design decision.
+Risk: Risk: Any user who can trigger the script inherits the deployer's full permissions for the duration of the execution. If the deployer is a Google Workspace Admin, any user can effectively act as that admin. This is privilege escalation.
+Requirements when using 'Execute as Me': Requirements when using 'Execute as Me': Document the justification. The deployer account should be a dedicated service account, not a personal account. Restrict who can trigger the script.
+Execute as User (Accessing the Script)
+The script runs with the credentials of the user who triggers it. The script can only access what that user has permission to access.
+When this is appropriate: When this is appropriate: The script works on behalf of the user with their own data and permissions. This is the more secure default for most internal tools.
+Requirement: Requirement: Users must be explicitly informed that the script will access Google services using their own credentials. Undisclosed credential use can constitute unauthorized access.
+Deployer Account Best Practices
+Use a dedicated service account for production scripts deployed with 'Execute as Me' — not a personal email account.
+A personal account used as a deployer means the script breaks if that person leaves the organization or changes roles.
+Service accounts should have only the permissions they need — not Admin-level access unless explicitly justified.
+Document the deployer account and its permission level in the script's AppSec questionnaire.
+Access Level Settings
+When deploying a Web App, you must also set who can access it:
+Access Level
+Security Implication
+Only Myself
+Script is inaccessible to anyone else. Appropriate for personal automation only.
+Anyone within the Organization
+Any authenticated org member can trigger the script. Default for most internal tools.
+Anyone (public)
+The script is a public endpoint. No authentication is required to trigger it. Use only with explicit justification and AppSec approval.
+
+
+WARNING:  Default to 'Anyone within the Organization.' 'Anyone (public)' with 'Execute as Me' means any person on the internet can trigger your script using your credentials. This combination is almost never appropriate for internal tools.
+13.  Secure Use of Triggers  [NEW IN v2.0]
+NEW IN v2.0:  Triggers were briefly mentioned in v1.4 under scope auditing. This section provides dedicated security guidelines for all trigger types.
+Triggers cause scripts to run automatically — without any direct user interaction. This makes them a significant security surface: a misconfigured trigger with broad scopes can run indefinitely in the background, processing data or calling external services without anyone noticing.
+Types of Triggers
+Trigger Type
+What It Does
+Time-based (Simple)
+Runs the script on a schedule — hourly, daily, weekly, etc.
+onOpen / onEdit / onChange
+Runs automatically when a user opens, edits, or changes a bound document.
+onFormSubmit
+Runs when a Google Form receives a submission.
+Installable Triggers
+Stronger version of simple triggers — can send emails, access external services, and act outside the current document. Run with the credentials of whoever installed them.
+
+
+Trigger Ownership — The Critical Risk
+Installable triggers run with the credentials of the account that installed them — not the account that owns the script. This means:
+If a Google Workspace Admin installs a trigger, it runs with Admin credentials — even if a low-privilege user later modifies the script.
+If the account that installed the trigger is compromised, all trigger executions become attacker-controlled.
+When an employee with installed triggers leaves the organization, their triggers may continue running under their (now inactive) credentials — or fail silently.
+
+WARNING:  Always document which account installed each trigger and what permissions that account holds. Regularly audit the Triggers page in the Apps Script editor to confirm ownership and necessity.
+Secure Trigger Guidelines
+Every trigger must have a documented purpose, frequency, and named owner.
+Triggers should never log secrets, tokens, or full API response bodies.
+Review all time-based triggers quarterly — remove any that are no longer needed.
+Triggers that call external APIs should validate the response status code and handle errors explicitly — do not silently fail.
+Document an emergency disable procedure: who can disable the trigger, how, and in what timeframe.
+When a team member leaves, immediately audit and disable any triggers installed under their account.
+14.  Third-Party Libraries  [NEW IN v2.0]
+NEW IN v2.0:  Third-party library security was not addressed in v1.4. This section is mandatory reading for any script using external libraries.
+Google Apps Script allows you to add third-party libraries via the script editor (the Libraries panel). These libraries run in the same execution context as your script and operate with the same OAuth scopes. An unvetted or malicious library can silently access all data your script has permission to access.
+How Libraries Are Added
+Libraries are added by their Script ID — a unique identifier for a specific Apps Script project. The Script ID grants direct access to that project's published library version. There is no central registry, no automatic security scanning, and no change notifications.
+Security Requirements for All Libraries
+Every third-party library must be documented: name, Script ID, version, purpose, and source.
+Libraries must be sourced from official documentation or the AppSec-approved library list — not from Stack Overflow answers, blog posts, or AI suggestions alone.
+Every library must be reviewed for: suspicious OAuth scope requests in its appsscript.json, obfuscated or minified code that prevents review, and known security issues.
+Libraries must be pinned to a specific version. Auto-updating to the 'latest' version means any future change to that library takes effect in your script without review.
+Unused libraries must be removed. Do not keep libraries in a project 'just in case.'
+Crypto, authentication, or security-sensitive libraries require explicit AppSec review and approval before use.
+AI Tool Library Suggestions
+AI-SPECIFIC:  AI tools can hallucinate library Script IDs or suggest libraries that have been abandoned, compromised, or never existed. Never add a library to a production script based solely on an AI recommendation. The Script ID must be independently verified against the library's official documentation or source. If the library has no official documentation, it should not be used.
+How to Verify a Library
+Find the official documentation or GitHub repository for the library.
+Confirm the Script ID listed in official docs matches the one you were given.
+Open the library project (if it is not private) and review the code — look for UrlFetchApp calls, external API calls, and any code that reads your script's properties.
+Check the version history — a library that was last updated several years ago and has no recent activity may be abandoned.
+Never use a library whose code you cannot review.
+15.  AI-Assisted Development Security  [NEW IN v2.0]
+AI-SPECIFIC:  This section is mandatory for any script where an AI tool (Google Gemini, Claude, GitHub Copilot, ChatGPT, or any other) was used to generate, modify, or review code — even partially.
+AI tools are increasingly used to generate Apps Script code. This accelerates development but introduces a distinct security risk: AI models generate code optimized for functionality and ease-of-execution, not for least-privilege or security. The patterns AI tools produce for Apps Script are frequently insecure by default.
+What to Protect Before Prompting an AI Tool
+Before sending any request to an AI tool, ensure you are not including:
+Internal API endpoints, GCP project IDs, or service URLs
+Actual credentials, API keys, or OAuth tokens — even as examples
+Employee names, email addresses, or PII
+Internal business logic, data schemas, or process descriptions that are confidential
+WARNING:  Prompts sent to external AI tools (Gemini, Claude, ChatGPT) may be processed by third-party infrastructure. Internal data included in prompts may be retained, used for model training, or exposed through data breaches. Treat prompt content as externally visible.
+Reviewing AI-Generated Code Before Deployment
+AI-generated code must never be deployed without a human security review. The following checks are mandatory:
+Check for hard-coded credentials: Check for hard-coded credentials: Search every string literal for API keys, tokens, and placeholder values. Strings resembling 'YOUR_API_KEY', 'sk-...', 'AIza...', 'Bearer ...', or any base64-encoded blob should be investigated.
+Audit the scopes: Audit the scopes: Review the generated appsscript.json. Remove any scope the script does not explicitly need. AI tools almost always generate over-permissioned scope lists.
+Review the execution configuration: Review the execution configuration: Verify the 'Execute as' and access level settings suggested by the AI match what your use case requires — not just what works.
+Inspect all log statements: Inspect all log statements: Check every Logger.log(), console.log(), and any Sheets/Docs write call. AI tools frequently log full API response objects which can contain secrets or PII.
+Review external API calls: Review external API calls: Inspect every UrlFetchApp.fetch() call. Confirm the destination URL is expected, the data being sent is appropriate, and the authentication method is correct.
+Understand every function: Understand every function: You must be able to explain what every function in the generated code does. If you cannot, do not deploy it. 'AI wrote it' is not an acceptable explanation during an AppSec review.
+Testing Requirements
+Test AI-generated scripts in a non-production environment before deployment. Create a sandboxed Sheet or use a test GCP project.
+Test with real-world edge cases: empty inputs, malformed data, network errors.
+Verify the script does not access or modify data outside of its intended scope during testing.
+When AI Updates an Existing Script
+When an AI tool is used to modify an existing production script:
+Generate a diff between the previous version and the AI-updated version. Review every change.
+Pay attention to: new API calls, new external URLs, scope additions, changes to trigger configuration, and changes to data-writing behavior.
+Re-submit the AppSec questionnaire for any AI-modified script before redeployment — even for small changes.
+16.  Logging Best Practices  [NEW IN v2.0]
+NEW IN v2.0:  Logging guidance was absent from v1.4. Logging is both a security control (for audit and detection) and a security risk (if logs capture sensitive data).
+Apps Script offers several logging mechanisms: Logger.log(), console.log(), Google Cloud Logging (Stackdriver), and writing to a Google Sheet. Each has different access controls and retention characteristics.
+What You SHOULD Log
+Script start and end timestamps for trigger-based executions
+Key decision points: which branch was taken, which sheet was processed
+External API call outcomes: status code, whether it succeeded or failed (not the response body)
+Access events: who ran the script and when (using Session.getActiveUser())
+Errors and exceptions with enough context to debug — but without exposing the data that caused the error
+What You Must NEVER Log
+WARNING:  Logging the following data is a security policy violation, regardless of how it ends up in logs — including AI-generated logging code.
+API keys, OAuth tokens, passwords, or any credential — in full or partial form
+Full API request or response bodies (which frequently contain embedded tokens or PII)
+PII: names, email addresses, employee IDs, phone numbers, customer data
+Session tokens or cookie values
+The content of Script Properties (which contain stored secrets)
+Log Access Controls
+Apps Script execution logs are visible to all script editors. Do not log sensitive operational data if the edit access list is broad.
+Google Cloud Logging (Stackdriver) is preferred for production scripts — access is controlled via GCP IAM roles, separate from script edit access.
+Log Sheets should be on separate, access-controlled spreadsheets — not the same Sheet that contains input/output data.
+Log Review Requirements
+Logs for production scripts must be reviewed at minimum monthly.
+The reviewer and frequency must be documented in the AppSec questionnaire.
+Define what an anomalous log event looks like: unexpected trigger fires, errors on previously stable scripts, access by unexpected users.
+A log retention policy must be defined — logs should not accumulate indefinitely.
+Logging in AI-Generated Code
+AI-SPECIFIC:  AI tools frequently generate logging code that captures full API response objects for debugging. For example, code like Logger.log(JSON.stringify(response)) or Logger.log(JSON.stringify(data)) will log the entire API response body — which often contains authentication tokens, PII, or sensitive business data. Review every log statement in AI-generated code before deployment.
+Example of what NOT to do (common in AI-generated code):
+// BAD — logs full response body which may contain tokens or PII
+const response = UrlFetchApp.fetch(url, options);
+Logger.log(JSON.stringify(response.getContentText()));
+Corrected approach:
+// GOOD — logs only the status code
+const response = UrlFetchApp.fetch(url, options);
+Logger.log('API call status: ' + response.getResponseCode());
+17.  Input Validation and Data Handling  [NEW IN v2.0]
+NEW IN v2.0:  Input validation was not covered in v1.4. Scripts that pass unvalidated user input to APIs, sheet operations, or eval() are vulnerable to injection and data integrity issues.
+Validate All Inputs
+Any value that comes from outside the script's own code — user inputs via dialogs, cell values from a Sheet, form submission data, API responses — should be treated as untrusted and validated before use.
+Check that values are not null or empty before processing.
+Validate that values are the expected type (string, number, email, URL) before use.
+Enforce length limits on string inputs — especially before passing to external APIs.
+Sanitize inputs before including them in HTML (HTMLService) to prevent XSS.
+Example:
+// BAD — no validation
+function processInput() {
+  const input = SpreadsheetApp.getActiveSheet().getRange('A1').getValue();
+  UrlFetchApp.fetch('https://api.example.com/data?q=' + input);
+}
+
+
+// GOOD — validates before use
+function processInput() {
+  const input = SpreadsheetApp.getActiveSheet().getRange('A1').getValue();
+  if (!input || typeof input !== 'string' || input.length > 200) {
+    Logger.log('Invalid or missing input — aborting.');
+    return;
+  }
+  const encoded = encodeURIComponent(input.trim());
+  UrlFetchApp.fetch('https://api.example.com/data?q=' + encoded);
+}
+PII Handling
+Identify all PII the script processes and document it in the AppSec questionnaire.
+Do not pass PII to external APIs unless explicitly required and approved. Anonymize or pseudonymize where possible.
+PII written to Google Sheets or Docs should have appropriate sharing restrictions on the destination file.
+Do not log PII — even for debugging. Use anonymized identifiers in logs.
+Hard-Coded Data
+Do not hard-code internal URLs, GCP project IDs, or environment-specific identifiers. Store these in Script Properties.
+Do not hard-code email addresses for notification recipients. Use a configurable property.
+Sheet IDs that are hard-coded (as in the VirusTotal demo example) should include a comment explaining why, and should be reviewed if the document is recreated.
+18.  Key Takeaways  [UPDATED IN v2.0]
+NEW IN v2.0:  This section has been significantly expanded in v2.0 to reflect all new sections. Items marked [NEW] were not in v1.4.
+Secret Management
+Avoid implicit scopes — they are often broader than needed.
+Manually declare scopes in appsscript.json to maintain full control.
+Use the most restrictive scope that works — default to .currentonly or .readonly.
+Use @OnlyCurrentDoc when working with bound scripts.
+Never store secrets in plain text. Prohibited under TaskUs AppSec policy.
+Use Google Cloud Secret Manager for production scripts — especially trigger-based scripts. [NEW]
+Script Properties are acceptable only for low-sensitivity scripts with restricted edit access.
+Scopes and Permissions
+Explicitly declare all scopes in appsscript.json.
+Audit and revoke unnecessary scopes regularly using Google's security tools.
+Be cautious with triggers and shared scripts — they can be leveraged maliciously if scopes are too broad.
+Execution Model and Deployment  [NEW]
+Explicitly choose and document your execution identity — 'Execute as Me' is not a safe default.
+Use a dedicated service account as the deployer for production scripts, not a personal account.
+Set access level to 'Anyone within the Organization' as the default — never 'Anyone (public)' without AppSec approval.
+Trigger Security  [NEW]
+Document trigger ownership — installable triggers run with the installer's credentials.
+Audit triggers quarterly. Remove unused triggers immediately.
+Have an emergency disable procedure for every production trigger.
+Third-Party Libraries  [NEW]
+Verify every library Script ID against official documentation — never trust an AI-provided Script ID alone.
+Pin libraries to specific versions. Never auto-update production libraries without review.
+Review library code before adding it — treat it like any other third-party dependency.
+AI-Assisted Development  [NEW]
+Never include internal credentials, endpoints, or PII in AI prompts.
+Treat AI-generated code as untrusted — review it the same way you would review code from an unknown external contributor.
+You are responsible for the security of code you deploy, regardless of whether AI generated it.
+Always audit AI-generated scope lists — they are almost always over-permissioned.
+Logging  [NEW]
+Never log secrets, tokens, or full API response bodies.
+Review every Logger.log() and console.log() in AI-generated code before deployment.
+Use Cloud Logging for production scripts — access is controlled separately from script edit access.
+Define a log retention policy and a named reviewer for every production script.
+Input Validation  [NEW]
+Validate all inputs — sheet values, form submissions, API responses — before use.
+Never pass raw user input to external APIs without validation and encoding.
+Sanitize HTML output in HTMLService to prevent XSS.
+
+
+
+
+
