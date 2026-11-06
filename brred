@@ -1,0 +1,653 @@
+ 
+Business Insights
+
+Business Requirements Document
+
+
+
+
+Title/Project Name: 
+Shopify OMG and Scrub Dashboard
+
+
+
+
+Copyright 
+Copyright © 2026 by TaskUs 
+All Rights Reserved. 
+No part of this document may be reproduced, stored in a retrieval system, or transmitted, in any form or by any means, electronic,mechanical, photocopying, recording or otherwise, without the prior written permission of TaskUs 
+Policy 
+This Policy shall apply to TaskUs and its subsidiaries. This Policy must be adhered to by all Company officers, directors, employees, consultants, and independent contractors. Failure to comply with this Policy could adversely affect the Company’s business and reputation and may lead to disciplinary action, up to and including termination for employees, as well as legal liability for the Company and its employees. 
+
+
+BRD Template Revision History
+Version
+Author
+Date
+V 1.1
+InfoSec Team
+September 05, 2019
+V 2.0
+InfoSec Team
+March 13, 2023
+
+
+REQUEST DETAILS
+Request Type
+New Project Request
+Requester(s)
+ Jian Joson - Requester | Rowell Atienza Carl Salii- Sponsors
+Approver(s)
+ Carl Salii Business sponsor Soumya Poddar BIDS VP;
+Business Owner
+Shopify Global Accounts Operations
+IT Application Owner
+Developer Jian Joson
+
+
+DOCUMENT REVISION HISTORY
+Version Number
+Last Modified Date
+Author(s)
+Description
+1.0
+
+
+
+
+
+
+2.0
+
+
+
+
+
+
+
+
+Project Details
+Details
+Name
+Campaigns
+Shopify Global Accounts
+LOB
+Settings-driven Shopify LOBs and All LOBs; full configured options in Appendix.
+Geo / Location
+Global and configured sites / departments (ARN, HTW, MTQ, PHX).
+
+
+SIGN-OFF DETAILS
+Version Number
+Department/Group
+FRM
+Security Architect
+Appsec
+Privacy
+Compliance
+x.x
+Name & Date
+Name & Date
+Name & Date
+Name & Date
+Name & Date
+x.x
+Name & Date
+Name & Date
+Name & Date
+Name & Date
+Name & Date
+
+
+
+TABLE OF CONTENTS
+
+
+REQUEST DETAILS	2
+DOCUMENT REVISION HISTORY	2
+Project Details	2
+TABLE OF CONTENTS	3
+1. INTRODUCTION	4
+1.1 Overview	4
+1.2 Goals and Objective	4
+1.3 Benefits	4
+2. PROCESS DOCUMENTATION	5
+2.1 Existing Process	5
+2.2 Proposed Process	5
+2.3 Flow Chart Diagram	5
+2.4 Figma Diagram	5
+2.5 Jira Stories/ Updates	5
+2.6 Data Flow Diagram	5
+2.7 Supporting Document	6
+2.8 Business Continuity Plan (BCP)	6
+2.9 Use Cases	6
+3. INFORMATION SECURITY	8
+3.1 Scope	8
+3.2 User Management Access Matrix	8
+3.3 Data Security/Privacy Standards	9
+3.4 PCI Scoping Questionnaire	9
+3.5 Access Control	10
+3.6 Architecture Diagram	10
+3.7 Infra Handover Document	11
+4. WORK BREAKDOWN STRUCTURE	12
+4.1 Resource	12
+4.2 Timeline	12
+4.3 RACI	12
+5. APPENDIX	13
+6. DOCUMENT MANAGEMENT PROCESS and REQUESTS	14
+
+ 
+
+
+ INTRODUCTION
+
+
+Overview
+We currently rely on manual, fragmented tracking for QA audits and Team Leader daily activities, which creates administrative overhead and delays data analysis. This project proposes building an App Script-powered dashboard to automatically aggregate data from our existing audit and activity forms into a single, centralized hub.
+Goals and Objective
+To develop and deploy a unified dashboard that automates the capture and visualization of both QA audit results and daily Team Leader inputs (including coaching sessions, huddles, and floorwalks). This will eliminate manual data entry and provide a real-time, comprehensive view of leadership activities and team quality metrics.
+Benefits
+Time Savings: Drastically reduces the administrative hours spent manually tracking and compiling data.
+
+Centralized Visibility: Consolidates QA and leadership activity metrics into a single source of truth.
+
+Faster Decision-Making: Real-time data visualization allows for quicker performance analysis and proactive coaching.
+
+Reduced Error: Automating data transfer minimizes the risk of human error inherent in manual tracking.
+
+
+
+ PROCESS DOCUMENTATION
+
+
+Existing Process
+
+Currently, Team Leader (TL) inputs and activities are dispersed across multiple platforms, relying heavily on manual data entry via Google Forms. Tracking these activities is a laborious process that requires extracting and consolidating data from disparate sources. Furthermore, analyzing QA audits necessitates extensive manual spreadsheet manipulation, which creates workflow bottlenecks and delays the generation of actionable insights.
+
+Proposed Process
+
+We propose an automated, App Script-driven solution that consolidates all TL activities and QA audits into a unified platform. This dashboard will serve as the single source of truth for leaders to document their daily tasks and quickly evaluate performance trends.   
+
+Key Functionalities Needed:   
+Centralized Data Logging: A single platform for leaders to input and track daily activities without toggling between systems.   
+Automated Data Aggregation: App Script integration to automatically pull form data into a central repository, eliminating manual exports. 
+Real-Time Analytics Dashboard: Visual representation of audit data and TL activities to provide immediate, actionable insights without manual spreadsheet processing. 
+
+Flow Chart Diagram
+
+<Provide the flow chart diagrams for each user and modules present in the application/system>
+
+
+Figma Diagram
+
+<Provide the Figma diagrams for each functionality/UI present in the application/system>
+
+Jira Stories/ Updates
+
+<Provide the Jira stories associated with the application>  
+
+Data Flow Diagram
+
+<Provide the Data flow diagrams, this is required for Data Governance project>
+Ref. diagram: 
+
+
+
+Supporting Document
+D.R.I.V.E
+
+Business Continuity Plan (BCP)
+<Provide details related to BCP associated with the project>
+
+
+Use Cases
+
+<Provide the details of use cases or functionality associated with the application>
+
+Use Case Number
+Description
+Ex1
+
+
+
+
+Ex1
+Actor
+
+
+Success Post Condition
+
+
+Fail Post Condition
+
+
+Trigger Event
+
+
+
+
+
+Step
+Actor
+Description
+1
+
+
+
+
+2
+
+
+
+
+3
+
+
+
+
+4
+
+
+
+
+5
+
+
+
+
+
+
+
+
+
+INFORMATION SECURITY
+
+
+Scope
+Users - <Internal and External users>
+Systems - List ALL systems and applications involved with and links to their licensing and privacy statements. Under the “Notes” section, kindly specify if any interfaced application is TaskUs-owned, client-owned, third-party, or open-source. 
+Software
+Version
+License
+Terms of Use
+Privacy
+Notes
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Data Elements - List ALL data elements included in this project, especially PII (e.g., name, email address, health info), PCI (e.g., credit card details, financial info), and confidential records (e.g., client-owned data, private info). Classify them according to ownership:
+TaskUs-owned Data:
+Client/Customer Data:
+Publicly Accessible Data:
+
+Logo and Intellectual Property - List any TaskUs or client logos and intellectual property involved. 
+
+User Management Access Matrix
+
+User Role
+Access to Modules/Functionality
+Access (e.g., Read-only, Read & Write, Admin)
+
+
+
+
+
+
+
+
+
+
+
+
+
+Add details about the service account as well
+
+
+
+
+Data Security/Privacy Standards
+
+Data Security/Privacy  Survey
+Sr 
+Question
+Explanation
+1
+Will this application be storing Data?
+
+
+2
+Where will the data be sourced from (which existing system/tool/application)?
+
+
+3
+What Data will be stored? (PII, Client Data, PHI, or any other confidential data)
+
+
+4
+Where will data be stored (primary and secondary storage details are required)?
+
+
+5
+Who has access to stored Data (Production and its backup files)?
+
+
+6
+Confirm the type of encryption or algorithm used in transit and storage
+
+
+7
+How long will data be stored?
+
+
+8
+How will data be discarded after it is no longer needed?
+
+
+9
+What is an application and database log retention period for the application and its components? (It should be >=180 days.)
+Application logs - 
+Database logs - 
+10
+What is the frequency of application data backup and retention period?
+Frequency - 
+Retention period - 
+11
+If a vendor develops an application/part of code, please specify the code ownership and responsible team who will manage the code adhering to TU InfoSec policy and timelines for any actions.
+Code Ownership - 
+Responsible Team - 
+12
+Provide the details of other applications or databases which are communicating with this app 
+
+
+
+
+
+PCI Scoping Questionnaire
+
+PCI Scoping Survey
+
+
+Question
+Yes or No
+Explanation
+1
+Does this system process or store cardholder data?
+
+
+
+
+2
+Does this system/application reside within the same network segment as other in-scope PCI systems/applications? (provide a link to in-scope PCI systems)
+
+
+
+
+3
+Do other in-scope PCI systems rely on this system to maintain their PCI compliance?
+
+
+
+
+4
+If this system/application were to be compromised, could it be leveraged to affect the security of in-scope PCI systems/applications?
+
+
+
+
+
+ 
+Access Control
+
+Access Control
+
+
+Question
+Explanation
+1
+Will this application be accessible outside the TaskUs network?
+
+
+
+
+If the application is publicly accessible, please mention the technical challenges or business requirements based on which the decision was made. 
+
+Note: If the Application needs to be publicly accessible. Please submit a RAF and get it approved by the CIO.
+If the application is behind Cloudflare, there is no need to submit a RAF
+
+
+2
+How will users be authenticated?
+
+
+2
+What are the 2FA mechanisms configured in the application for internal and external users?
+
+
+3
+How will deactivation of access take place for separated users? 
+
+
+6
+How user roles are configured. Who has the privilege of assigning different roles to users?
+
+
+7
+Describe the periodic access review.
+
+
+
+
+
+Architecture Diagram
+
+
+Infra Handover Document
+
+
+
+
+
+
+
+
+
+WORK BREAKDOWN STRUCTURE
+
+
+Resource
+
+Development Team
+Project Lead
+ Jian Joson - build lead; Rowell Atienza Carl Salii - business sponsor
+System Analyst lead (Business
+Requirement Team)
+ Jian Joson - Business Insights; Operations validates requirements
+Software Developer
+ Jian Joson - Apps Script / HTML builder
+QA Engineer
+Business UAT + TaskUs AppSec / InfoSec / FRM reviewers
+
+
+
+Timeline
+The application will undergo 4 major phases of project development and is expected to deliver within (__) working days.
+
+Planning
+Build and Coding
+Testing
+Execution and Deployment
+
+RACI 
+RASCI Chart
+Name
+Position
+R
+A
+S
+C
+I
+ Carl Salii
+Global Accounts, VP
+
+
+
+
+
+
+x
+x
+ Rowell Atienza
+Ops, Snr Manager
+
+
+
+
+
+
+x
+x
+ Chris Juinio
+BIDS Global Director
+
+
+
+
+
+
+x
+x
+ Christine Pinza
+BIDS, Snr Manager
+
+
+
+
+x
+x
+x
+ Jian Carlo Joson
+BIDS, Manager
+x
+x
+x
+
+
+
+
+
+
+DVA/BIA
+x
+x
+x
+
+
+
+
+
+
+
+
+APPENDIX
+
+<Provide any references or additional details, exceptions related to this project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+DOCUMENT MANAGEMENT PROCESS and REQUESTS
+
+
+For any document concerns or process requests, please file a request ticket to ServiceNow (SNOW) and assign it to your team’s Document Admin.
+Click this link to see your team’s Documentation Administrator(s).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Information Technology
+
+
