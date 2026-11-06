@@ -1,1 +1,31 @@
-**
+Dataset Column Descriptions
+This document contains a detailed breakdown of the columns found in the Untitled_spreadsheet.csv dataset. This dataset tracks Quality Assurance (QA) and Customer Support metrics.
+General Information
+Timestamp: The date and time the audit was logged (e.g., 2026-10-02 04:21:19).
+Email Address: The email address of the QA auditor or analyst conducting the review.
+SA Shopify Email Address: The email address of the Support Advisor (SA) who handled the ticket being audited.
+Ticket ID/SID: A unique identifier or URL link for the Zendesk support ticket being reviewed.
+Soft Skills & Performance Metrics (Rubric)
+Ownership: A rating indicating how well the agent took responsibility for the issue (e.g., Met, Not Met, Transformational).
+Ownership Comments/Notes: The auditor’s written justification and specific quotes explaining the Ownership rating.
+Merchant Effort: A rating reflecting how well the agent minimized the work required by the merchant.
+Merchant Effort Comments/Notes: The auditor’s written justification and specific quotes explaining the Merchant Effort rating.
+Genuine Empathy: A rating evaluating how well the agent acknowledged the merchant's feelings and business impact.
+Genuine Empathy Comments/Notes: The auditor’s written justification and specific quotes explaining the Genuine Empathy rating.
+Ticket Handling & Compliance
+Audit Type: The category of the QA audit being performed (e.g., Scrub, SBS/Live/MC/Remote).
+Resolution & Resolution.1: Describes the final status of the interaction (e.g., Issue resolved during interaction, Escalated).
+Non-Negotiables (ZTP): Flags severe violations or Zero Tolerance Policies, such as Merchant Mistreat or Unauthorized Account Modifications.
+Interaction Summary: A detailed narrative describing the merchant's issue, the agent's actions, and the outcome of the interaction.
+Is this a mistagged ticket?: A Yes/No flag indicating if the original ticket was incorrectly categorized in the system.
+Is this ticket a repeat contact?: A Yes/No flag indicating if the merchant had to reach out multiple times for the same issue.
+Was this interaction intervened?: Indicates if real-time guidance was provided to the advisor during the interaction.
+Is this a Transformational Interaction?: A Yes/No flag noting if the agent went above and beyond standard expectations.
+Ticket Channel: The communication method used for the ticket (e.g., Chat, Phone, Async).
+LOB: The Line of Business or department handling the ticket (e.g., Core, Plus, Premium).
+Categorization & Root Cause
+Scrub - Contact Driver (Category) & Contact Driver (Category): The specific topic or product feature that caused the merchant to reach out (e.g., Migration, Staff Accounts, Shop Pay).
+Primary Reason for DSAT: Categorizes the root cause of a Dissatisfied (DSAT) survey into one of three buckets: Agent-Driven, Process/Product-Driven, or Merchant-Driven.
+Agent Driven: Specific agent behaviors that led to a DSAT (e.g., Tone Mismatch / Lack of Empathy, Premature Deflection).
+Policy/Process Driven: Systemic issues causing a DSAT that were outside the agent's control (e.g., Platform Limitation, Known Bug).
+Merchant Driven: DSAT reasons caused purely by the merchant (e.g., Merchant Abandoned Chat, Accidental Negative Rating).
