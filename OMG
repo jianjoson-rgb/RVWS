@@ -1,1 +1,280 @@
-**
+Proposed New OMG QA Form - Complete Specification
+This document contains the core structural specifications, criteria, guidelines, and all dropdown options for the proposed OMG QA evaluation framework, including the full list of resolutions and contact drivers.
+Sheet: Proposal New OMG Form
+Audit Type
+Criteria / Options: SBS/Live/MC/Remote
+Guidelines & Notes: All other tickets, including Smileys
+Criteria / Options: Scrub
+Guidelines & Notes: Tickets that received a Neutral or Frownie rating
+SA Shopify Email Address
+Guidelines & Notes: Must have @shopify.com
+Ticket ID/SID
+Guidelines & Notes: Input the interaction number, no url
+LOB
+Guidelines & Notes: Select the LOB of the Support Advisor
+Ticket Channel
+Guidelines & Notes: Select the channel of the ticket
+Q1: Goal Alignment & Inquiry Framing (OMG Signal 02 & Handshake CC-02)
+Criteria / Options: Met
+Guidelines & Notes: Restates core inquiry in advisor's own words, confirms desired end state, and secures merchant validation before opening diagnostic tools. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Proceeding on assumptions; addressing secondary symptoms while missing core need; failing to ask clarifying alignment questions. Remediation: Roleplay 3-sentence goal alignment protocol. See "OMG QA Rubric v2"
+Goal Alignment & Inquiry Framing Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q2: Genuine Empathy (OMG Signal 03 & Handshake CC-01)
+Criteria / Options: Met
+Guidelines & Notes: Validates the emotional reality and business stakes directly; pairs genuine warmth with immediate, purposeful action. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Uses canned, robotic boilerplate scripts; brushes past frustration or financial urgency; lacks human warmth. Remediation: Validate First, Solve Second drill. See "OMG QA Rubric v2"
+Genuine Empathy Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q3: Lower Merchant Effort (OMG Signal 02 & Handshake BC-01)
+Criteria / Options: Met
+Guidelines & Notes: Audits admin timeline, tickets, and logs prior to inquiry; executes actions directly on merchant's behalf. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Forces merchant to repeat info already provided in chat/history; shifts manual troubleshooting burden onto user. Remediation: Check 3 Systems Before Asking protocol. See "OMG QA Rubric v2"
+Lower Merchant Effort Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q4: No Dark Time Active Hold Standards (COPC 2.1, 2.2, 4.1)
+Criteria / Options: Met
+Guidelines & Notes: Sets bounded time window (e.g., '1-2 minutes') with clear diagnostic purpose; refreshes within 90s; returns with gratitude. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Unannounced hold or dead air >2 mins; vague phrasing ('one second'); exceeding refresh ceiling without check-in. Remediation: Active hold timer coaching. See "OMG QA Rubric v2"
+No Dark Time Active Hold Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q5: Root Cause Resolution (OMG Signal 01 & Recap 2.1)
+Criteria / Options: Met
+Guidelines & Notes: Systematically isolates variables with structured probing; fixes the core breakdown and verifies proper functionality. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Applies superficial patches; fails to isolate technical variables; leaves core issue unresolved or guesses blindly. Remediation: Diagnostic flowcharts review. See "OMG QA Rubric v2"
+Root Cause Resolution Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q6: Recap & Escalation Transparency (Recap 2.2, 3.1, 3.2)
+Criteria / Options: Met
+Guidelines & Notes: Itemizes actions taken; provides ticket ID (#XXXXXXXX); sets realistic 24-48h SLA; confirms recipient email. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Leaves next steps ambiguous; provides no ticket ID or timeline; promises unverified rush turnarounds; no email check. Remediation: Mandatory ticket macro injection. See "OMG QA Rubric v2"
+Recap & Escalation Transparency Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Q7: End-to-End Ownership & Closure (OMG 01, Handshake CC-05, Recap 4.2)
+Criteria / Options: Met
+Guidelines & Notes: Confirms clear next-step ownership; obtains explicit affirmative close; maintains strict survey integrity. See "OMG QA Rubric v2"
+Criteria / Options: Not Met
+Guidelines & Notes: Deflects responsibility; closes without explicit confirmation ('Have we covered everything?'); begs for 5-star CSAT. Remediation: Pre-closure sequence roleplay. See "OMG QA Rubric v2"
+End-to-End Ownership & Closure Comments/Notes
+Guidelines & Notes: Must be specific and include exact reasons, timestamps, and interaction details why the SA received the score. Required if Not Met.
+Resolution
+Criteria / Options: Yes (Issue resolved during interaction)
+Guidelines & Notes: The Merchant got what they wanted during the same interaction.
+Criteria / Options: No (Escalated)
+Guidelines & Notes: The ticket ended in an escalation ticket, no hand off to another department done. Regardless if this was the correct resolution or not
+Criteria / Options: No (Need more info from Merchant)
+Guidelines & Notes: Only select this if needing more info from the Merchant was not caused by Teammate opportunities.
+Criteria / Options: No (Wrong Resolution)
+Criteria / Options: No (AFK / Merchant Unresponsive)
+Guidelines & Notes: The interaction ended because the Merchant went AFK. Note: Only select this if there were NO Teammate issues that could have caused the AFK.
+Criteria / Options: No (Limitation / Resolution is not within Shopify scope )
+Guidelines & Notes: Only select if there were NO Teammate opportunities that cause the limitation.
+Criteria / Options: No (Interaction was taken over )
+Guidelines & Notes: The Merchant was handed off to Live Assist; i.e. Tier 2, during the same interaction.
+Criteria / Options: No (Unable to fulfill false promise from previous SA)
+Contact Driver
+Guidelines & Notes: Select the About Tag of the interaction. If the system tagged this incorrectly, choose the About Tag it should have been.
+Dropdown Options (About Tags):
+- Accelerated Checkout
+- Acceptable Use Policy
+- Account login
+- Account Settings
+- Admin Home
+- Alternative payments
+- API
+- Apps made by Shopify
+- B2B
+- Billing and refunds to Merchants
+- Blockchain
+- Blogs
+- Bulk editor
+- Business Coaching
+- Buy Button
+- Buyer Support
+- Cart Page
+- Change myshopify url
+- Chargebacks
+- Collections
+- Content
+- Customers
+- Discounts
+- Domains
+- Dovetale
+- Downtime
+- Dropped interaction
+- Expansion Tool
+- Experts Marketplace
+- Facebook Channel
+- Finances overview
+- Flash Sales
+- Flow App
+- Forums
+- Fraud Protect
+- Gift Cards
+- Google Discounts Syncing Issue
+- Google & YouTube Channel
+- Hatchful
+- Hardware Store
+- Headless / Custom Storefronts
+- Inbox
+- Intro to Shopify
+- Inventory and transfers
+- Language Editor
+- Launchpad App
+- Legal
+- Local Delivery and Pickup
+- Manual Payments
+- Marketing Automations
+- Markets Pro
+- Media
+- Merchant Account Security
+- Migration
+- Navigation
+- Non-support interaction
+- Notifications
+- Online Checkout
+- Online Returns & Exchanges
+- Orders
+- Order Status Page
+- Order Risk Analysis
+- Pages
+- Partner affiliate program
+- Partner Policy Violation
+- Partner Support
+- PayPal Gateway
+- Plus Admin (Organizations)
+- POS Hardware
+- POS Checkout
+- POS Go Deprecation
+- POS Order Management
+- POS Store Management
+- Pricing and Plans
+- Products and Variants
+- Products CSV
+- QuickBooks POS Migration
+- Request Export CC Data (3rd Party)
+- Risk Questions
+- Sell on Amazon
+- Shipping Duties and Fees
+- Shipping Labels and Documents
+- Shipping Settings and Rates
+- Shipping Third Party Fulfillment
+- Sidekick
+- Shop App
+- Shop Promise
+- Shopify Analytics
+- Shopify Audiences
+- Shopify Balance
+- Shopify Bill Pay by Melio App
+- Shopify Bundles App
+- Shopify Capital
+- Shopify Collabs
+- Shopify Credit
+- Shopify Messaging App
+- Shopify Fulfillment Network
+- Shopify Magic
+- Shopify Markets
+- Shopify Mobile app
+- Shop Pay
+- Shop Pay Installments
+- Shopify Collective
+- Shopify Payments Payouts
+- Shopify Payments Settings
+- Shopify Pixels
+- Shopify Scripts (Plus)
+- Shopify Subscriptions App
+- Staff Accounts
+- Store cancellations
+- Store Switcher
+- Tablet Densification
+- Tax documents
+- Taxes
+- Test Interaction
+- Theme Store
+- Theme Made by Shopify
+- Third Party Apps
+- Third Party Channels
+- Third Party Theme
+- Third Party Gateways
+- Third Party Subscription Apps
+- TikTok Sales Channel
+- Wholesale
+- X Auth Migration
+Non-Negotiables
+Criteria / Options: Merchant Mistreatment
+Guidelines & Notes: See Zero Tolerance Policy 7.1 for definitions, severe offenses only
+Criteria / Options: Work Avoidance
+Guidelines & Notes: See Zero Tolerance Policy 7.1 for definitions, severe offenses only
+Criteria / Options: Metric Manipulation
+Guidelines & Notes: See Zero Tolerance Policy 7.1 for definitions, severe offenses only
+Criteria / Options: Data Privacy & Security Breaches
+Guidelines & Notes: See Zero Tolerance Policy 7.1 for definitions, severe offenses only
+Criteria / Options: Unauthorized Account Modification & Process Violations
+Guidelines & Notes: See Zero Tolerance Policy 7.1 for definitions, severe offenses only
+Guidelines & Notes: Select if there were no ZTP violations found on this ticket. Note: Non-terminable violations like C1 and C2 offenses will be tagged as N/A but QA will still file this in TQT and send an email for immediate coaching
+Was this interaction intervened?
+Criteria / Options: Yes
+Guidelines & Notes: Select if feedback was given to the Team Lead or Support Advisor IN REAL TIME to mitigate behavior identified during the same interaction; i.e. SBS on the floor or on Mission Control, etc Note: If "Yes," make sure the comment section of the dimensions discuss why there was intervention, and that it was done. Example: "Compliance & Security did not Meet Expectations because ABC. Feedback was given in real time to SA via XYZ."
+Criteria / Options: No
+Guidelines & Notes: Select if feedback was not given to the Team Lead or Support Advisor IN REAL TIME to mitigate behavior identified during the same interaction; i.e. SBS on the floor or on Mission Control, etc
+Is this a transformational interaction?
+Criteria / Options: Yes
+Guidelines & Notes: Select "Yes" if all 7 dimensions are Met and interaction demonstrated exceptional ownership, empathy, and root-cause resolution, see "OMG QA Rubric v2"
+Criteria / Options: No
+Guidelines & Notes: Select "No" if 1 or more dimensions are Not Met, see "OMG QA Rubric v2"
+Sheet: OMG QA Rubric v2
+Q#: Q1
+Signal & Dimension: Goal Alignment & Inquiry Framing (OMG Signal 02 & Handshake CC-02)
+Core Evaluation Standard: Restate merchant's core inquiry and intended outcome upfront ("To ensure we are aligned, your goal is to...") to avoid misdirected effort.
+Not Met Criteria: Proceeding on assumptions; addressing secondary symptoms while missing core need; failing to ask clarifying alignment questions.
+Met Criteria: Restates core inquiry in advisor's own words, confirms desired end state, and secures merchant validation before opening diagnostic tools.
+Evaluation Score: 
+Remediation Protocol: Roleplay 3-sentence goal alignment protocol; practice summarizing complex multi-issue inquiries; calibrate upfront listening skills.
+Q#: Q2
+Signal & Dimension: Genuine Empathy (OMG Signal 03 & Handshake CC-01)
+Core Evaluation Standard: Acknowledge the merchant's situation with authentic, human empathy; validate business impact before technical steps.
+Not Met Criteria: Uses canned, robotic boilerplate scripts; brushes past frustration or financial urgency; lacks human warmth.
+Met Criteria: Validates the emotional reality and business stakes directly; pairs genuine warmth with immediate, purposeful action.
+Evaluation Score: 
+Remediation Protocol: Practice 'Validate First, Solve Second' coaching drill; roleplay high-urgency merchant scenarios to build authentic tone.
+Q#: Q3
+Signal & Dimension: Lower Merchant Effort (OMG Signal 02 & Handshake BC-01)
+Core Evaluation Standard: Eliminate cognitive friction; review internal logs and ticket history before asking questions; prevent repetition.
+Not Met Criteria: Forces merchant to repeat info already provided in chat/history; shifts manual troubleshooting burden onto user.
+Met Criteria: Audits admin timeline, tickets, and logs prior to inquiry; executes actions directly on merchant's behalf.
+Evaluation Score: 
+Remediation Protocol: Implement 'Check 3 Systems Before Asking' protocol (Admin, History, Payouts); audit system look-up efficiency.
+Q#: Q4
+Signal & Dimension: No Dark Time Active Hold Standards (COPC 2.1, 2.2, 4.1)
+Core Evaluation Standard: State definite hold boundaries with diagnostic transparency; refresh within 90–120s; avoid unannounced dead air.
+Not Met Criteria: Unannounced hold or dead air >2 mins; vague phrasing ('one second'); exceeding refresh ceiling without check-in.
+Met Criteria: Sets bounded time window (e.g., '1-2 minutes') with clear diagnostic purpose; refreshes within 90s; returns with gratitude.
+Evaluation Score: 
+Remediation Protocol: Active hold timer coaching; eliminate vague phrasing; drill 'Gratitude over Apology' re-entry scripting.
+Q#: Q5
+Signal & Dimension: Root Cause Resolution (OMG Signal 01 & Recap 2.1)
+Core Evaluation Standard: Diagnose and resolve the underlying root cause through high-yield probing rather than applying temporary surface fixes.
+Not Met Criteria: Applies superficial patches; fails to isolate technical variables; leaves core issue unresolved or guesses blindly.
+Met Criteria: Systematically isolates variables with structured probing; fixes the core breakdown and verifies proper functionality.
+Evaluation Score: 
+Remediation Protocol: Review technical diagnostic flowcharts; coach on high-yield question stems; practice isolating admin vs theme variables.
+Q#: Q6
+Signal & Dimension: Recap & Escalation Transparency (Recap 2.2, 3.1, 3.2)
+Core Evaluation Standard: Clearly frame action plan, provide reference ticket ID, communicate realistic SLAs, and verify contact email.
+Not Met Criteria: Leaves next steps ambiguous; provides no ticket ID or timeline; promises unverified rush turnarounds; no email check.
+Met Criteria: Itemizes actions taken; provides ticket ID (#XXXXXXXX); sets realistic 24-48h SLA; confirms recipient email.
+Evaluation Score: 
+Remediation Protocol: Escalation logging calibration; enforce mandatory ticket macro injection and verified email confirmation.
+Q#: Q7
+Signal & Dimension: End-to-End Ownership & Closure (OMG 01, Handshake CC-05, Recap 4.2)
+Core Evaluation Standard: Take complete ownership of the path forward; secure affirmative pre-closure confirmation; zero survey manipulation.
+Not Met Criteria: Deflects responsibility; closes without explicit confirmation ('Have we covered everything?'); begs for 5-star CSAT.
+Met Criteria: Confirms clear next-step ownership; obtains explicit affirmative close; maintains strict survey integrity.
+Evaluation Score: 
+Remediation Protocol: Roleplay 'Who Owns What' handoff; enforce pre-closure confirmation sequence; mandatory review of survey integrity policy.
