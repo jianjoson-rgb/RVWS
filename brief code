@@ -1,1 +1,4463 @@
-**
+{
+  "version": "1.2.31",
+  "banner_revision": "matched-monthly-banners-and-overview-alignment",
+  "projection_scope": "current- and next-month EOM",
+  "banner_projection_scope": "current-month EOM only",
+  "banner_actual_scope": "matched elapsed monthly portions",
+  "output_url": "https://docs.google.com/presentation/d/1Lhp2LOoNKbMjr6TLlyquvQUuthL4hgruil9GphrDZpA/edit",
+  "backend_spreadsheet_id": "1A3q6BHBp2QtDJG-pFQ3xIAhTzCQB-GFXkBXu_ZbVYVE",
+  "whitepaper_raw_spreadsheet_id": "1ZdfpriF2AE3KXXGSd9zCqkUPToe2pVztOeDQhO8H8eM",
+  "as_of": "2026-11-28",
+  "lob_order": [
+    "EXECUTIVE OVERVIEW",
+    "CORE",
+    "PLUS",
+    "RETAIL",
+    "PREMIUM",
+    "LIVEASSIST"
+  ],
+  "warnings": [
+    "EXECVIEW!M7 missing/invalid: PL for ARN; shown as a dash.",
+    "EXECVIEW!N7 missing/invalid: UL for ARN; shown as a dash.",
+    "EXECVIEW!M8 missing/invalid: PL for HTW; shown as a dash.",
+    "EXECVIEW!N8 missing/invalid: UL for HTW; shown as a dash.",
+    "EXECVIEW!M9 missing/invalid: PL for MTQ; shown as a dash.",
+    "EXECVIEW!N9 missing/invalid: UL for MTQ; shown as a dash.",
+    "EXECVIEW!M10 missing/invalid: PL for PHX; shown as a dash.",
+    "EXECVIEW!N10 missing/invalid: UL for PHX; shown as a dash.",
+    "EXECVIEW!M11 missing/invalid: PL for Overall; shown as a dash.",
+    "EXECVIEW!N11 missing/invalid: UL for Overall; shown as a dash.",
+    "Optional 'GAU_Executive_Inputs' does not exist: manual discussion input is unavailable; Whitepaper challenges and pivots remain automatic."
+  ],
+  "recovery_baseline": {
+    "lob_slides": "1.2.19",
+    "historical_and_projection_logic": "1.2.19",
+    "executive_overview": "1.2.22"
+  },
+  "executive_overview": {
+    "sheet_gid": 748925145,
+    "worksheet": "EXECVIEW",
+    "week": "2026-11-15",
+    "financial_as_of": "2026-11-10",
+    "reporting_month": "NOV-2026",
+    "reporting_month_source": "OPRRaw!K:P",
+    "scorecard_month": "2026-11-01",
+    "kpi_sheet_gid": 1604423659,
+    "kpi_source_range": "K:P",
+    "discussion_content_policy": "Approved POC only",
+    "numeric_read_mode": "UNFORMATTED_VALUE; native numeric ratios preserved",
+    "operational_targets_met": 10,
+    "operational_targets_count": 20,
+    "source_kpi_rows": {
+      "CORE": {
+        "SMILEY": 42,
+        "AHT": 46,
+        "AFTR": 54,
+        "QA": 58,
+        "SENT": 50
+      },
+      "PLUS": {
+        "SMILEY": 43,
+        "AHT": 47,
+        "AFTR": 55,
+        "QA": 59,
+        "SENT": 51
+      },
+      "RETAIL": {
+        "SMILEY": 44,
+        "AHT": 48,
+        "AFTR": 56,
+        "QA": 60,
+        "SENT": 52
+      },
+      "PREMIUM": {
+        "SMILEY": 45,
+        "AHT": 49,
+        "AFTR": 57,
+        "QA": 61,
+        "SENT": 53
+      }
+    },
+    "financial_source": "F5:P11",
+    "hours_delivery_cell": "P11",
+    "financial_columns": {
+      "Site": "F",
+      "HC": "G",
+      "GPR": "H",
+      "Revenue": "I",
+      "Revenue Attainment": "J",
+      "SM": "K",
+      "GM": "L",
+      "PL": "M",
+      "UL": "N",
+      "Attrition": "O",
+      "Hours Delivery": "P"
+    },
+    "hours_delivery_is_placeholder": false,
+    "manual_tab": "GAU_Executive_Inputs",
+    "hybrid_panel_audit": {
+      "Merchant Sentiment": {
+        "mode": "AUTO",
+        "approved_manual": false,
+        "source_row": null,
+        "truncated": false,
+        "full_approved_text": "",
+        "full_generated_text": "",
+        "compact_text": "",
+        "automatic_source": null,
+        "evidence": [],
+        "recommendation_basis": null,
+        "manual_source": null,
+        "content_policy": "POC only; empty editable body without approved input",
+        "displayed_text": "",
+        "body_font_pt": 7.65,
+        "panel_height_inches": 2.0
+      },
+      "Performance Summary": {
+        "mode": "AUTO",
+        "approved_manual": false,
+        "source_row": null,
+        "truncated": false,
+        "full_approved_text": "",
+        "full_generated_text": "",
+        "compact_text": "",
+        "automatic_source": null,
+        "evidence": [],
+        "recommendation_basis": null,
+        "manual_source": null,
+        "content_policy": "POC only; empty editable body without approved input",
+        "displayed_text": "",
+        "body_font_pt": 7.65,
+        "panel_height_inches": 2.0
+      },
+      "Challenges & Escalations": {
+        "mode": "AUTO",
+        "approved_manual": false,
+        "source_row": null,
+        "truncated": false,
+        "full_approved_text": "",
+        "full_generated_text": "CORE: Merchant Smiley is below target; Shopify Tax Services is a leading measured drag.\nPLUS: Merchant Smiley is below target; Shop is a leading measured drag.\nRETAIL: Merchant Smiley is below target.\nPREMIUM: Merchant Smiley is below target; d. 3 - 4 months is a leading measured drag.",
+        "compact_text": "CORE: Merchant Smiley below target.\nPLUS: Merchant Smiley below target.\nRETAIL: Merchant Smiley below target.\nPREMIUM: Merchant Smiley below target.",
+        "automatic_source": "Whitepaper matched monthly periods",
+        "evidence": [
+          {
+            "lob": "CORE",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "Shopify Tax Services",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "PLUS",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "Shop",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "RETAIL",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": null,
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "PREMIUM",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "d. 3 - 4 months",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          }
+        ],
+        "recommendation_basis": null,
+        "manual_source": null,
+        "content_policy": "Whitepaper automatic; approved POC override or append supported",
+        "displayed_text": "CORE: Merchant Smiley is below\ntarget; Shopify Tax Services is a\nleading measured drag.\nPLUS: Merchant Smiley is below\ntarget; Shop is a leading measured\ndrag.\nRETAIL: Merchant Smiley is below\ntarget.\nPREMIUM: Merchant Smiley is below\ntarget; d. 3 - 4 months is a leading\nmeasured drag.",
+        "body_font_pt": 5.5,
+        "panel_height_inches": 2.0
+      },
+      "Strategies": {
+        "mode": "AUTO",
+        "approved_manual": false,
+        "source_row": null,
+        "truncated": false,
+        "full_approved_text": "",
+        "full_generated_text": "",
+        "compact_text": "",
+        "automatic_source": null,
+        "evidence": [],
+        "recommendation_basis": null,
+        "manual_source": null,
+        "content_policy": "POC only; empty editable body without approved input",
+        "displayed_text": "",
+        "body_font_pt": 7.65,
+        "panel_height_inches": 2.0
+      },
+      "Immediate Tactical Pivots": {
+        "mode": "AUTO",
+        "approved_manual": false,
+        "source_row": null,
+        "truncated": false,
+        "full_approved_text": "",
+        "full_generated_text": "CORE: Review the Shopify Tax Services performance drivers.\nPLUS: Review the Shop performance drivers.\nRETAIL: Review non-smiley themes and response quality.\nPREMIUM: Review the d. 3 - 4 months performance drivers.",
+        "compact_text": "CORE: Review Merchant Smiley.\nPLUS: Review Merchant Smiley.\nRETAIL: Review Merchant Smiley.\nPREMIUM: Review Merchant Smiley.",
+        "automatic_source": "Whitepaper matched monthly periods",
+        "evidence": [
+          {
+            "lob": "CORE",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "Shopify Tax Services",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "PLUS",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "Shop",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "RETAIL",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": null,
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          },
+          {
+            "lob": "PREMIUM",
+            "status": "priority",
+            "metric": "Smiley",
+            "direction": "higher",
+            "driver": "d. 3 - 4 months",
+            "source": "Whitepaper matched monthly periods",
+            "projection_used": false
+          }
+        ],
+        "recommendation_basis": "Rule-based review proposals from Whitepaper evidence; not approved actions",
+        "manual_source": null,
+        "content_policy": "Whitepaper automatic; approved POC override or append supported",
+        "displayed_text": "CORE: Review the Shopify Tax\nServices performance drivers.\nPLUS: Review the Shop performance\ndrivers.\nRETAIL: Review non-smiley themes\nand response quality.\nPREMIUM: Review the d. 3 - 4\nmonths performance drivers.",
+        "body_font_pt": 5.5,
+        "panel_height_inches": 2.0
+      }
+    },
+    "kpis": {
+      "CORE": {
+        "SMILEY": {
+          "actual": 0.7832,
+          "goal": 0.8,
+          "higher_better": true,
+          "source_row": 42,
+          "goal_cell": "O42",
+          "score_cell": "P42"
+        },
+        "AHT": {
+          "actual": 33.61,
+          "goal": 34.0,
+          "higher_better": false,
+          "source_row": 46,
+          "goal_cell": "O46",
+          "score_cell": "P46"
+        },
+        "AFTR": {
+          "actual": 0.8254,
+          "goal": 0.835,
+          "higher_better": true,
+          "source_row": 54,
+          "goal_cell": "O54",
+          "score_cell": "P54"
+        },
+        "QA": {
+          "actual": 0.9297,
+          "goal": 0.9,
+          "higher_better": true,
+          "source_row": 58,
+          "goal_cell": "O58",
+          "score_cell": "P58"
+        },
+        "SENT": {
+          "actual": 0.6882,
+          "goal": 0.66,
+          "higher_better": true,
+          "source_row": 50,
+          "goal_cell": "O50",
+          "score_cell": "P50"
+        }
+      },
+      "PLUS": {
+        "SMILEY": {
+          "actual": 0.8357,
+          "goal": 0.823,
+          "higher_better": true,
+          "source_row": 43,
+          "goal_cell": "O43",
+          "score_cell": "P43"
+        },
+        "AHT": {
+          "actual": 30.71,
+          "goal": 30.02,
+          "higher_better": false,
+          "source_row": 47,
+          "goal_cell": "O47",
+          "score_cell": "P47"
+        },
+        "AFTR": {
+          "actual": 0.8501,
+          "goal": 0.856,
+          "higher_better": true,
+          "source_row": 55,
+          "goal_cell": "O55",
+          "score_cell": "P55"
+        },
+        "QA": {
+          "actual": 0.9224,
+          "goal": 0.893,
+          "higher_better": true,
+          "source_row": 59,
+          "goal_cell": "O59",
+          "score_cell": "P59"
+        },
+        "SENT": {
+          "actual": 0.8141,
+          "goal": 0.775,
+          "higher_better": true,
+          "source_row": 51,
+          "goal_cell": "O51",
+          "score_cell": "P51"
+        }
+      },
+      "RETAIL": {
+        "SMILEY": {
+          "actual": 0.833,
+          "goal": 0.848,
+          "higher_better": true,
+          "source_row": 44,
+          "goal_cell": "O44",
+          "score_cell": "P44"
+        },
+        "AHT": {
+          "actual": 25.56,
+          "goal": 21.97,
+          "higher_better": false,
+          "source_row": 48,
+          "goal_cell": "O48",
+          "score_cell": "P48"
+        },
+        "AFTR": {
+          "actual": 0.849,
+          "goal": 0.84,
+          "higher_better": true,
+          "source_row": 56,
+          "goal_cell": "O56",
+          "score_cell": "P56"
+        },
+        "QA": {
+          "actual": 0.926,
+          "goal": 0.888,
+          "higher_better": true,
+          "source_row": 60,
+          "goal_cell": "O60",
+          "score_cell": "P60"
+        },
+        "SENT": {
+          "actual": 0.6751,
+          "goal": 0.711,
+          "higher_better": true,
+          "source_row": 52,
+          "goal_cell": "O52",
+          "score_cell": "P52"
+        }
+      },
+      "PREMIUM": {
+        "SMILEY": {
+          "actual": 0.8092,
+          "goal": 0.82,
+          "higher_better": true,
+          "source_row": 45,
+          "goal_cell": "O45",
+          "score_cell": "P45"
+        },
+        "AHT": {
+          "actual": 34.24,
+          "goal": 32.0,
+          "higher_better": false,
+          "source_row": 49,
+          "goal_cell": "O49",
+          "score_cell": "P49"
+        },
+        "AFTR": {
+          "actual": 0.8303,
+          "goal": 0.85,
+          "higher_better": true,
+          "source_row": 57,
+          "goal_cell": "O57",
+          "score_cell": "P57"
+        },
+        "QA": {
+          "actual": 0.929,
+          "goal": 0.92,
+          "higher_better": true,
+          "source_row": 61,
+          "goal_cell": "O61",
+          "score_cell": "P61"
+        },
+        "SENT": {
+          "actual": 0.7453,
+          "goal": 0.681,
+          "higher_better": true,
+          "source_row": 53,
+          "goal_cell": "O53",
+          "score_cell": "P53"
+        }
+      }
+    },
+    "financial_overall": {
+      "Site": "Overall",
+      "HC": 1501.843,
+      "GPR": 0.5833,
+      "Revenue": 35999344.511,
+      "Revenue Attainment": 1.0046665483967423,
+      "SM": 0.5021315233025024,
+      "GM": 0.4102987905845541,
+      "PL": null,
+      "UL": null,
+      "Attrition": 0.07499541885883666,
+      "Hours Delivery": 87837.87135090001
+    },
+    "financial_sites": [
+      {
+        "Site": "ARN",
+        "HC": 221.15916666666666,
+        "GPR": 0.6667,
+        "Revenue": 6628263.1156,
+        "Revenue Attainment": 0.9531841612008574,
+        "SM": 0.3178291115423384,
+        "GM": 0.1990358830196466,
+        "PL": null,
+        "UL": null,
+        "Attrition": 0.1403026804588361,
+        "Hours Delivery": 14111.3456093
+      },
+      {
+        "Site": "HTW",
+        "HC": 591.3175,
+        "GPR": 0.4444,
+        "Revenue": 13186126.784200002,
+        "Revenue Attainment": 1.0231300665276877,
+        "SM": 0.5805201238146913,
+        "GM": 0.49739401855735427,
+        "PL": null,
+        "UL": null,
+        "Attrition": 0.0346044926091137,
+        "Hours Delivery": 34895.2773954
+      },
+      {
+        "Site": "MTQ",
+        "HC": 197.54166666666666,
+        "GPR": 0.3333,
+        "Revenue": 3939149.3911999995,
+        "Revenue Attainment": 1.0362466150704226,
+        "SM": 0.7074211507502878,
+        "GM": 0.5987611775956245,
+        "PL": null,
+        "UL": null,
+        "Attrition": 0.17479907003327075,
+        "Hours Delivery": 6935.0
+      },
+      {
+        "Site": "PHX",
+        "HC": 491.82466666666664,
+        "GPR": 0.4167,
+        "Revenue": 12245805.22,
+        "Revenue Attainment": 1.0046659930806159,
+        "SM": 0.5464384251981431,
+        "GM": 0.4654775845193462,
+        "PL": null,
+        "UL": null,
+        "Attrition": 0.04535388207481377,
+        "Hours Delivery": 31896.248346200002
+      },
+      {
+        "Site": "Overall",
+        "HC": 1501.843,
+        "GPR": 0.5833,
+        "Revenue": 35999344.511,
+        "Revenue Attainment": 1.0046665483967423,
+        "SM": 0.5021315233025024,
+        "GM": 0.4102987905845541,
+        "PL": null,
+        "UL": null,
+        "Attrition": 0.07499541885883666,
+        "Hours Delivery": 87837.87135090001
+      }
+    ],
+    "security": "No raw ticket data or reviewer names exported to overview audit"
+  },
+  "kpis": [
+    {
+      "lob": "CORE",
+      "week_beginning": "2026-11-15",
+      "source_row": 482,
+      "metrics": [
+        {
+          "key": "smiley",
+          "source_column": "G",
+          "actual": "0.7933",
+          "goal": "0.8",
+          "gap": "-0.0067",
+          "wow": "0.0104",
+          "actual_display": "79.33%",
+          "gap_display": "-0.67 pp",
+          "wow_display": "+1.04 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.7425"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.7508"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7321"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.7558"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.7545"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.753"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7428"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.7548"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.759"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.7722"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.7829"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.7933"
+            }
+          ],
+          "source_row": 482,
+          "goal_source_cell": "F482",
+          "score_source_cell": "G482"
+        },
+        {
+          "key": "aht",
+          "source_column": "G",
+          "actual": "33.83",
+          "goal": "34",
+          "gap": "-0.17",
+          "wow": "-0.15",
+          "actual_display": "33.83",
+          "gap_display": "-0.17",
+          "wow_display": "-0.15",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "32.75"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "32.76"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "33.19"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "32.75"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "32.81"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "33.71"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "36.59"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "33.91"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "33.39"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "33.43"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "33.98"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "33.83"
+            }
+          ],
+          "source_row": 486,
+          "goal_source_cell": "F486",
+          "score_source_cell": "G486"
+        },
+        {
+          "key": "aftr",
+          "source_column": "G",
+          "actual": "0.8235",
+          "goal": "0.835",
+          "gap": "-0.0115",
+          "wow": "0.0004",
+          "actual_display": "82.35%",
+          "gap_display": "-1.15 pp",
+          "wow_display": "+0.04 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.826"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8289"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8305"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8381"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.8421"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.8417"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.8341"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8438"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8386"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8295"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8231"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8235"
+            }
+          ],
+          "source_row": 494,
+          "goal_source_cell": "F494",
+          "score_source_cell": "G494"
+        },
+        {
+          "key": "qa",
+          "source_column": "G",
+          "actual": "0.93",
+          "goal": "0.9",
+          "gap": "0.03",
+          "wow": "0.0015",
+          "actual_display": "93.00%",
+          "gap_display": "+3.00 pp",
+          "wow_display": "+0.15 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.9058"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.9047"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8969"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.9156"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.9183"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.9166"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.9207"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.9244"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.9237"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.926"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.9285"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.93"
+            }
+          ],
+          "source_row": 498,
+          "goal_source_cell": "F498",
+          "score_source_cell": "G498"
+        },
+        {
+          "key": "sentiment",
+          "source_column": "G",
+          "actual": "0.6854",
+          "goal": "0.66",
+          "gap": "0.0254",
+          "wow": "0.0032",
+          "actual_display": "68.54%",
+          "gap_display": "+2.54 pp",
+          "wow_display": "+0.32 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.6544"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.6587"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.6512"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.6493"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.6639"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.6902"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.6773"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.6977"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.6962"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.6962"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.6822"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.6854"
+            }
+          ],
+          "source_row": 490,
+          "goal_source_cell": "F490",
+          "score_source_cell": "G490"
+        }
+      ],
+      "source": {
+        "sheet": "OPRRaw",
+        "sheet_gid": 1604423659,
+        "range": "C:G",
+        "period": "2026-11-15"
+      }
+    },
+    {
+      "lob": "PLUS",
+      "week_beginning": "2026-11-15",
+      "source_row": 483,
+      "metrics": [
+        {
+          "key": "smiley",
+          "source_column": "G",
+          "actual": "0.8501",
+          "goal": "0.823",
+          "gap": "0.0271",
+          "wow": "0.0110",
+          "actual_display": "85.01%",
+          "gap_display": "+2.71 pp",
+          "wow_display": "+1.10 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.8071"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8088"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8015"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8017"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.7999"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.8144"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.8265"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8119"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8146"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8189"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8391"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8501"
+            }
+          ],
+          "source_row": 483,
+          "goal_source_cell": "F483",
+          "score_source_cell": "G483"
+        },
+        {
+          "key": "aht",
+          "source_column": "G",
+          "actual": "31.23",
+          "goal": "30.02",
+          "gap": "1.21",
+          "wow": "0.60",
+          "actual_display": "31.23",
+          "gap_display": "+1.21",
+          "wow_display": "+0.60",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "30.46"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "30.79"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "30.21"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "30"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "30.8"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "31.07"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "33.41"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "30.67"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "30.83"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "30.37"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "30.63"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "31.23"
+            }
+          ],
+          "source_row": 487,
+          "goal_source_cell": "F487",
+          "score_source_cell": "G487"
+        },
+        {
+          "key": "aftr",
+          "source_column": "G",
+          "actual": "0.8529",
+          "goal": "0.856",
+          "gap": "-0.0031",
+          "wow": "0.0117",
+          "actual_display": "85.29%",
+          "gap_display": "-0.31 pp",
+          "wow_display": "+1.17 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.8559"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8527"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8657"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8498"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.8583"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.8603"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.8498"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8586"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8425"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8559"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8412"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8529"
+            }
+          ],
+          "source_row": 495,
+          "goal_source_cell": "F495",
+          "score_source_cell": "G495"
+        },
+        {
+          "key": "qa",
+          "source_column": "G",
+          "actual": "0.9271",
+          "goal": "0.893",
+          "gap": "0.0341",
+          "wow": "0.0034",
+          "actual_display": "92.71%",
+          "gap_display": "+3.41 pp",
+          "wow_display": "+0.34 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.904"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.9055"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.885"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.9161"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.9172"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.9211"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.9284"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.9241"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.9105"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.9171"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.9237"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.9271"
+            }
+          ],
+          "source_row": 499,
+          "goal_source_cell": "F499",
+          "score_source_cell": "G499"
+        },
+        {
+          "key": "sentiment",
+          "source_column": "G",
+          "actual": "0.8145",
+          "goal": "0.775",
+          "gap": "0.0395",
+          "wow": "-0.0014",
+          "actual_display": "81.45%",
+          "gap_display": "+3.95 pp",
+          "wow_display": "-0.14 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.7702"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.7636"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7602"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.7617"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.7563"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.8137"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7876"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8206"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.804"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8127"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8159"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8145"
+            }
+          ],
+          "source_row": 491,
+          "goal_source_cell": "F491",
+          "score_source_cell": "G491"
+        }
+      ],
+      "source": {
+        "sheet": "OPRRaw",
+        "sheet_gid": 1604423659,
+        "range": "C:G",
+        "period": "2026-11-15"
+      }
+    },
+    {
+      "lob": "RETAIL",
+      "week_beginning": "2026-11-15",
+      "source_row": 484,
+      "metrics": [
+        {
+          "key": "smiley",
+          "source_column": "G",
+          "actual": "0.854",
+          "goal": "0.848",
+          "gap": "0.006",
+          "wow": "0.0312",
+          "actual_display": "85.40%",
+          "gap_display": "+0.60 pp",
+          "wow_display": "+3.12 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.7875"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8153"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7925"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8025"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.8298"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.7834"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7753"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8361"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8056"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8353"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8228"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.854"
+            }
+          ],
+          "source_row": 484,
+          "goal_source_cell": "F484",
+          "score_source_cell": "G484"
+        },
+        {
+          "key": "aht",
+          "source_column": "G",
+          "actual": "25.23",
+          "goal": "21.97",
+          "gap": "3.26",
+          "wow": "-0.43",
+          "actual_display": "25.23",
+          "gap_display": "+3.26",
+          "wow_display": "-0.43",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "24.22"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "23.94"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "23"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "24.12"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "24.42"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "24.45"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "25.23"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "23.27"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "23.89"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "25.89"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "25.66"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "25.23"
+            }
+          ],
+          "source_row": 488,
+          "goal_source_cell": "F488",
+          "score_source_cell": "G488"
+        },
+        {
+          "key": "aftr",
+          "source_column": "G",
+          "actual": "0.8521",
+          "goal": "0.84",
+          "gap": "0.0121",
+          "wow": "0.0167",
+          "actual_display": "85.21%",
+          "gap_display": "+1.21 pp",
+          "wow_display": "+1.67 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.8411"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8568"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8641"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8566"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.8578"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.8508"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.8797"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8538"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8584"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8595"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8354"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8521"
+            }
+          ],
+          "source_row": 496,
+          "goal_source_cell": "F496",
+          "score_source_cell": "G496"
+        },
+        {
+          "key": "qa",
+          "source_column": "G",
+          "actual": "0.9318",
+          "goal": "0.888",
+          "gap": "0.0438",
+          "wow": "0.0099",
+          "actual_display": "93.18%",
+          "gap_display": "+4.38 pp",
+          "wow_display": "+0.99 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.9039"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8872"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8822"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.9198"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.9167"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.9203"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.9181"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.9271"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.9362"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.918"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.9219"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.9318"
+            }
+          ],
+          "source_row": 500,
+          "goal_source_cell": "F500",
+          "score_source_cell": "G500"
+        },
+        {
+          "key": "sentiment",
+          "source_column": "G",
+          "actual": "0.6966",
+          "goal": "0.711",
+          "gap": "-0.0144",
+          "wow": "0.0636",
+          "actual_display": "69.66%",
+          "gap_display": "-1.44 pp",
+          "wow_display": "+6.36 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.6851"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.6325"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7114"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.7434"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.6354"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.6871"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.672"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.703"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.6707"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.7044"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.633"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.6966"
+            }
+          ],
+          "source_row": 492,
+          "goal_source_cell": "F492",
+          "score_source_cell": "G492"
+        }
+      ],
+      "source": {
+        "sheet": "OPRRaw",
+        "sheet_gid": 1604423659,
+        "range": "C:G",
+        "period": "2026-11-15"
+      }
+    },
+    {
+      "lob": "PREMIUM",
+      "week_beginning": "2026-11-15",
+      "source_row": 485,
+      "metrics": [
+        {
+          "key": "smiley",
+          "source_column": "G",
+          "actual": "0.8055",
+          "goal": "0.82",
+          "gap": "-0.0145",
+          "wow": "-0.0122",
+          "actual_display": "80.55%",
+          "gap_display": "-1.45 pp",
+          "wow_display": "-1.22 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.7798"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.762"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7551"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.7587"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.7683"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.7785"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7659"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.7873"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.7903"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.798"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8177"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8055"
+            }
+          ],
+          "source_row": 485,
+          "goal_source_cell": "F485",
+          "score_source_cell": "G485"
+        },
+        {
+          "key": "aht",
+          "source_column": "G",
+          "actual": "34.43",
+          "goal": "32",
+          "gap": "2.43",
+          "wow": "-0.05",
+          "actual_display": "34.43",
+          "gap_display": "+2.43",
+          "wow_display": "-0.05",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "33.77"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "33.85"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "33.87"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "33.23"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "33.57"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "34.56"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "38.03"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "36.04"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "33.8"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "34.39"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "34.48"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "34.43"
+            }
+          ],
+          "source_row": 489,
+          "goal_source_cell": "F489",
+          "score_source_cell": "G489"
+        },
+        {
+          "key": "aftr",
+          "source_column": "G",
+          "actual": "0.8309",
+          "goal": "0.85",
+          "gap": "-0.0191",
+          "wow": "0.0044",
+          "actual_display": "83.09%",
+          "gap_display": "-1.91 pp",
+          "wow_display": "+0.44 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.8267"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.8181"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.8277"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.8258"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.8434"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.832"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.825"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.8524"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8408"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8334"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8265"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8309"
+            }
+          ],
+          "source_row": 497,
+          "goal_source_cell": "F497",
+          "score_source_cell": "G497"
+        },
+        {
+          "key": "qa",
+          "source_column": "G",
+          "actual": "0.9258",
+          "goal": "0.92",
+          "gap": "0.0058",
+          "wow": "-0.0054",
+          "actual_display": "92.58%",
+          "gap_display": "+0.58 pp",
+          "wow_display": "-0.54 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.9164"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.9194"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.9064"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.9252"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.9213"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.923"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.9208"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.9263"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.9247"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.9247"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.9312"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.9258"
+            }
+          ],
+          "source_row": 501,
+          "goal_source_cell": "F501",
+          "score_source_cell": "G501"
+        },
+        {
+          "key": "sentiment",
+          "source_column": "G",
+          "actual": "0.74",
+          "goal": "0.681",
+          "gap": "0.059",
+          "wow": "-0.0166",
+          "actual_display": "74.00%",
+          "gap_display": "+5.90 pp",
+          "wow_display": "-1.66 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.6923"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.6739"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.6758"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.6805"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.6838"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.7403"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7227"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.7517"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.7487"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.7403"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.7566"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.74"
+            }
+          ],
+          "source_row": 493,
+          "goal_source_cell": "F493",
+          "score_source_cell": "G493"
+        }
+      ],
+      "source": {
+        "sheet": "OPRRaw",
+        "sheet_gid": 1604423659,
+        "range": "C:G",
+        "period": "2026-11-15"
+      }
+    },
+    {
+      "lob": "LIVEASSIST",
+      "week_beginning": "2026-11-15",
+      "source_row": 20,
+      "metrics": [
+        {
+          "key": "takeover_smiley",
+          "source_column": "D",
+          "actual": "0.8147",
+          "goal": "0.8",
+          "gap": "0.0147",
+          "wow": "0.0001",
+          "actual_display": "81.47%",
+          "gap_display": "+1.47 pp",
+          "wow_display": "+0.01 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.7221"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.7589"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.7332"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.7386"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.7751"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.7797"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.7454"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.7785"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.8006"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.8003"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.8146"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.8147"
+            }
+          ],
+          "goal_cell": "D3"
+        },
+        {
+          "key": "async_smiley",
+          "source_column": "E",
+          "actual": "0.714",
+          "goal": "0.80",
+          "gap": "-0.086",
+          "wow": "0.003",
+          "actual_display": "71.40%",
+          "gap_display": "-8.60 pp",
+          "wow_display": "+0.30 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.642"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.667"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.586"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.658"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.714"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.647"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.679"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.585"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.677"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.725"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.711"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.714"
+            }
+          ],
+          "goal_cell": "E3"
+        },
+        {
+          "key": "takeover_rate",
+          "source_column": "F",
+          "actual": "0.244",
+          "goal": "0.50",
+          "gap": "-0.256",
+          "wow": "-0.035",
+          "actual_display": "24.40%",
+          "gap_display": "-25.60 pp",
+          "wow_display": "-3.50 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.543"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.531"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.54"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.527"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.482"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.416"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.386"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.372"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.325"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.283"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.279"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.244"
+            }
+          ],
+          "goal_cell": "F3"
+        },
+        {
+          "key": "ttr",
+          "source_column": "G",
+          "actual": "16.68",
+          "goal": "58",
+          "gap": "-41.32",
+          "wow": "-0.85",
+          "actual_display": "16.68",
+          "gap_display": "-41.32",
+          "wow_display": "-0.85",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "26.2"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "27.3"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "28.4"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "26.5"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "26.9"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "40.36"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "34.34"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "19.04"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "14.35"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "14.45"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "17.53"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "16.68"
+            }
+          ],
+          "goal_cell": "G3"
+        },
+        {
+          "key": "aht_takeover",
+          "source_column": "H",
+          "actual": "25.4",
+          "goal": "26",
+          "gap": "-0.6",
+          "wow": "0.1",
+          "actual_display": "25.40",
+          "gap_display": "-0.60",
+          "wow_display": "+0.10",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "31.25"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "41.06"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "37.62"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "42.5"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "36.64"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "27.4"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "29.9"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "25.7"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "25"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "24.4"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "25.3"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "25.4"
+            }
+          ],
+          "goal_cell": "H3"
+        },
+        {
+          "key": "aht_consulted",
+          "source_column": "I",
+          "actual": "20.3",
+          "goal": "23",
+          "gap": "-2.7",
+          "wow": "0.0",
+          "actual_display": "20.30",
+          "gap_display": "-2.70",
+          "wow_display": "0.00",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "15.2"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "15"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "15.1"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "15.4"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "15.9"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "17.8"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "20"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "18.7"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "18.3"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "19.4"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "20.3"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "20.3"
+            }
+          ],
+          "goal_cell": "I3"
+        },
+        {
+          "key": "aftr",
+          "source_column": "J",
+          "actual": "0.88",
+          "goal": "0.83",
+          "gap": "0.05",
+          "wow": "-0.019",
+          "actual_display": "88.00%",
+          "gap_display": "+5.00 pp",
+          "wow_display": "-1.90 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.822"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.844"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.855"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.867"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.854"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.857"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.863"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.89"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.886"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.917"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.899"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.88"
+            }
+          ],
+          "goal_cell": "J3"
+        },
+        {
+          "key": "cftr",
+          "source_column": "K",
+          "actual": "0.968",
+          "goal": "0.90",
+          "gap": "0.068",
+          "wow": "-0.004",
+          "actual_display": "96.80%",
+          "gap_display": "+6.80 pp",
+          "wow_display": "-0.40 pp",
+          "history": [
+            {
+              "week": "2026-08-30",
+              "value": "0.967"
+            },
+            {
+              "week": "2026-09-06",
+              "value": "0.967"
+            },
+            {
+              "week": "2026-09-13",
+              "value": "0.966"
+            },
+            {
+              "week": "2026-09-20",
+              "value": "0.974"
+            },
+            {
+              "week": "2026-09-27",
+              "value": "0.959"
+            },
+            {
+              "week": "2026-10-04",
+              "value": "0.971"
+            },
+            {
+              "week": "2026-10-11",
+              "value": "0.965"
+            },
+            {
+              "week": "2026-10-18",
+              "value": "0.97"
+            },
+            {
+              "week": "2026-10-25",
+              "value": "0.971"
+            },
+            {
+              "week": "2026-11-01",
+              "value": "0.968"
+            },
+            {
+              "week": "2026-11-08",
+              "value": "0.972"
+            },
+            {
+              "week": "2026-11-15",
+              "value": "0.968"
+            }
+          ],
+          "goal_cell": "K3"
+        }
+      ],
+      "source": {
+        "sheet": "LIVEASSIST",
+        "sheet_gid": 37818514,
+        "range": "C:K",
+        "date_column": "C",
+        "metric_columns": {
+          "takeover_smiley": "D",
+          "async_smiley": "E",
+          "takeover_rate": "F",
+          "ttr": "G",
+          "aht_takeover": "H",
+          "aht_consulted": "I",
+          "aftr": "J",
+          "cftr": "K"
+        },
+        "goal_cells": {
+          "takeover_smiley": "D3",
+          "async_smiley": "E3",
+          "takeover_rate": "F3",
+          "ttr": "G3",
+          "aht_takeover": "H3",
+          "aht_consulted": "I3",
+          "aftr": "J3",
+          "cftr": "K3"
+        }
+      }
+    }
+  ],
+  "standard_lob_panels": {
+    "engine_version": "5.7.85",
+    "engine_sha256": "0cd51d4bb35b628a25f5fd71d54cadcd4d855cf2d921820b49f5a7528f88370b",
+    "projection_method": "Full-history weekday forecast with a backtested recent trend",
+    "forecast_engine_version": "1.2.31",
+    "recent_trend_engine_version": "5.7.116",
+    "min_complete_weeks": null,
+    "report_week": "2026-11-15",
+    "cutoff": "2026-11-21",
+    "driver_basis": "current minus prior 12-week pooled Smiley baseline",
+    "lobs": [
+      {
+        "lob": "CORE",
+        "current": 0.7932804900018015,
+        "baseline": 0.7538298889584722,
+        "history": [
+          {
+            "week": "2026-08-30",
+            "actual": 0.7426117706491538,
+            "target": 0.8,
+            "responses": 11877.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-06",
+            "actual": 0.7508082958757196,
+            "target": 0.8,
+            "responses": 12681.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-13",
+            "actual": 0.7322160488204754,
+            "target": 0.8,
+            "responses": 10979.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-20",
+            "actual": 0.7558649334666564,
+            "target": 0.8,
+            "responses": 13001.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-27",
+            "actual": 0.7544521581648053,
+            "target": 0.8,
+            "responses": 13252.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-04",
+            "actual": 0.7530658591975776,
+            "target": 0.8,
+            "responses": 13210.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-11",
+            "actual": 0.7427798493821745,
+            "target": 0.8,
+            "responses": 13677.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-18",
+            "actual": 0.7549004710530315,
+            "target": 0.8,
+            "responses": 13162.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-25",
+            "actual": 0.7589767660173669,
+            "target": 0.8,
+            "responses": 12783.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-01",
+            "actual": 0.7721810699588477,
+            "target": 0.8,
+            "responses": 12150.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-08",
+            "actual": 0.7828238204629793,
+            "target": 0.8,
+            "responses": 11318.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-15",
+            "actual": 0.7932804900018015,
+            "target": 0.8,
+            "responses": 11102.0,
+            "source_days": 7
+          }
+        ],
+        "forecasts": [
+          {
+            "month": "2026-11-01",
+            "available": true,
+            "value": 0.7756355876714515,
+            "target": 0.8,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 9,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.5,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.7756355876714515,
+              "candidate_blend_point_estimate": 0.7809506176979972,
+              "backtest_months": 3,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 0.744009432756032,
+              "backtest_trend_mae_pp": 0.7305124199595947,
+              "backtest_baseline_bias_pp": 0.3929558719946528,
+              "backtest_trend_bias_pp": 0.3061633533382735,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-08-01",
+                  "baseline_error_pp": 1.705,
+                  "trend_error_pp": 1.555
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": -0.378,
+                  "trend_error_pp": -0.495
+                },
+                {
+                  "origin": "2026-10-24",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": -0.149,
+                  "trend_error_pp": -0.142
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          },
+          {
+            "month": "2026-12-01",
+            "available": true,
+            "value": 0.7585194249900871,
+            "target": 0.8,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 31,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.25,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.7585194249900871,
+              "candidate_blend_point_estimate": 0.7713890440960118,
+              "backtest_months": 2,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 1.3006382128254612,
+              "backtest_trend_mae_pp": 1.4730869196854346,
+              "backtest_baseline_bias_pp": 1.3006382128254612,
+              "backtest_trend_bias_pp": 0.7707795844666465,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": 2.558,
+                  "trend_error_pp": 2.244
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.044,
+                  "trend_error_pp": -0.702
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          }
+        ],
+        "drivers": [
+          {
+            "label": "ARN / IRI Squad",
+            "dimension": "Squad",
+            "impact": -0.001517678410148415,
+            "site_detail": null
+          },
+          {
+            "label": "Shopify Tax Services",
+            "dimension": "Contact taxonomy",
+            "impact": -0.0012053498791681984,
+            "site_detail": null
+          },
+          {
+            "label": "PHX / GBP Squad",
+            "dimension": "Squad",
+            "impact": -0.0007260493858309554,
+            "site_detail": null
+          }
+        ],
+        "limitations": [
+          "Records are present on all seven reporting dates; source delivery completeness is not independently certified.",
+          "Ticket volume is distinct eligible loaded Ticket IDs, not certified all-contact volume. KPI coverage remains the established valid survey-linked population. AHT uses the available Chat Average Handle Time field; no phone/async handling-time measure is inferred.",
+          "QA display threshold 75.00% is contextual, not an operational target. AHT movement has semantic direction only when an applicable configured target explicitly supplies it."
+        ],
+        "executive_insight": {
+          "lob": "CORE",
+          "source": "Whitepaper monthly matched-period evidence",
+          "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "projection_scope": "current-month EOM only",
+          "periods": {
+            "start": "2026-11-01",
+            "end": "2026-11-21",
+            "previous_start": "2026-10-01",
+            "previous_end": "2026-10-21",
+            "cutoff": "2026-11-21"
+          },
+          "matched_days": 21,
+          "common_day_cap": false,
+          "metric": "Smiley",
+          "severity": "material",
+          "headline": "Focus recovery on Shopify Tax Services.",
+          "support": "Nov 1\u201321 Merchant Smiley 78.24% vs 80.00% target (-1.76 pp). Up 3.28 pp from the previous month. Shopify Tax Services contributed -0.07 pp to the change from the previous month. Nov EOM: 77.56%, 2.44 pp below goal.",
+          "callout": "Nov 1\u201321 Merchant Smiley 78.24% vs 80.00% target (-1.76 pp).",
+          "executive_narrative": "Up 3.28 pp from the previous month. Shopify Tax Services contributed -0.07 pp to the change from the previous month. Nov EOM: 77.56%, 2.44 pp below goal.",
+          "recommendation": "Focus recovery on Shopify Tax Services.",
+          "movement": "Up 3.28 pp from the previous month.",
+          "driver": "Shopify Tax Services contributed -0.07 pp to the change from the previous month.",
+          "site_layer": "",
+          "implication": "",
+          "outlook": "Nov EOM: 77.56%, 2.44 pp below goal.",
+          "overview_summary": "Nov 1\u201321 Merchant Smiley 78.24% (-1.76 pp vs goal). Up 3.28 pp from the previous month. Shopify Tax Services -0.07 pp. Focus recovery on Shopify Tax Services. Nov EOM: 77.56%, 2.44 pp below goal.",
+          "overview_performance": "Nov 1\u201321 Merchant Smiley 78.24% (-1.76 pp vs goal). Up 3.28 pp from the previous month. Shopify Tax Services -0.07 pp. Nov EOM: 77.56%, 2.44 pp below goal.",
+          "target_gap": -0.01755857680069428,
+          "priority": [
+            5,
+            1,
+            1,
+            0,
+            0.01755857680069428,
+            true
+          ],
+          "persistent_miss": true,
+          "persistence_basis": "Both comparison periods missed their applicable targets.",
+          "forecast_available": true,
+          "ranked_metrics": [
+            "Smiley"
+          ],
+          "current_value": 0.7824414231993058,
+          "previous_value": 0.7495943888375808,
+          "change_from_previous_month": 0.03284703436172498,
+          "driver_evidence": {
+            "label": "Shopify Tax Services",
+            "dimension": "Contact taxonomy",
+            "kpi": "Smiley",
+            "impact": -0.0006677594264940669,
+            "n": 365.0,
+            "details": {
+              "Level One": "Shopify Tax Services",
+              "n": 365,
+              "p": 280,
+              "nb": 412,
+              "pb": 343,
+              "rate": 0.7671232876712328,
+              "baseline_rate": 0.8325242718446602,
+              "ns": 85,
+              "share": 0.010558287532542667,
+              "baseline_share": 0.010283803010258842,
+              "delta": -0.06540098417342732,
+              "contribution": -0.0006677594264940669,
+              "within_effect": -0.0006815466168654504,
+              "mix_effect": 1.3787190371384117e-05,
+              "comparable": true
+            },
+            "basis": "Selected current comparison period versus its preceding period."
+          },
+          "site_evidence": null
+        },
+        "monthly_banner_evidence": {
+          "available": true,
+          "windows": {
+            "available": true,
+            "month": "2026-11-01T00:00:00",
+            "cutoff": "2026-11-21T00:00:00",
+            "start": "2026-11-01T00:00:00",
+            "end": "2026-11-21T00:00:00",
+            "previous_start": "2026-10-01T00:00:00",
+            "previous_end": "2026-10-21T00:00:00",
+            "matched_days": 21,
+            "common_day_cap": false,
+            "label": "Nov 1\u201321",
+            "basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff."
+          },
+          "reason": "",
+          "source": "Whitepaper",
+          "comparison_basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "missing_current_dates": [],
+          "missing_previous_dates": [],
+          "metrics": [
+            {
+              "kpi": "Smiley",
+              "value": 0.7824414231993058,
+              "n": 34570.0,
+              "numerator": 27049.0,
+              "denominator": 34570.0,
+              "previous_value": 0.7495943888375808,
+              "previous_n": 40063.0,
+              "previous_numerator": 30031.0,
+              "previous_denominator": 40063.0,
+              "target": 0.8,
+              "direction": "higher",
+              "target_basis": "Existing undated LOB configuration",
+              "previous_target": 0.8,
+              "previous_direction": "higher",
+              "previous_target_basis": "Existing undated LOB configuration"
+            },
+            {
+              "kpi": "AHT",
+              "value": 35.46836734693878,
+              "n": 24500.0,
+              "numerator": 868975.0,
+              "denominator": 24500.0,
+              "previous_value": 35.78682638864915,
+              "previous_n": 28967.0,
+              "previous_numerator": 1036637.0,
+              "previous_denominator": 28967.0,
+              "target": null,
+              "direction": null,
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": null,
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "AFTR",
+              "value": 0.818064026798976,
+              "n": 31643.0,
+              "numerator": 25886.0,
+              "denominator": 31643.0,
+              "previous_value": 0.8139897468421331,
+              "previous_n": 37842.0,
+              "previous_numerator": 30803.0,
+              "previous_denominator": 37842.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "QA",
+              "value": 0.9512243356587761,
+              "n": 33542.0,
+              "numerator": 31905.966666666667,
+              "denominator": 33542.0,
+              "previous_value": 0.9384261397656315,
+              "previous_n": 38970.0,
+              "previous_numerator": 36570.46666666666,
+              "previous_denominator": 38970.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            }
+          ],
+          "drivers": [
+            {
+              "label": "Shopify Tax Services",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.0006677594264940669,
+              "n": 365.0,
+              "details": {
+                "Level One": "Shopify Tax Services",
+                "n": 365,
+                "p": 280,
+                "nb": 412,
+                "pb": 343,
+                "rate": 0.7671232876712328,
+                "baseline_rate": 0.8325242718446602,
+                "ns": 85,
+                "share": 0.010558287532542667,
+                "baseline_share": 0.010283803010258842,
+                "delta": -0.06540098417342732,
+                "contribution": -0.0006677594264940669,
+                "within_effect": -0.0006815466168654504,
+                "mix_effect": 1.3787190371384117e-05,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "HTW / HEY Squad",
+              "dimension": "Squad",
+              "kpi": "Smiley",
+              "impact": -0.0006601430833103876,
+              "n": 194.0,
+              "details": {
+                "Site": "HTW",
+                "Squad Code": "HEY Squad",
+                "n": 194.0,
+                "p": 117.0,
+                "nb": 641.0,
+                "pb": 474.0,
+                "rate": 0.6030927835051546,
+                "baseline_rate": 0.7394695787831513,
+                "ns": 77.0,
+                "share": 0.005611802140584322,
+                "baseline_share": 0.015999800314504656,
+                "delta": -0.13637679527799673,
+                "contribution": -0.0006601430833103876,
+                "within_effect": -0.0014736605418235605,
+                "mix_effect": 0.0008135174585131715,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "Analytics and Reporting",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.0006133959498321918,
+              "n": 313.0,
+              "details": {
+                "Level One": "Analytics and Reporting",
+                "n": 313,
+                "p": 225,
+                "nb": 425,
+                "pb": 332,
+                "rate": 0.7188498402555911,
+                "baseline_rate": 0.7811764705882352,
+                "ns": 88,
+                "share": 0.009054093144344808,
+                "baseline_share": 0.010608291940194194,
+                "delta": -0.062326630332644184,
+                "contribution": -0.0006133959498321918,
+                "within_effect": -0.0006127451033110796,
+                "mix_effect": -6.508465211113378e-07,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            }
+          ],
+          "site_details": {},
+          "minimum_reportable_n": 30
+        }
+      },
+      {
+        "lob": "PLUS",
+        "current": 0.8501006036217303,
+        "baseline": 0.8113509192645884,
+        "history": [
+          {
+            "week": "2026-08-30",
+            "actual": 0.8102481985588471,
+            "target": 0.8626,
+            "responses": 1249.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-06",
+            "actual": 0.8088113050706567,
+            "target": 0.8626,
+            "responses": 1203.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-13",
+            "actual": 0.8014888337468983,
+            "target": 0.8626,
+            "responses": 1209.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-20",
+            "actual": 0.8010835913312694,
+            "target": 0.8626,
+            "responses": 1292.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-27",
+            "actual": 0.7998522895125554,
+            "target": 0.8626,
+            "responses": 1354.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-04",
+            "actual": 0.8144171779141104,
+            "target": 0.8626,
+            "responses": 1304.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-11",
+            "actual": 0.8258164852255054,
+            "target": 0.8626,
+            "responses": 1286.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-18",
+            "actual": 0.8119423472889499,
+            "target": 0.8626,
+            "responses": 1457.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-25",
+            "actual": 0.8140243902439024,
+            "target": 0.8626,
+            "responses": 1312.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-01",
+            "actual": 0.8182546036829463,
+            "target": 0.8626,
+            "responses": 1249.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-08",
+            "actual": 0.8391472868217055,
+            "target": 0.8626,
+            "responses": 1032.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-15",
+            "actual": 0.8501006036217303,
+            "target": 0.8626,
+            "responses": 994.0,
+            "source_days": 7
+          }
+        ],
+        "forecasts": [
+          {
+            "month": "2026-11-01",
+            "available": true,
+            "value": 0.8294352898413369,
+            "target": 0.8626,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 9,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.5,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.8294352898413369,
+              "candidate_blend_point_estimate": 0.8341413792287854,
+              "backtest_months": 3,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 1.4135278657757175,
+              "backtest_trend_mae_pp": 1.4818956656956317,
+              "backtest_baseline_bias_pp": 1.4135278657757173,
+              "backtest_trend_bias_pp": 1.4818956656956317,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-08-01",
+                  "baseline_error_pp": 3.692,
+                  "trend_error_pp": 4.006
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": 0.526,
+                  "trend_error_pp": 0.394
+                },
+                {
+                  "origin": "2026-10-24",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.023,
+                  "trend_error_pp": 0.046
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          },
+          {
+            "month": "2026-12-01",
+            "available": true,
+            "value": 0.8191975438575374,
+            "target": 0.8626,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 31,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.25,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.8191975438575374,
+              "candidate_blend_point_estimate": 0.8301226605162653,
+              "backtest_months": 2,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 2.3492640721797353,
+              "backtest_trend_mae_pp": 3.0313142187158135,
+              "backtest_baseline_bias_pp": 2.3492640721797353,
+              "backtest_trend_bias_pp": 2.3587105322815214,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": 4.624,
+                  "trend_error_pp": 5.39
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.074,
+                  "trend_error_pp": -0.673
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          }
+        ],
+        "drivers": [
+          {
+            "label": "Shopify Partner Program",
+            "dimension": "Contact taxonomy",
+            "impact": -0.00295234263860356,
+            "site_detail": null
+          },
+          {
+            "label": "HTW / PSV Squad",
+            "dimension": "Squad",
+            "impact": -0.001258121733228119,
+            "site_detail": null
+          },
+          {
+            "label": "PHX / PAI Squad",
+            "dimension": "Squad",
+            "impact": -0.001134757129819222,
+            "site_detail": null
+          }
+        ],
+        "limitations": [
+          "Records are present on all seven reporting dates; source delivery completeness is not independently certified.",
+          "Ticket volume is distinct eligible loaded Ticket IDs, not certified all-contact volume. KPI coverage remains the established valid survey-linked population. AHT uses the available Chat Average Handle Time field; no phone/async handling-time measure is inferred.",
+          "QA display threshold 75.00% is contextual, not an operational target. AHT movement has semantic direction only when an applicable configured target explicitly supplies it."
+        ],
+        "executive_insight": {
+          "lob": "PLUS",
+          "source": "Whitepaper monthly matched-period evidence",
+          "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "projection_scope": "current-month EOM only",
+          "periods": {
+            "start": "2026-11-01",
+            "end": "2026-11-21",
+            "previous_start": "2026-10-01",
+            "previous_end": "2026-10-21",
+            "cutoff": "2026-11-21"
+          },
+          "matched_days": 21,
+          "common_day_cap": false,
+          "metric": "Smiley",
+          "severity": "major",
+          "headline": "Focus recovery on Shop.",
+          "support": "Nov 1\u201321 Merchant Smiley 83.45% vs 86.26% target (-2.81 pp). Up 1.66 pp from the previous month. Shop contributed -0.20 pp to the change from the previous month. Nov EOM: 82.94%, 3.32 pp below goal.",
+          "callout": "Nov 1\u201321 Merchant Smiley 83.45% vs 86.26% target (-2.81 pp).",
+          "executive_narrative": "Up 1.66 pp from the previous month. Shop contributed -0.20 pp to the change from the previous month. Nov EOM: 82.94%, 3.32 pp below goal.",
+          "recommendation": "Focus recovery on Shop.",
+          "movement": "Up 1.66 pp from the previous month.",
+          "driver": "Shop contributed -0.20 pp to the change from the previous month.",
+          "site_layer": "",
+          "implication": "",
+          "outlook": "Nov EOM: 82.94%, 3.32 pp below goal.",
+          "overview_summary": "Nov 1\u201321 Merchant Smiley 83.45% (-2.81 pp vs goal). Up 1.66 pp from the previous month. Shop -0.20 pp. Focus recovery on Shop. Nov EOM: 82.94%, 3.32 pp below goal.",
+          "overview_performance": "Nov 1\u201321 Merchant Smiley 83.45% (-2.81 pp vs goal). Up 1.66 pp from the previous month. Shop -0.20 pp. Nov EOM: 82.94%, 3.32 pp below goal.",
+          "target_gap": -0.02809618320610685,
+          "priority": [
+            6,
+            1,
+            1,
+            0,
+            0.02809618320610685,
+            true
+          ],
+          "persistent_miss": true,
+          "persistence_basis": "Both comparison periods missed their applicable targets.",
+          "forecast_available": true,
+          "ranked_metrics": [
+            "Smiley"
+          ],
+          "current_value": 0.8345038167938932,
+          "previous_value": 0.8179035960214232,
+          "change_from_previous_month": 0.01660022077247003,
+          "driver_evidence": {
+            "label": "Shop",
+            "dimension": "Contact taxonomy",
+            "kpi": "Smiley",
+            "impact": -0.0019588540566747373,
+            "n": 72.0,
+            "details": {
+              "Level One": "Shop",
+              "n": 72.0,
+              "p": 55.0,
+              "nb": 88.0,
+              "pb": 75.0,
+              "rate": 0.7638888888888888,
+              "baseline_rate": 0.8522727272727273,
+              "ns": 17.0,
+              "share": 0.02198473282442748,
+              "baseline_share": 0.022443254271869422,
+              "delta": -0.08838383838383845,
+              "contribution": -0.0019588540566747373,
+              "within_effect": -0.0019633580156191827,
+              "mix_effect": 4.503958944446073e-06,
+              "comparable": true
+            },
+            "basis": "Selected current comparison period versus its preceding period."
+          },
+          "site_evidence": null
+        },
+        "monthly_banner_evidence": {
+          "available": true,
+          "windows": {
+            "available": true,
+            "month": "2026-11-01T00:00:00",
+            "cutoff": "2026-11-21T00:00:00",
+            "start": "2026-11-01T00:00:00",
+            "end": "2026-11-21T00:00:00",
+            "previous_start": "2026-10-01T00:00:00",
+            "previous_end": "2026-10-21T00:00:00",
+            "matched_days": 21,
+            "common_day_cap": false,
+            "label": "Nov 1\u201321",
+            "basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff."
+          },
+          "reason": "",
+          "source": "Whitepaper",
+          "comparison_basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "missing_current_dates": [],
+          "missing_previous_dates": [],
+          "metrics": [
+            {
+              "kpi": "Smiley",
+              "value": 0.8345038167938932,
+              "n": 3275.0,
+              "numerator": 2733.0,
+              "denominator": 3275.0,
+              "previous_value": 0.8179035960214232,
+              "previous_n": 3921.0,
+              "previous_numerator": 3207.0,
+              "previous_denominator": 3921.0,
+              "target": 0.8626,
+              "direction": "higher",
+              "target_basis": "Existing undated LOB configuration",
+              "previous_target": 0.8626,
+              "previous_direction": "higher",
+              "previous_target_basis": "Existing undated LOB configuration"
+            },
+            {
+              "kpi": "AHT",
+              "value": 31.722757955641274,
+              "n": 2074.0,
+              "numerator": 65793.0,
+              "denominator": 2074.0,
+              "previous_value": 31.97300564061241,
+              "previous_n": 2482.0,
+              "previous_numerator": 79357.0,
+              "previous_denominator": 2482.0,
+              "target": null,
+              "direction": null,
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": null,
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "AFTR",
+              "value": 0.8342296741537488,
+              "n": 3161.0,
+              "numerator": 2637.0,
+              "denominator": 3161.0,
+              "previous_value": 0.8365308804204994,
+              "previous_n": 3805.0,
+              "previous_numerator": 3183.0,
+              "previous_denominator": 3805.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "QA",
+              "value": 0.9637426900584796,
+              "n": 3135.0,
+              "numerator": 3021.3333333333335,
+              "denominator": 3135.0,
+              "previous_value": 0.9557219251336898,
+              "previous_n": 3740.0,
+              "previous_numerator": 3574.4,
+              "previous_denominator": 3740.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            }
+          ],
+          "drivers": [
+            {
+              "label": "Shop",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.0019588540566747373,
+              "n": 72.0,
+              "details": {
+                "Level One": "Shop",
+                "n": 72.0,
+                "p": 55.0,
+                "nb": 88.0,
+                "pb": 75.0,
+                "rate": 0.7638888888888888,
+                "baseline_rate": 0.8522727272727273,
+                "ns": 17.0,
+                "share": 0.02198473282442748,
+                "baseline_share": 0.022443254271869422,
+                "delta": -0.08838383838383845,
+                "contribution": -0.0019588540566747373,
+                "within_effect": -0.0019633580156191827,
+                "mix_effect": 4.503958944446073e-06,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "Personal Account Settings",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.0019478494694842117,
+              "n": 162.0,
+              "details": {
+                "Level One": "Personal Account Settings",
+                "n": 162.0,
+                "p": 128.0,
+                "nb": 243.0,
+                "pb": 201.0,
+                "rate": 0.7901234567901234,
+                "baseline_rate": 0.8271604938271605,
+                "ns": 34.0,
+                "share": 0.04946564885496183,
+                "baseline_share": 0.06197398622800306,
+                "delta": -0.03703703703703709,
+                "contribution": -0.0019478494694842117,
+                "within_effect": -0.0020636969459808343,
+                "mix_effect": 0.00011584747649661307,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "Fulfillment and Delivery",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.001547234555940997,
+              "n": 137.0,
+              "details": {
+                "Level One": "Fulfillment and Delivery",
+                "n": 137.0,
+                "p": 115.0,
+                "nb": 179.0,
+                "pb": 156.0,
+                "rate": 0.8394160583941606,
+                "baseline_rate": 0.8715083798882681,
+                "ns": 22.0,
+                "share": 0.04183206106870229,
+                "baseline_share": 0.0456516194848253,
+                "delta": -0.03209232149410757,
+                "contribution": -0.001547234555940997,
+                "within_effect": -0.001403777200905807,
+                "mix_effect": -0.00014345735503519077,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            }
+          ],
+          "site_details": {},
+          "minimum_reportable_n": 30
+        }
+      },
+      {
+        "lob": "RETAIL",
+        "current": 0.8540145985401459,
+        "baseline": 0.8105263157894737,
+        "history": [
+          {
+            "week": "2026-08-30",
+            "actual": 0.7875,
+            "target": 0.8455,
+            "responses": 160.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-06",
+            "actual": 0.810126582278481,
+            "target": 0.8455,
+            "responses": 158.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-13",
+            "actual": 0.7924528301886793,
+            "target": 0.8455,
+            "responses": 159.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-20",
+            "actual": 0.8024691358024691,
+            "target": 0.8455,
+            "responses": 162.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-27",
+            "actual": 0.8297872340425532,
+            "target": 0.8455,
+            "responses": 188.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-04",
+            "actual": 0.779874213836478,
+            "target": 0.8455,
+            "responses": 159.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-11",
+            "actual": 0.7752808988764045,
+            "target": 0.8455,
+            "responses": 178.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-18",
+            "actual": 0.8369565217391305,
+            "target": 0.8455,
+            "responses": 184.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-25",
+            "actual": 0.8021978021978022,
+            "target": 0.8455,
+            "responses": 182.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-01",
+            "actual": 0.8352941176470589,
+            "target": 0.8455,
+            "responses": 170.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-08",
+            "actual": 0.8227848101265823,
+            "target": 0.8455,
+            "responses": 158.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-15",
+            "actual": 0.8540145985401459,
+            "target": 0.8455,
+            "responses": 137.0,
+            "source_days": 7
+          }
+        ],
+        "forecasts": [
+          {
+            "month": "2026-11-01",
+            "available": true,
+            "value": 0.8291580953758148,
+            "target": 0.8455,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 9,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.5,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.8291580953758148,
+              "candidate_blend_point_estimate": 0.8343721144573183,
+              "backtest_months": 3,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 0.9207181207950091,
+              "backtest_trend_mae_pp": 1.323024549982351,
+              "backtest_baseline_bias_pp": -0.8986462090150305,
+              "backtest_trend_bias_pp": -1.184147407408213,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-08-01",
+                  "baseline_error_pp": -1.854,
+                  "trend_error_pp": -2.782
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": -0.875,
+                  "trend_error_pp": -0.979
+                },
+                {
+                  "origin": "2026-10-24",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.033,
+                  "trend_error_pp": 0.208
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          },
+          {
+            "month": "2026-12-01",
+            "available": true,
+            "value": 0.8116694962774951,
+            "target": 0.8455,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 31,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.25,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.8116694962774951,
+              "candidate_blend_point_estimate": 0.8239072954417982,
+              "backtest_months": 2,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 0.5168225670833193,
+              "backtest_trend_mae_pp": 1.6498112862904424,
+              "backtest_baseline_bias_pp": 0.32656386712845986,
+              "backtest_trend_bias_pp": -0.8492505531536299,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": -0.19,
+                  "trend_error_pp": -2.499
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.843,
+                  "trend_error_pp": 0.801
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          }
+        ],
+        "drivers": [
+          {
+            "label": "PHX / RSM Retail Support Squad",
+            "dimension": "Squad",
+            "impact": -0.01876596986126477,
+            "site_detail": null
+          },
+          {
+            "label": "l. 24 - 36 months",
+            "dimension": "Tenure group",
+            "impact": -0.013822608769330167,
+            "site_detail": null
+          }
+        ],
+        "limitations": [
+          "Records are present on all seven reporting dates; source delivery completeness is not independently certified.",
+          "Ticket volume is distinct eligible loaded Ticket IDs, not certified all-contact volume. KPI coverage remains the established valid survey-linked population. AHT uses the available Chat Average Handle Time field; no phone/async handling-time measure is inferred.",
+          "QA display threshold 75.00% is contextual, not an operational target. AHT movement has semantic direction only when an applicable configured target explicitly supplies it."
+        ],
+        "executive_insight": {
+          "lob": "RETAIL",
+          "source": "Whitepaper monthly matched-period evidence",
+          "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "projection_scope": "current-month EOM only",
+          "periods": {
+            "start": "2026-11-01",
+            "end": "2026-11-21",
+            "previous_start": "2026-10-01",
+            "previous_end": "2026-10-21",
+            "cutoff": "2026-11-21"
+          },
+          "matched_days": 21,
+          "common_day_cap": false,
+          "metric": "Smiley",
+          "severity": "watch",
+          "headline": "Prioritize closing the Merchant Smiley gap.",
+          "support": "Nov 1\u201321 Merchant Smiley 83.66% vs 84.55% target (-0.89 pp). Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+          "callout": "Nov 1\u201321 Merchant Smiley 83.66% vs 84.55% target (-0.89 pp).",
+          "executive_narrative": "Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+          "recommendation": "Prioritize closing the Merchant Smiley gap.",
+          "movement": "Up 5.07 pp from the previous month.",
+          "driver": null,
+          "site_layer": "",
+          "implication": "",
+          "outlook": "Nov EOM: 82.92%, 1.63 pp below goal.",
+          "overview_summary": "Nov 1\u201321 Merchant Smiley 83.66% (-0.89 pp vs goal). Up 5.07 pp from the previous month. Prioritize closing the Merchant Smiley gap. Nov EOM: 82.92%, 1.63 pp below goal.",
+          "overview_performance": "Nov 1\u201321 Merchant Smiley 83.66% (-0.89 pp vs goal). Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+          "target_gap": -0.008940860215053803,
+          "priority": [
+            4,
+            1,
+            1,
+            0,
+            0.008940860215053803,
+            true
+          ],
+          "persistent_miss": true,
+          "persistence_basis": "Both comparison periods missed their applicable targets.",
+          "forecast_available": true,
+          "ranked_metrics": [
+            "Smiley"
+          ],
+          "current_value": 0.8365591397849462,
+          "previous_value": 0.7858546168958742,
+          "change_from_previous_month": 0.05070452288907201,
+          "driver_evidence": null,
+          "site_evidence": null
+        },
+        "monthly_banner_evidence": {
+          "available": true,
+          "windows": {
+            "available": true,
+            "month": "2026-11-01T00:00:00",
+            "cutoff": "2026-11-21T00:00:00",
+            "start": "2026-11-01T00:00:00",
+            "end": "2026-11-21T00:00:00",
+            "previous_start": "2026-10-01T00:00:00",
+            "previous_end": "2026-10-21T00:00:00",
+            "matched_days": 21,
+            "common_day_cap": false,
+            "label": "Nov 1\u201321",
+            "basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff."
+          },
+          "reason": "",
+          "source": "Whitepaper",
+          "comparison_basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "missing_current_dates": [],
+          "missing_previous_dates": [],
+          "metrics": [
+            {
+              "kpi": "Smiley",
+              "value": 0.8365591397849462,
+              "n": 465.0,
+              "numerator": 389.0,
+              "denominator": 465.0,
+              "previous_value": 0.7858546168958742,
+              "previous_n": 509.0,
+              "previous_numerator": 400.0,
+              "previous_denominator": 509.0,
+              "target": 0.8455,
+              "direction": "higher",
+              "target_basis": "Existing undated LOB configuration",
+              "previous_target": 0.8455,
+              "previous_direction": "higher",
+              "previous_target_basis": "Existing undated LOB configuration"
+            },
+            {
+              "kpi": "AHT",
+              "value": 30.785714285714285,
+              "n": 140.0,
+              "numerator": 4310.0,
+              "denominator": 140.0,
+              "previous_value": 32.0,
+              "previous_n": 169.0,
+              "previous_numerator": 5408.0,
+              "previous_denominator": 169.0,
+              "target": null,
+              "direction": null,
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": null,
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "AFTR",
+              "value": 0.8789237668161435,
+              "n": 446.0,
+              "numerator": 392.0,
+              "denominator": 446.0,
+              "previous_value": 0.8559837728194726,
+              "previous_n": 493.0,
+              "previous_numerator": 422.0,
+              "previous_denominator": 493.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "QA",
+              "value": 0.9377682403433476,
+              "n": 233.0,
+              "numerator": 218.5,
+              "denominator": 233.0,
+              "previous_value": 0.9287484510532839,
+              "previous_n": 269.0,
+              "previous_numerator": 249.83333333333334,
+              "previous_denominator": 269.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            }
+          ],
+          "drivers": [],
+          "site_details": {},
+          "minimum_reportable_n": 30
+        }
+      },
+      {
+        "lob": "PREMIUM",
+        "current": 0.8055073182833044,
+        "baseline": 0.7788291787303157,
+        "history": [
+          {
+            "week": "2026-08-30",
+            "actual": 0.7777017783857729,
+            "target": 0.8571,
+            "responses": 2924.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-06",
+            "actual": 0.7622222222222222,
+            "target": 0.8571,
+            "responses": 3150.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-13",
+            "actual": 0.7552169592580324,
+            "target": 0.8571,
+            "responses": 3019.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-20",
+            "actual": 0.758744394618834,
+            "target": 0.8571,
+            "responses": 3345.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-09-27",
+            "actual": 0.7682795698924731,
+            "target": 0.8571,
+            "responses": 3720.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-04",
+            "actual": 0.7785200411099692,
+            "target": 0.8571,
+            "responses": 3892.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-11",
+            "actual": 0.765916243040426,
+            "target": 0.8571,
+            "responses": 4131.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-18",
+            "actual": 0.7872507869884575,
+            "target": 0.8571,
+            "responses": 3812.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-10-25",
+            "actual": 0.7907335907335907,
+            "target": 0.8571,
+            "responses": 3885.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-01",
+            "actual": 0.7982393528432072,
+            "target": 0.8571,
+            "responses": 4203.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-08",
+            "actual": 0.8176836861768368,
+            "target": 0.8571,
+            "responses": 4015.0,
+            "source_days": 7
+          },
+          {
+            "week": "2026-11-15",
+            "actual": 0.8055073182833044,
+            "target": 0.8571,
+            "responses": 4031.0,
+            "source_days": 7
+          }
+        ],
+        "forecasts": [
+          {
+            "month": "2026-11-01",
+            "available": true,
+            "value": 0.8026304234384031,
+            "target": 0.8571,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 9,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.5,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.8026304234384031,
+              "candidate_blend_point_estimate": 0.80573534215784,
+              "backtest_months": 3,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 1.7119346812480025,
+              "backtest_trend_mae_pp": 1.6092916289440578,
+              "backtest_baseline_bias_pp": 1.5046505510038461,
+              "backtest_trend_bias_pp": 1.4244692950999063,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-08-01",
+                  "baseline_error_pp": 4.504,
+                  "trend_error_pp": 4.425
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": 0.321,
+                  "trend_error_pp": 0.126
+                },
+                {
+                  "origin": "2026-10-24",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": -0.311,
+                  "trend_error_pp": -0.277
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          },
+          {
+            "month": "2026-12-01",
+            "available": true,
+            "value": 0.7858241920032167,
+            "target": 0.8571,
+            "lower": null,
+            "upper": null,
+            "range_available": false,
+            "method": "Full-history weekday forecast with a backtested recent trend",
+            "usable_weeks": 22,
+            "reason": "",
+            "validation": {
+              "type": "Full-history weekday forecast with a backtested recent trend",
+              "recent_lookback_days": 56,
+              "observed_reference_days": 57,
+              "all_history_rated_days": 157,
+              "history_first_date": "2026-06-18",
+              "history_source": "GAU cutoff-eligible rated source for this LOB",
+              "future_days": 31,
+              "forecast_on_forecast": false,
+              "forecast_on_forecast_basis": "Both fits use observed counts; the recent model carries forward weekly estimates.",
+              "forecast_basis": "All available eligible raw history, pooled by reporting weekday",
+              "missing_raw_actual_dates": [],
+              "usable_weeks": 22,
+              "forecast_selection": "Too few comparable closed months; full-history forecast used",
+              "selected_recent_weight": 0.0,
+              "candidate_recent_weight": 0.25,
+              "recent_trend_basis": "Recency- and volume-weighted weekday-adjusted trend from 2026-09-26 to 2026-11-21. Weekly damping is 0.80. Weekly close uses 70% model and 30% preceding estimate, starting with the latest completed week and retaining actual rated counts.",
+              "historical_point_estimate": 0.7858241920032167,
+              "candidate_blend_point_estimate": 0.7961331503822449,
+              "backtest_months": 2,
+              "minimum_backtest_months": 4,
+              "backtest_baseline_mae_pp": 3.8167807053764378,
+              "backtest_trend_mae_pp": 3.7913360570456742,
+              "backtest_baseline_bias_pp": 3.8167807053764378,
+              "backtest_trend_bias_pp": 2.9976823791717013,
+              "backtest_basis": "Retrospective replay with known rating availability checked at each cutoff",
+              "backtest_runs": [
+                {
+                  "origin": "2026-08-22",
+                  "month": "2026-09-01",
+                  "baseline_error_pp": 6.988,
+                  "trend_error_pp": 6.789
+                },
+                {
+                  "origin": "2026-09-19",
+                  "month": "2026-10-01",
+                  "baseline_error_pp": 0.646,
+                  "trend_error_pp": -0.794
+                }
+              ],
+              "range_status": "Too few comparable closed months for a scenario range"
+            }
+          }
+        ],
+        "drivers": [
+          {
+            "label": "Shop",
+            "dimension": "Contact taxonomy",
+            "impact": -0.00291262203255797,
+            "site_detail": null
+          },
+          {
+            "label": "PHX / ELD Squad",
+            "dimension": "Squad",
+            "impact": -0.0014614955544242185,
+            "site_detail": null
+          },
+          {
+            "label": "Legal and Compliance",
+            "dimension": "Contact taxonomy",
+            "impact": -0.0005104727215672212,
+            "site_detail": null
+          }
+        ],
+        "limitations": [
+          "Records are present on all seven reporting dates; source delivery completeness is not independently certified.",
+          "Ticket volume is distinct eligible loaded Ticket IDs, not certified all-contact volume. KPI coverage remains the established valid survey-linked population. AHT uses the available Chat Average Handle Time field; no phone/async handling-time measure is inferred.",
+          "QA display threshold 75.00% is contextual, not an operational target. AHT movement has semantic direction only when an applicable configured target explicitly supplies it."
+        ],
+        "executive_insight": {
+          "lob": "PREMIUM",
+          "source": "Whitepaper monthly matched-period evidence",
+          "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "projection_scope": "current-month EOM only",
+          "periods": {
+            "start": "2026-11-01",
+            "end": "2026-11-21",
+            "previous_start": "2026-10-01",
+            "previous_end": "2026-10-21",
+            "cutoff": "2026-11-21"
+          },
+          "matched_days": 21,
+          "common_day_cap": false,
+          "metric": "Smiley",
+          "severity": "major",
+          "headline": "Focus recovery on d. 3 - 4 months.",
+          "support": "Nov 1\u201321 Merchant Smiley 80.70% vs 85.71% target (-5.01 pp). Up 3.23 pp from the previous month. d. 3 - 4 months contributed -0.08 pp to the change from the previous month. Nov EOM: 80.26%, 5.45 pp below goal.",
+          "callout": "Nov 1\u201321 Merchant Smiley 80.70% vs 85.71% target (-5.01 pp).",
+          "executive_narrative": "Up 3.23 pp from the previous month. d. 3 - 4 months contributed -0.08 pp to the change from the previous month. Nov EOM: 80.26%, 5.45 pp below goal.",
+          "recommendation": "Focus recovery on d. 3 - 4 months.",
+          "movement": "Up 3.23 pp from the previous month.",
+          "driver": "d. 3 - 4 months contributed -0.08 pp to the change from the previous month.",
+          "site_layer": "",
+          "implication": "",
+          "outlook": "Nov EOM: 80.26%, 5.45 pp below goal.",
+          "overview_summary": "Nov 1\u201321 Merchant Smiley 80.70% (-5.01 pp vs goal). Up 3.23 pp from the previous month. d. 3 - 4 months -0.08 pp. Focus recovery on d. 3 - 4 months. Nov EOM: 80.26%, 5.45 pp below goal.",
+          "overview_performance": "Nov 1\u201321 Merchant Smiley 80.70% (-5.01 pp vs goal). Up 3.23 pp from the previous month. d. 3 - 4 months -0.08 pp. Nov EOM: 80.26%, 5.45 pp below goal.",
+          "target_gap": -0.05009534655890269,
+          "priority": [
+            6,
+            1,
+            1,
+            0,
+            0.05009534655890269,
+            true
+          ],
+          "persistent_miss": true,
+          "persistence_basis": "Both comparison periods missed their applicable targets.",
+          "forecast_available": true,
+          "ranked_metrics": [
+            "Smiley"
+          ],
+          "current_value": 0.8070046534410973,
+          "previous_value": 0.7746657640886783,
+          "change_from_previous_month": 0.03233888935241902,
+          "driver_evidence": {
+            "label": "d. 3 - 4 months",
+            "dimension": "Tenure group",
+            "kpi": "Smiley",
+            "impact": -0.0007798247759150747,
+            "n": 247.0,
+            "details": {
+              "Tenure Group": "d. 3 - 4 months",
+              "n": 397,
+              "p": 308,
+              "nb": 247.0,
+              "pb": 201.0,
+              "rate": 0.7758186397984886,
+              "baseline_rate": 0.8137651821862348,
+              "ns": 89,
+              "share": 0.032410809045636375,
+              "baseline_share": 0.02090032154340836,
+              "delta": -0.037946542387746196,
+              "contribution": -0.0007798247759150747,
+              "within_effect": -0.0010114865383179295,
+              "mix_effect": 0.00023166176240285434,
+              "comparable": true
+            },
+            "basis": "Selected current comparison period versus its preceding period."
+          },
+          "site_evidence": null
+        },
+        "monthly_banner_evidence": {
+          "available": true,
+          "windows": {
+            "available": true,
+            "month": "2026-11-01T00:00:00",
+            "cutoff": "2026-11-21T00:00:00",
+            "start": "2026-11-01T00:00:00",
+            "end": "2026-11-21T00:00:00",
+            "previous_start": "2026-10-01T00:00:00",
+            "previous_end": "2026-10-21T00:00:00",
+            "matched_days": 21,
+            "common_day_cap": false,
+            "label": "Nov 1\u201321",
+            "basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff."
+          },
+          "reason": "",
+          "source": "Whitepaper",
+          "comparison_basis": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+          "missing_current_dates": [],
+          "missing_previous_dates": [],
+          "metrics": [
+            {
+              "kpi": "Smiley",
+              "value": 0.8070046534410973,
+              "n": 12249.0,
+              "numerator": 9885.0,
+              "denominator": 12249.0,
+              "previous_value": 0.7746657640886783,
+              "previous_n": 11818.0,
+              "previous_numerator": 9155.0,
+              "previous_denominator": 11818.0,
+              "target": 0.8571,
+              "direction": "higher",
+              "target_basis": "Existing undated LOB configuration",
+              "previous_target": 0.8571,
+              "previous_direction": "higher",
+              "previous_target_basis": "Existing undated LOB configuration"
+            },
+            {
+              "kpi": "AHT",
+              "value": 35.128506486306684,
+              "n": 9019.0,
+              "numerator": 316824.0,
+              "denominator": 9019.0,
+              "previous_value": 36.72105503539621,
+              "previous_n": 8758.0,
+              "previous_numerator": 321603.0,
+              "previous_denominator": 8758.0,
+              "target": null,
+              "direction": null,
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": null,
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "AFTR",
+              "value": 0.8222391760442495,
+              "n": 10486.0,
+              "numerator": 8622.0,
+              "denominator": 10486.0,
+              "previous_value": 0.8091306459446334,
+              "previous_n": 10295.0,
+              "previous_numerator": 8330.0,
+              "previous_denominator": 10295.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            },
+            {
+              "kpi": "QA",
+              "value": 0.9525135851014445,
+              "n": 12207.0,
+              "numerator": 11627.333333333332,
+              "denominator": 12207.0,
+              "previous_value": 0.9455073696145125,
+              "previous_n": 11760.0,
+              "previous_numerator": 11119.166666666668,
+              "previous_denominator": 11760.0,
+              "target": null,
+              "direction": "higher",
+              "target_basis": "No operational target configured",
+              "previous_target": null,
+              "previous_direction": "higher",
+              "previous_target_basis": "No operational target configured"
+            }
+          ],
+          "drivers": [
+            {
+              "label": "d. 3 - 4 months",
+              "dimension": "Tenure group",
+              "kpi": "Smiley",
+              "impact": -0.0007798247759150747,
+              "n": 247.0,
+              "details": {
+                "Tenure Group": "d. 3 - 4 months",
+                "n": 397,
+                "p": 308,
+                "nb": 247.0,
+                "pb": 201.0,
+                "rate": 0.7758186397984886,
+                "baseline_rate": 0.8137651821862348,
+                "ns": 89,
+                "share": 0.032410809045636375,
+                "baseline_share": 0.02090032154340836,
+                "delta": -0.037946542387746196,
+                "contribution": -0.0007798247759150747,
+                "within_effect": -0.0010114865383179295,
+                "mix_effect": 0.00023166176240285434,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "Buyers",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.0006839760848415145,
+              "n": 46.0,
+              "details": {
+                "Level One": "Buyers",
+                "n": 61,
+                "p": 32,
+                "nb": 46,
+                "pb": 29,
+                "rate": 0.5245901639344263,
+                "baseline_rate": 0.6304347826086957,
+                "ns": 29,
+                "share": 0.00497999836721365,
+                "baseline_share": 0.0038923675748857673,
+                "delta": -0.10584461867426942,
+                "contribution": -0.0006839760848415145,
+                "within_effect": -0.000469546094940044,
+                "mix_effect": -0.00021442998990147083,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            },
+            {
+              "label": "Legal and Compliance",
+              "dimension": "Contact taxonomy",
+              "kpi": "Smiley",
+              "impact": -0.00047209950089971203,
+              "n": 189.0,
+              "details": {
+                "Level One": "Legal and Compliance",
+                "n": 230,
+                "p": 173,
+                "nb": 189,
+                "pb": 147,
+                "rate": 0.7521739130434782,
+                "baseline_rate": 0.7777777777777778,
+                "ns": 57,
+                "share": 0.01877704302392032,
+                "baseline_share": 0.01599255373159587,
+                "delta": -0.025603864734299542,
+                "contribution": -0.00047209950089971203,
+                "within_effect": -0.00044511802609718836,
+                "mix_effect": -2.6981474802525606e-05,
+                "comparable": true
+              },
+              "basis": "Selected current comparison period versus its preceding period."
+            }
+          ],
+          "site_details": {},
+          "minimum_reportable_n": 30
+        }
+      }
+    ]
+  },
+  "executive_insights": {
+    "CORE": {
+      "lob": "CORE",
+      "source": "Whitepaper monthly matched-period evidence",
+      "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+      "projection_scope": "current-month EOM only",
+      "periods": {
+        "start": "2026-11-01",
+        "end": "2026-11-21",
+        "previous_start": "2026-10-01",
+        "previous_end": "2026-10-21",
+        "cutoff": "2026-11-21"
+      },
+      "matched_days": 21,
+      "common_day_cap": false,
+      "metric": "Smiley",
+      "severity": "material",
+      "headline": "Focus recovery on Shopify Tax Services.",
+      "support": "Nov 1\u201321 Merchant Smiley 78.24% vs 80.00% target (-1.76 pp). Up 3.28 pp from the previous month. Shopify Tax Services contributed -0.07 pp to the change from the previous month. Nov EOM: 77.56%, 2.44 pp below goal.",
+      "callout": "Nov 1\u201321 Merchant Smiley 78.24% vs 80.00% target (-1.76 pp).",
+      "executive_narrative": "Up 3.28 pp from the previous month. Shopify Tax Services contributed -0.07 pp to the change from the previous month. Nov EOM: 77.56%, 2.44 pp below goal.",
+      "recommendation": "Focus recovery on Shopify Tax Services.",
+      "movement": "Up 3.28 pp from the previous month.",
+      "driver": "Shopify Tax Services contributed -0.07 pp to the change from the previous month.",
+      "site_layer": "",
+      "implication": "",
+      "outlook": "Nov EOM: 77.56%, 2.44 pp below goal.",
+      "overview_summary": "Nov 1\u201321 Merchant Smiley 78.24% (-1.76 pp vs goal). Up 3.28 pp from the previous month. Shopify Tax Services -0.07 pp. Focus recovery on Shopify Tax Services. Nov EOM: 77.56%, 2.44 pp below goal.",
+      "overview_performance": "Nov 1\u201321 Merchant Smiley 78.24% (-1.76 pp vs goal). Up 3.28 pp from the previous month. Shopify Tax Services -0.07 pp. Nov EOM: 77.56%, 2.44 pp below goal.",
+      "target_gap": -0.01755857680069428,
+      "priority": [
+        5,
+        1,
+        1,
+        0,
+        0.01755857680069428,
+        true
+      ],
+      "persistent_miss": true,
+      "persistence_basis": "Both comparison periods missed their applicable targets.",
+      "forecast_available": true,
+      "ranked_metrics": [
+        "Smiley"
+      ],
+      "current_value": 0.7824414231993058,
+      "previous_value": 0.7495943888375808,
+      "change_from_previous_month": 0.03284703436172498,
+      "driver_evidence": {
+        "label": "Shopify Tax Services",
+        "dimension": "Contact taxonomy",
+        "kpi": "Smiley",
+        "impact": -0.0006677594264940669,
+        "n": 365.0,
+        "details": {
+          "Level One": "Shopify Tax Services",
+          "n": 365,
+          "p": 280,
+          "nb": 412,
+          "pb": 343,
+          "rate": 0.7671232876712328,
+          "baseline_rate": 0.8325242718446602,
+          "ns": 85,
+          "share": 0.010558287532542667,
+          "baseline_share": 0.010283803010258842,
+          "delta": -0.06540098417342732,
+          "contribution": -0.0006677594264940669,
+          "within_effect": -0.0006815466168654504,
+          "mix_effect": 1.3787190371384117e-05,
+          "comparable": true
+        },
+        "basis": "Selected current comparison period versus its preceding period."
+      },
+      "site_evidence": null
+    },
+    "PLUS": {
+      "lob": "PLUS",
+      "source": "Whitepaper monthly matched-period evidence",
+      "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+      "projection_scope": "current-month EOM only",
+      "periods": {
+        "start": "2026-11-01",
+        "end": "2026-11-21",
+        "previous_start": "2026-10-01",
+        "previous_end": "2026-10-21",
+        "cutoff": "2026-11-21"
+      },
+      "matched_days": 21,
+      "common_day_cap": false,
+      "metric": "Smiley",
+      "severity": "major",
+      "headline": "Focus recovery on Shop.",
+      "support": "Nov 1\u201321 Merchant Smiley 83.45% vs 86.26% target (-2.81 pp). Up 1.66 pp from the previous month. Shop contributed -0.20 pp to the change from the previous month. Nov EOM: 82.94%, 3.32 pp below goal.",
+      "callout": "Nov 1\u201321 Merchant Smiley 83.45% vs 86.26% target (-2.81 pp).",
+      "executive_narrative": "Up 1.66 pp from the previous month. Shop contributed -0.20 pp to the change from the previous month. Nov EOM: 82.94%, 3.32 pp below goal.",
+      "recommendation": "Focus recovery on Shop.",
+      "movement": "Up 1.66 pp from the previous month.",
+      "driver": "Shop contributed -0.20 pp to the change from the previous month.",
+      "site_layer": "",
+      "implication": "",
+      "outlook": "Nov EOM: 82.94%, 3.32 pp below goal.",
+      "overview_summary": "Nov 1\u201321 Merchant Smiley 83.45% (-2.81 pp vs goal). Up 1.66 pp from the previous month. Shop -0.20 pp. Focus recovery on Shop. Nov EOM: 82.94%, 3.32 pp below goal.",
+      "overview_performance": "Nov 1\u201321 Merchant Smiley 83.45% (-2.81 pp vs goal). Up 1.66 pp from the previous month. Shop -0.20 pp. Nov EOM: 82.94%, 3.32 pp below goal.",
+      "target_gap": -0.02809618320610685,
+      "priority": [
+        6,
+        1,
+        1,
+        0,
+        0.02809618320610685,
+        true
+      ],
+      "persistent_miss": true,
+      "persistence_basis": "Both comparison periods missed their applicable targets.",
+      "forecast_available": true,
+      "ranked_metrics": [
+        "Smiley"
+      ],
+      "current_value": 0.8345038167938932,
+      "previous_value": 0.8179035960214232,
+      "change_from_previous_month": 0.01660022077247003,
+      "driver_evidence": {
+        "label": "Shop",
+        "dimension": "Contact taxonomy",
+        "kpi": "Smiley",
+        "impact": -0.0019588540566747373,
+        "n": 72.0,
+        "details": {
+          "Level One": "Shop",
+          "n": 72.0,
+          "p": 55.0,
+          "nb": 88.0,
+          "pb": 75.0,
+          "rate": 0.7638888888888888,
+          "baseline_rate": 0.8522727272727273,
+          "ns": 17.0,
+          "share": 0.02198473282442748,
+          "baseline_share": 0.022443254271869422,
+          "delta": -0.08838383838383845,
+          "contribution": -0.0019588540566747373,
+          "within_effect": -0.0019633580156191827,
+          "mix_effect": 4.503958944446073e-06,
+          "comparable": true
+        },
+        "basis": "Selected current comparison period versus its preceding period."
+      },
+      "site_evidence": null
+    },
+    "RETAIL": {
+      "lob": "RETAIL",
+      "source": "Whitepaper monthly matched-period evidence",
+      "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+      "projection_scope": "current-month EOM only",
+      "periods": {
+        "start": "2026-11-01",
+        "end": "2026-11-21",
+        "previous_start": "2026-10-01",
+        "previous_end": "2026-10-21",
+        "cutoff": "2026-11-21"
+      },
+      "matched_days": 21,
+      "common_day_cap": false,
+      "metric": "Smiley",
+      "severity": "watch",
+      "headline": "Prioritize closing the Merchant Smiley gap.",
+      "support": "Nov 1\u201321 Merchant Smiley 83.66% vs 84.55% target (-0.89 pp). Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+      "callout": "Nov 1\u201321 Merchant Smiley 83.66% vs 84.55% target (-0.89 pp).",
+      "executive_narrative": "Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+      "recommendation": "Prioritize closing the Merchant Smiley gap.",
+      "movement": "Up 5.07 pp from the previous month.",
+      "driver": null,
+      "site_layer": "",
+      "implication": "",
+      "outlook": "Nov EOM: 82.92%, 1.63 pp below goal.",
+      "overview_summary": "Nov 1\u201321 Merchant Smiley 83.66% (-0.89 pp vs goal). Up 5.07 pp from the previous month. Prioritize closing the Merchant Smiley gap. Nov EOM: 82.92%, 1.63 pp below goal.",
+      "overview_performance": "Nov 1\u201321 Merchant Smiley 83.66% (-0.89 pp vs goal). Up 5.07 pp from the previous month. Nov EOM: 82.92%, 1.63 pp below goal.",
+      "target_gap": -0.008940860215053803,
+      "priority": [
+        4,
+        1,
+        1,
+        0,
+        0.008940860215053803,
+        true
+      ],
+      "persistent_miss": true,
+      "persistence_basis": "Both comparison periods missed their applicable targets.",
+      "forecast_available": true,
+      "ranked_metrics": [
+        "Smiley"
+      ],
+      "current_value": 0.8365591397849462,
+      "previous_value": 0.7858546168958742,
+      "change_from_previous_month": 0.05070452288907201,
+      "driver_evidence": null,
+      "site_evidence": null
+    },
+    "PREMIUM": {
+      "lob": "PREMIUM",
+      "source": "Whitepaper monthly matched-period evidence",
+      "comparison_scope": "Same elapsed calendar dates in current and previous month, at the established reporting cutoff.",
+      "projection_scope": "current-month EOM only",
+      "periods": {
+        "start": "2026-11-01",
+        "end": "2026-11-21",
+        "previous_start": "2026-10-01",
+        "previous_end": "2026-10-21",
+        "cutoff": "2026-11-21"
+      },
+      "matched_days": 21,
+      "common_day_cap": false,
+      "metric": "Smiley",
+      "severity": "major",
+      "headline": "Focus recovery on d. 3 - 4 months.",
+      "support": "Nov 1\u201321 Merchant Smiley 80.70% vs 85.71% target (-5.01 pp). Up 3.23 pp from the previous month. d. 3 - 4 months contributed -0.08 pp to the change from the previous month. Nov EOM: 80.26%, 5.45 pp below goal.",
+      "callout": "Nov 1\u201321 Merchant Smiley 80.70% vs 85.71% target (-5.01 pp).",
+      "executive_narrative": "Up 3.23 pp from the previous month. d. 3 - 4 months contributed -0.08 pp to the change from the previous month. Nov EOM: 80.26%, 5.45 pp below goal.",
+      "recommendation": "Focus recovery on d. 3 - 4 months.",
+      "movement": "Up 3.23 pp from the previous month.",
+      "driver": "d. 3 - 4 months contributed -0.08 pp to the change from the previous month.",
+      "site_layer": "",
+      "implication": "",
+      "outlook": "Nov EOM: 80.26%, 5.45 pp below goal.",
+      "overview_summary": "Nov 1\u201321 Merchant Smiley 80.70% (-5.01 pp vs goal). Up 3.23 pp from the previous month. d. 3 - 4 months -0.08 pp. Focus recovery on d. 3 - 4 months. Nov EOM: 80.26%, 5.45 pp below goal.",
+      "overview_performance": "Nov 1\u201321 Merchant Smiley 80.70% (-5.01 pp vs goal). Up 3.23 pp from the previous month. d. 3 - 4 months -0.08 pp. Nov EOM: 80.26%, 5.45 pp below goal.",
+      "target_gap": -0.05009534655890269,
+      "priority": [
+        6,
+        1,
+        1,
+        0,
+        0.05009534655890269,
+        true
+      ],
+      "persistent_miss": true,
+      "persistence_basis": "Both comparison periods missed their applicable targets.",
+      "forecast_available": true,
+      "ranked_metrics": [
+        "Smiley"
+      ],
+      "current_value": 0.8070046534410973,
+      "previous_value": 0.7746657640886783,
+      "change_from_previous_month": 0.03233888935241902,
+      "driver_evidence": {
+        "label": "d. 3 - 4 months",
+        "dimension": "Tenure group",
+        "kpi": "Smiley",
+        "impact": -0.0007798247759150747,
+        "n": 247.0,
+        "details": {
+          "Tenure Group": "d. 3 - 4 months",
+          "n": 397,
+          "p": 308,
+          "nb": 247.0,
+          "pb": 201.0,
+          "rate": 0.7758186397984886,
+          "baseline_rate": 0.8137651821862348,
+          "ns": 89,
+          "share": 0.032410809045636375,
+          "baseline_share": 0.02090032154340836,
+          "delta": -0.037946542387746196,
+          "contribution": -0.0007798247759150747,
+          "within_effect": -0.0010114865383179295,
+          "mix_effect": 0.00023166176240285434,
+          "comparable": true
+        },
+        "basis": "Selected current comparison period versus its preceding period."
+      },
+      "site_evidence": null
+    }
+  },
+  "liveassist": {
+    "kpi_count": 8,
+    "trajectory": "Takeover Smiley historical actuals and current target",
+    "source_column": "D",
+    "goal_cell": "D3",
+    "date_column": "C",
+    "source_range": "C:K",
+    "trend_tick_format": "WBMMDD",
+    "forecasting": false,
+    "quantified_drivers": false
+  }
+}
